@@ -1,0 +1,36 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA #### .git 폴더를 삭제해서 Git 저장소 상태를 완전히 초기화
+                     #rm -rf .git
+.idea
+*.iws
+*.iml
+*.ipr
+.yml
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+src/main/resources/data/BOOK_DB_202112.csv
