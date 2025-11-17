@@ -14,6 +14,7 @@ import jakarta.persistence.ManyToOne;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,6 +24,18 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Book extends BaseEntity{
+
+  @Builder
+  public Book(Long longIsbn, String title, String description, String imageUrl, Publisher publisher,
+      LocalDate publishedDate,Long priceStandard, Long priceSales) {
+    this.longIsbn = longIsbn;
+    this.title = title;
+    this.description = description;
+    this.imageUrl = imageUrl;
+    this.publisher = publisher;
+    this.publishedDate = publishedDate;
+    this.priceSales = priceSales;
+  }
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
