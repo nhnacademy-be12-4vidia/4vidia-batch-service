@@ -32,12 +32,12 @@ public class DataParsingService {
   private final DataParserResolver dataParserResolver;
 
 
-  @PostConstruct
+//  @PostConstruct
   public void init() {
     try {
       loadData("classpath:data/*.*");
     } catch (IOException e) {
-      log.error("데[이터 로드 실패", e);
+      log.error("데이터 로드 실패", e);
     }
 
   }
