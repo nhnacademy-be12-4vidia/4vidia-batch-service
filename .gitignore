@@ -13,13 +13,11 @@ target/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA #### .git 폴더를 삭제해서 Git 저장소 상태를 완전히 초기화
-                     #rm -rf .git
 .idea
 *.iws
 *.iml
 *.ipr
-.yml
+*.yml
 
 ### NetBeans ###
 /nbproject/private/
