@@ -7,4 +7,5 @@ public interface PublisherRepository extends JpaRepository<Publisher, Long> {
 
   Boolean existsByName(String name);
 
+  Publisher findByName(String name);
 }
