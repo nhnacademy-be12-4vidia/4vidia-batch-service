@@ -1,4 +1,4 @@
-package init.data.DataParser.DTO;
+package init.data.DataParser.DTO.Naver;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
