@@ -43,7 +43,7 @@ public class CsvBookParser implements DataParser {
                     continue;
                 }
                 ParsingDto dto = new ParsingDto();
-                dto.setLongIsbn(Long.valueOf(data[1]));
+                dto.setIsbn(data[1]);
                 dto.setTitle(data[3]);
                 String authorField = data[4];
                 dto.setAuthors(parseAuthors(authorField));
@@ -51,7 +51,7 @@ public class CsvBookParser implements DataParser {
                 String stringPrice = data[8];
                 if (StringUtils.hasText(stringPrice)) {
                     Double price = Double.parseDouble(stringPrice);
-                    dto.setPriceStandard(price.longValue());
+                    dto.setPriceStandard(price.intValue());
                 } else {
                     dto.setPriceStandard(null);
                 }
