@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class GoogleApiResponseDto {
 
-  @JsonProperty("items")
-  private List<GoogleBookItemDto> items;
+    @JsonProperty("items")
+    private List<GoogleBookItemDto> items;
 
 }

@@ -12,6 +12,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ImageLinksDto {
 
-  @JsonProperty("thumbnail")
-  private String thumbnail;
+    @JsonProperty("thumbnail")
+    private String thumbnail;
 }

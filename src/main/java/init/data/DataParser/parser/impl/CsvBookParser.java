@@ -18,78 +18,80 @@ import org.springframework.util.StringUtils;
 @Component
 public class CsvBookParser implements DataParser {
 
-  @Override
-  public String getFileType() {
-    return ".csv";
-  }
+    @Override
+    public String getFileType() {
+        return ".csv";
+    }
 
-  @Override
-  public List<ParsingDto> parsing(File file) throws IOException {
-    List<ParsingDto> records = new ArrayList<>();
-    CSVParser parser = new CSVParserBuilder()
-        .withSeparator(',')
-        .withQuoteChar('"')
-        .build();
-
-    try (
-        FileReader fileReader = new FileReader(file, StandardCharsets.UTF_8);
-        CSVReader csvReader = new CSVReaderBuilder(fileReader)
-            .withSkipLines(1)
-            .withCSVParser(parser)
+    @Override
+    public List<ParsingDto> parsing(File file) throws IOException {
+        List<ParsingDto> records = new ArrayList<>();
+        CSVParser parser = new CSVParserBuilder()
+            .withSeparator(',')
+            .withQuoteChar('"')
             .build();
-    ) {
-      for (String[] data : csvReader) {
-        if (data == null || data.length < 18) {
-          continue;
+
+        try (
+            FileReader fileReader = new FileReader(file, StandardCharsets.UTF_8);
+            CSVReader csvReader = new CSVReaderBuilder(fileReader)
+                .withSkipLines(1)
+                .withCSVParser(parser)
+                .build();
+        ) {
+            for (String[] data : csvReader) {
+                if (data == null || data.length < 18) {
+                    continue;
+                }
+                ParsingDto dto = new ParsingDto();
+                dto.setLongIsbn(Long.valueOf(data[1]));
+                dto.setTitle(data[3]);
+                String authorField = data[4];
+                dto.setAuthors(parseAuthors(authorField));
+                dto.setPublisher(data[5]);
+                String stringPrice = data[8];
+                if (StringUtils.hasText(stringPrice)) {
+                    Double price = Double.parseDouble(stringPrice);
+                    dto.setPriceStandard(price.longValue());
+                } else {
+                    dto.setPriceStandard(null);
+                }
+                dto.setImageUrl(data[9]);
+                dto.setDescription(data[10]);
+                dto.setPublishedDate(data[14]);
+
+                records.add(dto);
+            }
         }
-        ParsingDto dto = new ParsingDto();
-        dto.setLongIsbn(Long.valueOf(data[1]));
-        dto.setTitle(data[3]);
-        String authorField = data[4];
-        dto.setAuthors(parseAuthors(authorField));
-        dto.setPublisher(data[5]);
-        String stringPrice = data[8];
-        if (StringUtils.hasText(stringPrice)) {
-          Double price = Double.parseDouble(stringPrice);
-          dto.setPriceStandard(price.longValue());
-        } else {
-          dto.setPriceStandard(null);
+        return records;
+    }
+
+    private List<String> parseAuthors(String authorField) {
+        List<String> authorNames = new ArrayList<>();
+        if (authorField == null || authorField.isBlank()) {
+            return authorNames;
         }
-        dto.setImageUrl(data[9]);
-        dto.setDescription(data[10]);
-        dto.setPublishedDate(data[14]);
+        String[] roleGroups = authorField.split("\\), ");
 
-        records.add(dto);
-      }
-    }
-    return records;
-  }
+        for (String group : roleGroups) {
+            if (group.contains("(지은이)")) {
+                int roleStartIndex = group.lastIndexOf('(');
+                if (roleStartIndex == -1) {
+                    continue;
+                }
 
-  private List<String> parseAuthors(String authorField) {
-    List<String> authorNames = new ArrayList<>();
-    if (authorField == null || authorField.isBlank()) {
-      return authorNames;
-    }
-    String[] roleGroups = authorField.split("\\), ");
+                String namesPart = group.substring(0, roleStartIndex).trim();
 
-    for (String group : roleGroups) {
-      if (group.contains("(지은이)")) {
-        int roleStartIndex = group.lastIndexOf('(');
-        if (roleStartIndex == -1) continue;
+                String[] names = namesPart.split(",");
 
-        String namesPart = group.substring(0, roleStartIndex).trim();
-
-        String[] names = namesPart.split(",");
-
-        for (String n : names) {
-          String name = n.trim();
-          if (!name.isEmpty()) {
-            authorNames.add(name);
-          }
+                for (String n : names) {
+                    String name = n.trim();
+                    if (!name.isEmpty()) {
+                        authorNames.add(name);
+                    }
+                }
+            }
         }
-      }
+        return authorNames;
     }
-    return authorNames;
-  }
 
 }

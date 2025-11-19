@@ -12,9 +12,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class IndustryIdentifierDto {
 
-  @JsonProperty("type")
-  private String type;
+    @JsonProperty("type")
+    private String type;
 
-  @JsonProperty("identifier")
-  private String identifier;
+    @JsonProperty("identifier")
+    private String identifier;
 }

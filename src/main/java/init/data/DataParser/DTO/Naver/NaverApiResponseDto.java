@@ -12,9 +12,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class NaverApiResponseDto {
 
-  private int total;
-  private int start;
-  private int display;
-  private List<NaverParsingDto> items;
+    private int total;
+    private int start;
+    private int display;
+    private List<NaverParsingDto> items;
 
 }

@@ -5,10 +5,10 @@ import init.data.DataParser.entity.Book;
 
 public interface BookService {
 
-  Book create(ParsingDto dto);
+    Book create(ParsingDto dto);
 
-  boolean exist(Long isbn);
+    boolean exist(Long isbn);
 
-  Book getBook(Long isbn);
+    Book getBook(Long isbn);
 
 }

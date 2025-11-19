@@ -5,8 +5,8 @@ import init.data.DataParser.entity.Publisher;
 
 public interface PublisherService {
 
-  Publisher save(ParsingDto dto);
+    Publisher save(ParsingDto dto);
 
-  Boolean isExists(String name);
+    Boolean isExists(String name);
 
 }

@@ -7,7 +7,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Entity
@@ -15,12 +14,12 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Publisher {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
 
-  @Column(name = "출판사명")
-  @Setter
-  String name;
+    @Column(name = "출판사명")
+    @Setter
+    String name;
 
 }

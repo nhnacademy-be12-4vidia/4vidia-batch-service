@@ -11,14 +11,14 @@ import lombok.Setter;
 @NoArgsConstructor
 public class NaverParsingDto {
 
-  private String title;
-  private String author;
-  private String price;
-  private String discount;
-  private String publisher;
-  private String pubdate;
-  private String isbn;
-  private String image;
-  private String description;
+    private String title;
+    private String author;
+    private String price;
+    private String discount;
+    private String publisher;
+    private String pubdate;
+    private String isbn;
+    private String image;
+    private String description;
 
 }

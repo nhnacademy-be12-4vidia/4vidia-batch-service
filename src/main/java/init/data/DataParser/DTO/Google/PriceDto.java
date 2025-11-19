@@ -12,6 +12,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PriceDto {
 
-  @JsonProperty("amount")
-  private Long amount;
+    @JsonProperty("amount")
+    private Long amount;
 }

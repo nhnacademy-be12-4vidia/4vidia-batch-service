@@ -12,9 +12,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class SaleInfoDto {
 
-  @JsonProperty("listPrice")
-  private PriceDto listPrice;
+    @JsonProperty("listPrice")
+    private PriceDto listPrice;
 
-  @JsonProperty("retailPrice")
-  private PriceDto retailPrice;
+    @JsonProperty("retailPrice")
+    private PriceDto retailPrice;
 }

@@ -27,91 +27,92 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class NaverApiParser {
 
-  @PostConstruct
-  void init() {
-    searchAndSaveBooks("만화");
-  }
+    private final BookRepository bookRepository;
+    private final PublisherRepository publisherRepository;
+    @Value("${naver.api.client-id}")
+    private String clientId;
+    @Value("${naver.api.client-secret}")
+    private String clientSecret;
 
-
-  private final BookRepository bookRepository;
-  private final PublisherRepository publisherRepository;
-
-  @Value("${naver.api.client-id}")
-  private String clientId;
-
-  @Value("${naver.api.client-secret}")
-  private String clientSecret;
-
-  public void searchAndSaveBooks(String keyword) {
-
-    final int display = 100;
-    final int totalPages = 5;
-
-    try {
-      log.info("------{} 관련 도서 검색 시작------", keyword);
-      log.info(clientSecret);
-
-      String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
-
-      for (int i = 0; i < totalPages; i++) {
-        int start = 1 + (i * display);
-        String apiUrl = "https://openapi.naver.com/v1/search/book.json?query=%s&display=%s&start=%s".formatted(encodedKeyword, display, start);
-
-        URL url = new URL(apiUrl);
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("GET");
-        con.setRequestProperty("X-Naver-Client-Id", clientId);
-        con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
-
-        BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-        String line;
-        StringBuffer responseJson = new StringBuffer();
-        while ((line = br.readLine()) != null) {
-          responseJson.append(line);
-        }
-        br.close();
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        NaverApiResponseDto naverApiResponseDto = objectMapper.readValue(responseJson.toString(),
-            NaverApiResponseDto.class);
-
-        for (NaverParsingDto dto : naverApiResponseDto.getItems()) {
-          String publisherName = dto.getPublisher();
-          Publisher publisher;
-          if (publisherRepository.existsByName(publisherName)) {
-            publisher = publisherRepository.findByName(publisherName);
-          } else {
-            publisher = new Publisher();
-            publisher.setName(publisherName);
-            publisherRepository.save(publisher);
-          }
-
-          Book book = Book.builder()
-              .title(dto.getTitle())
-              .priceStandard(parseLongFromString(dto.getPrice()))
-              .priceSales(parseLongFromString(dto.getDiscount()))
-              .publisher(publisher)
-              .imageUrl(dto.getImage())
-              .description(dto.getDescription())
-              .longIsbn(parseLongFromString(dto.getIsbn()))
-              .publishedDate(LocalDate.parse((StringUtils.hasText(dto.getPubdate()) ? dto.getPubdate() : "22000101"), Formatter.NAVER_DATE_FORMATTER))
-              .build();
-
-          bookRepository.save(book);
-        }
-      }
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+    @PostConstruct
+    void init() {
+        searchAndSaveBooks("만화");
     }
 
-  }
+    public void searchAndSaveBooks(String keyword) {
 
-  private Long parseLongFromString(String value) {
-    if (StringUtils.hasText(value)) {
-      return Long.parseLong(value);
-    } else {
-      return null;
+        final int display = 100;
+        final int totalPages = 5;
+
+        try {
+            log.info("------{} 관련 도서 검색 시작------", keyword);
+            log.info(clientSecret);
+
+            String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+
+            for (int i = 0; i < totalPages; i++) {
+                int start = 1 + (i * display);
+                String apiUrl = "https://openapi.naver.com/v1/search/book.json?query=%s&display=%s&start=%s".formatted(
+                    encodedKeyword, display, start);
+
+                URL url = new URL(apiUrl);
+                HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                con.setRequestMethod("GET");
+                con.setRequestProperty("X-Naver-Client-Id", clientId);
+                con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
+
+                BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                String line;
+                StringBuffer responseJson = new StringBuffer();
+                while ((line = br.readLine()) != null) {
+                    responseJson.append(line);
+                }
+                br.close();
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                NaverApiResponseDto naverApiResponseDto = objectMapper.readValue(
+                    responseJson.toString(),
+                    NaverApiResponseDto.class);
+
+                for (NaverParsingDto dto : naverApiResponseDto.getItems()) {
+                    String publisherName = dto.getPublisher();
+                    Publisher publisher;
+                    if (publisherRepository.existsByName(publisherName)) {
+                        publisher = publisherRepository.findByName(publisherName);
+                    } else {
+                        publisher = new Publisher();
+                        publisher.setName(publisherName);
+                        publisherRepository.save(publisher);
+                    }
+
+                    Book book = Book.builder()
+                        .title(dto.getTitle())
+                        .priceStandard(parseLongFromString(dto.getPrice()))
+                        .priceSales(parseLongFromString(dto.getDiscount()))
+                        .publisher(publisher)
+                        .imageUrl(dto.getImage())
+                        .description(dto.getDescription())
+                        .longIsbn(parseLongFromString(dto.getIsbn()))
+                        .publishedDate(LocalDate.parse(
+                            (StringUtils.hasText(dto.getPubdate()) ? dto.getPubdate() : "22000101"),
+                            Formatter.NAVER_DATE_FORMATTER))
+                        .build();
+
+                    bookRepository.save(book);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
-  }
+
+    private Long parseLongFromString(String value) {
+        if (StringUtils.hasText(value)) {
+            return Long.parseLong(value);
+        } else {
+            return null;
+        }
+    }
 
 }

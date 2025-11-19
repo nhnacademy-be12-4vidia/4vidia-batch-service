@@ -12,10 +12,10 @@ import lombok.Setter;
 @NoArgsConstructor
 public class GoogleBookItemDto {
 
-  @JsonProperty("volumeInfo")
-  private VolumeInfoDto volumeInfo;
+    @JsonProperty("volumeInfo")
+    private VolumeInfoDto volumeInfo;
 
-  @JsonProperty("saleInfo")
-  private SaleInfoDto saleInfo;
+    @JsonProperty("saleInfo")
+    private SaleInfoDto saleInfo;
 
 }

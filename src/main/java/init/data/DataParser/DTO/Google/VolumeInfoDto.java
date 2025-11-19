@@ -13,31 +13,31 @@ import lombok.Setter;
 @NoArgsConstructor
 public class VolumeInfoDto {
 
-  @JsonProperty("title")
-  private String title;
+    @JsonProperty("title")
+    private String title;
 
-  @JsonProperty("subtitle")
-  private String subtitle;
+    @JsonProperty("subtitle")
+    private String subtitle;
 
-  @JsonProperty("publisher")
-  private String publisher;
+    @JsonProperty("publisher")
+    private String publisher;
 
-  @JsonProperty("publishedDate")
-  private String publishedDate;
+    @JsonProperty("publishedDate")
+    private String publishedDate;
 
-  @JsonProperty("description")
-  private String description;
+    @JsonProperty("description")
+    private String description;
 
-  @JsonProperty("pageCount")
-  private Integer pageCount;
+    @JsonProperty("pageCount")
+    private Integer pageCount;
 
-  @JsonProperty("language")
-  private String language;
+    @JsonProperty("language")
+    private String language;
 
-  @JsonProperty("imageLinks")
-  private ImageLinksDto imageLinks;
+    @JsonProperty("imageLinks")
+    private ImageLinksDto imageLinks;
 
-  @JsonProperty("industryIdentifiers")
-  private List<IndustryIdentifierDto> industryIdentifiers;
+    @JsonProperty("industryIdentifiers")
+    private List<IndustryIdentifierDto> industryIdentifiers;
 
 }

@@ -10,14 +10,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ParsingDto {
 
-  Long longIsbn;
-  String title;
-  List<String> authors;
-  String publisher;
-  Long priceStandard;
-  String imageUrl;
-  String description;
-  String publishedDate;
-  Integer stock;
-  Long shortIsbn;
+    Long longIsbn;
+    String title;
+    List<String> authors;
+    String publisher;
+    Long priceStandard;
+    String imageUrl;
+    String description;
+    String publishedDate;
+    Integer stock;
+    Long shortIsbn;
 }

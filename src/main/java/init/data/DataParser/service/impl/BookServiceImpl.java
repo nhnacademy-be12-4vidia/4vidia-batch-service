@@ -13,37 +13,37 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
 
-  private final BookRepository bookRepository;
+    private final BookRepository bookRepository;
 
-  @Override
-  public Book create(ParsingDto dto) {
-    if (exist(dto.getLongIsbn())) {
-      throw new IllegalArgumentException("이미 등록된 도서입니다.");
+    @Override
+    public Book create(ParsingDto dto) {
+        if (exist(dto.getLongIsbn())) {
+            throw new IllegalArgumentException("이미 등록된 도서입니다.");
+        }
+
+        Book book = new Book();
+        book.setLongIsbn(dto.getLongIsbn());
+        book.setTitle(dto.getTitle());
+        book.setPriceStandard(dto.getPriceStandard());
+        book.setImageUrl(dto.getImageUrl());
+        book.setDescription(dto.getDescription());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate publishDate = LocalDate.parse(dto.getPublishedDate(), formatter);
+        book.setPublishedDate(publishDate);
+
+        return bookRepository.save(book);
     }
 
-    Book book = new Book();
-    book.setLongIsbn(dto.getLongIsbn());
-    book.setTitle(dto.getTitle());
-    book.setPriceStandard(dto.getPriceStandard());
-    book.setImageUrl(dto.getImageUrl());
-    book.setDescription(dto.getDescription());
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    LocalDate publishDate = LocalDate.parse(dto.getPublishedDate(), formatter);
-    book.setPublishedDate(publishDate);
-
-    return bookRepository.save(book);
-  }
-
-  @Override
-  public boolean exist(Long isbn) {
-    return bookRepository.existsByLongIsbn(isbn);
-  }
-
-  @Override
-  public Book getBook(Long isbn) {
-    if (bookRepository.existsByLongIsbn(isbn)){
-      return bookRepository.findByLongIsbn(isbn);
+    @Override
+    public boolean exist(Long isbn) {
+        return bookRepository.existsByLongIsbn(isbn);
     }
-    return null;
-  }
+
+    @Override
+    public Book getBook(Long isbn) {
+        if (bookRepository.existsByLongIsbn(isbn)) {
+            return bookRepository.findByLongIsbn(isbn);
+        }
+        return null;
+    }
 }

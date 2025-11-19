@@ -1,6 +1,5 @@
 package init.data.DataParser.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,22 +15,20 @@ import lombok.Setter;
 @AllArgsConstructor
 public class BookAuthor {
 
-  public BookAuthor(Book book, Author author) {
-    this.book = book;
-    this.author = author;
-  }
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long id;
+    @ManyToOne
+    @JoinColumn(name = "book_id")
+    @Setter
+    Book book;
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    @Setter
+    Author author;
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  Long id;
-
-  @ManyToOne
-  @JoinColumn(name = "book_id")
-  @Setter
-  Book book;
-
-  @ManyToOne
-  @JoinColumn(name = "author_id")
-  @Setter
-  Author author;
+    public BookAuthor(Book book, Author author) {
+        this.book = book;
+        this.author = author;
+    }
 }

@@ -7,8 +7,8 @@ import init.data.DataParser.entity.BookAuthor;
 
 public interface BookAuthorService {
 
-  BookAuthor save(Book book, Author author);
+    BookAuthor save(Book book, Author author);
 
-  Boolean isExists(ParsingDto dto);
+    Boolean isExists(ParsingDto dto);
 
 }

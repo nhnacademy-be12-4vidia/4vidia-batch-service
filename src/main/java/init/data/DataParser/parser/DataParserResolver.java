@@ -8,13 +8,13 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DataParserResolver {
 
-  private final List<DataParser> dataParserList;
+    private final List<DataParser> dataParserList;
 
-  public DataParser getDataParser(String fileName) {
-    return dataParserList.stream()
-        .filter(p -> p.matchFileType(fileName))
-        .findFirst()
-        .orElse(null);
-  }
+    public DataParser getDataParser(String fileName) {
+        return dataParserList.stream()
+            .filter(p -> p.matchFileType(fileName))
+            .findFirst()
+            .orElse(null);
+    }
 
 }
