@@ -11,4 +11,6 @@ public interface BookAuthorService {
 
     Boolean isExists(ParsingDto dto);
 
+    BookAuthor createByApi(BookAuthor bookAuthor);
+
 }

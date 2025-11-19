@@ -1,12 +1,17 @@
 package init.data.DataParser.repository;
 
 import init.data.DataParser.entity.Book;
+import java.util.Collection;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BookRepository extends JpaRepository<Book, Long> {
 
 
-    Book findByLongIsbn(Long longIsbn);
+    Book findByIsbn(String isbn);
 
-    boolean existsByLongIsbn(Long longIsbn);
+    boolean existsByIsbn(String isbn);
+
+    List<Book> findAllByIsbnIn(Collection<String> isbns);
+
 }

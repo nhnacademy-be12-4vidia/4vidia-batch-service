@@ -7,8 +7,11 @@ public interface BookService {
 
     Book create(ParsingDto dto);
 
-    boolean exist(Long isbn);
+    boolean exist(String isbn);
 
-    Book getBook(Long isbn);
+    Book getBook(String isbn);
+
+    Book createByApi(Book book);
+
 
 }
