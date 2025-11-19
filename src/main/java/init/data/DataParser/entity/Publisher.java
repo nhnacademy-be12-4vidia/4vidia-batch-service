@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,7 +13,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Publisher {
+public class Publisher extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,4 +23,8 @@ public class Publisher {
     @Setter
     String name;
 
+    @Builder
+    public Publisher(String name) {
+        this.name = name;
+    }
 }
