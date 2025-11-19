@@ -16,7 +16,7 @@ public class NaverParsingDto {
     private String price;
     private String discount;
     private String publisher;
-    private String pubdate;
+    private String pubDate;
     private String isbn;
     private String image;
     private String description;
