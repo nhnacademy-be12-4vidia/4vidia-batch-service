@@ -8,9 +8,11 @@ import init.data.DataParser.repository.BookAuthorRepository;
 import init.data.DataParser.service.BookAuthorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class BookAuthorServiceImpl implements BookAuthorService {
 
     private final BookAuthorRepository bookAuthorRepository;
@@ -26,5 +28,10 @@ public class BookAuthorServiceImpl implements BookAuthorService {
     @Override
     public Boolean isExists(ParsingDto dto) {
         return null;
+    }
+
+    @Override
+    public BookAuthor createByApi(BookAuthor bookAuthor) {
+        return bookAuthorRepository.save(bookAuthor);
     }
 }
