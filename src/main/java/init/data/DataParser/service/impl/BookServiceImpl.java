@@ -7,6 +7,8 @@ import init.data.DataParser.service.BookService;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,7 +60,20 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<Book> createAll(List<Book> booksToSave) {
+    public List<Book> createAll(List<Book> newBooks) {
+
+        List<String> isbns = newBooks.stream()
+            .map(Book::getIsbn)
+            .toList();
+
+        List<Book> existingBooks = bookRepository.findAllByIsbnIn(isbns);
+
+        Set<String> existingIsbnSet = existingBooks.stream().map(Book::getIsbn)
+            .collect(Collectors.toSet());
+
+        List<Book> booksToSave = newBooks.stream()
+            .filter(b -> !existingIsbnSet.contains(b.getIsbn())).toList();
+
         if (!booksToSave.isEmpty()) {
             return bookRepository.saveAll(booksToSave);
         }

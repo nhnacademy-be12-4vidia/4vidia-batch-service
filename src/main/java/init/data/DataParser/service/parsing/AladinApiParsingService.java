@@ -116,7 +116,6 @@ public class AladinApiParsingService {
             }
         }
     }
-
     @Transactional
     public void saveBatch(List<BookAndAuthors> batchList) {
         List<Book> booksOnly = batchList.stream().map(BookAndAuthors::book).toList();

@@ -14,7 +14,7 @@ public interface BookService {
 
     Book createByApi(Book book);
 
-    List<Book> createAll(List<Book> booksToSave);
+    List<Book> createAll(List<Book> newBooks);
 
 
 }
