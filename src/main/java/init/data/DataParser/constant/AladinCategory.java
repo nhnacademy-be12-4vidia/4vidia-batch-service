@@ -36,6 +36,8 @@ public enum AladinCategory {
         for (AladinCategory category : AladinCategory.values()) {
             if (category.getName().equals(koreanName)) {
                 return category.getCid();
+            } else {
+                return 351;
             }
         }
         throw new IllegalArgumentException("해당하는 카테고리가 없습니다: " + koreanName);
