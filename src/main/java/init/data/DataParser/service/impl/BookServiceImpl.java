@@ -6,6 +6,7 @@ import init.data.DataParser.repository.BookRepository;
 import init.data.DataParser.service.BookService;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,5 +55,13 @@ public class BookServiceImpl implements BookService {
             throw new IllegalArgumentException("이미 등록된 도서입니다.");
         }
         return bookRepository.save(book);
+    }
+
+    @Override
+    public List<Book> createAll(List<Book> booksToSave) {
+        if (!booksToSave.isEmpty()) {
+            return bookRepository.saveAll(booksToSave);
+        }
+        return List.of();
     }
 }

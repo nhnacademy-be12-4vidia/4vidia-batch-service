@@ -6,6 +6,7 @@ import init.data.DataParser.entity.Book;
 import init.data.DataParser.entity.BookAuthor;
 import init.data.DataParser.repository.BookAuthorRepository;
 import init.data.DataParser.service.BookAuthorService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,5 +34,13 @@ public class BookAuthorServiceImpl implements BookAuthorService {
     @Override
     public BookAuthor createByApi(BookAuthor bookAuthor) {
         return bookAuthorRepository.save(bookAuthor);
+    }
+
+    @Override
+    public List<BookAuthor> createAll(List<BookAuthor> bookAuthors) {
+        if (!bookAuthors.isEmpty()) {
+            bookAuthorRepository.saveAll(bookAuthors);
+        }
+        return List.of();
     }
 }

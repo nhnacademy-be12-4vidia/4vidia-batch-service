@@ -11,7 +11,7 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 @EnableElasticsearchRepositories(basePackages = "init.data.DataParser.repository.search")
 public class ElasticsearchConfig extends ElasticsearchConfiguration {
 
-    @Value("${sprig.elasticsearch.uris}")
+    @Value("${spring.elasticsearch.uris}")
     private String esUrl;
 
     @Value("${spring.elasticsearch.username}")

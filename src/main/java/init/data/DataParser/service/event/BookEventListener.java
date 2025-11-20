@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -23,8 +24,10 @@ public class BookEventListener {
     private final OllamaClient ollamaClient;
 
     @Async
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+//    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @EventListener
     public void handleBookSavedEvent(BookSavedEvent event) {
+
         log.info("Elasticsearch 인덱싱 시작: {}권", event.getSavedBooks().size());
 
         List<BookDocument> documents = new ArrayList<>();

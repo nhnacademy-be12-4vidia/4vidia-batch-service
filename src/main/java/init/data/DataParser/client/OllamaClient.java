@@ -3,15 +3,17 @@ package init.data.DataParser.client;
 import java.util.Map;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class OllamaClient {
 
     private final RestTemplate restTemplate;
-    private final String OLLAMA_URL = "http://ollama.java21.net/api/enbeddings";
+    private final String OLLAMA_URL = "http://ollama.java21.net/api/embeddings";
 
     public double[] generateEmbedding(String text) {
 
@@ -25,7 +27,8 @@ public class OllamaClient {
                 EmbeddingResponse.class);
             return response != null ? response.getEmbedding() : new double[1024];
         } catch (Exception e) {
-            return new double[1024];
+            log.error("Ollama 호출 에러: {}", e.getMessage());
+            return null;
         }
     }
 

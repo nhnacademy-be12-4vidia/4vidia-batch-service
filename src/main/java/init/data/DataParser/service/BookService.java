@@ -2,6 +2,7 @@ package init.data.DataParser.service;
 
 import init.data.DataParser.DTO.ParsingDto;
 import init.data.DataParser.entity.Book;
+import java.util.List;
 
 public interface BookService {
 
@@ -12,6 +13,8 @@ public interface BookService {
     Book getBook(String isbn);
 
     Book createByApi(Book book);
+
+    List<Book> createAll(List<Book> booksToSave);
 
 
 }
