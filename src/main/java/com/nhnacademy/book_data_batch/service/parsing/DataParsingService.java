@@ -166,7 +166,7 @@ public class DataParsingService {
         // 4-1. 이미 등록된 책 조회
         List<Book> existingBooks = bookRepository.findAllByIsbnIn(allIsbns);
         Set<String> existingIsbns = existingBooks.stream()
-            .map(Book::getIsbn)
+            .map(Book::getIsbn13)
             .collect(Collectors.toSet());
 
         List<Book> newBooks = new ArrayList<>();

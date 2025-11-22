@@ -38,7 +38,7 @@ public class BookEventListener {
             BookDocument doc = BookDocument.builder()
                 .id(String.valueOf(book.getId()))
                 .title(book.getTitle())
-                .isbn(book.getIsbn())
+                .isbn(book.getIsbn13())
                 .description(book.getDescription())
 //                .categories()
                 .embedding(vector)

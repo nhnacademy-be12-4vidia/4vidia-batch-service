@@ -15,25 +15,26 @@ import lombok.Setter;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookAuthor{
+public class BookAuthor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    @Column(name = "book_author_id")
+    private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "book_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "book_id", nullable = false)
     @Setter
-    Book book;
+    private Book book;
 
-    @ManyToOne
-    @JoinColumn(name = "author_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "author_id", nullable = false)
     @Setter
-    Author author;
+    private Author author;
 
     @Column(name = "author_role")
     @Setter
-    String role;
+    private String role;
 
     @Builder
     public BookAuthor(Book book, Author author, String role) {

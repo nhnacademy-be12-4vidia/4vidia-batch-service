@@ -30,4 +30,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### serena ###
+.serena
+
+### custom data ###
 src/main/resources/data/BOOK_DB_202112.csv

@@ -17,11 +17,13 @@ public class Author extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    @Column(name = "author_id")
+    private Long id;
 
-    @Column(name = "저자")
+    @Column(name = "author_name", nullable = false, unique = true, length = 255,
+            columnDefinition = "VARCHAR(255) DEFAULT '작자미상'")
     @Setter
-    String name;
+    private String name;
 
     @Builder
     public Author(String name) {

@@ -1,13 +1,14 @@
 package com.nhnacademy.book_data_batch.entity;
 
+import com.nhnacademy.book_data_batch.entity.converters.StockStatusConverter;
 import com.nhnacademy.book_data_batch.entity.enums.StockStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.Convert;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 import java.time.LocalDate;
@@ -25,79 +26,85 @@ public class Book extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "book_id")
     private Long id;
 
-    @Column(name = "ISBN", length = 13)
+    @Column(name = "isbn_13", length = 13)
     @Setter
-    private String isbn;
+    private String isbn13;
 
-    @Column(name = "제목", nullable = false, length = 1000)
+    @Column(name = "title", nullable = false, length = 255)
     @Setter
     private String title;
 
-    @Column(name = "부제목")
+    @Column(name = "subtitle", length = 255)
     @Setter
     private String subtitle;
 
-    @Column(name = "목차", columnDefinition = "TEXT")
+    @Column(name = "book_index", columnDefinition = "TEXT")
     @Setter
     private String index;
 
-    @Column(name = "설명", columnDefinition = "TEXT")
+    @Column(name = "description", columnDefinition = "TEXT")
     @Setter
     private String description;
 
-//    @Column(name = "이미지url", length = 500)
-//    @Setter
-//    private String imageUrl;
-
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "publisher_id", nullable = false)
     @Setter
     private Publisher publisher;
 
-    @Column(name = "출판일시")
+    @Column(name = "published_date")
     @Setter
     private LocalDate publishedDate;
 
-    @Column(name = "페이지수")
+    @Column(name = "page_count")
     @Setter
     private Integer pageCount;
 
-    @Column(name = "언어", length = 10)
+    @Column(name = "language", length = 10)
     @Setter
     private String language;
 
-    @Column(name = "정가")
+    @Column(name = "price_standard")
     @Setter
     private Integer priceStandard;
 
-    @Column(name = "판매가")
+    @Column(name = "price_sales")
     @Setter
     private Integer priceSales;
 
-    @Column(name = "재고", columnDefinition = "INT DEFAULT 0")
+    @Column(name = "stock", columnDefinition = "INT DEFAULT 0")
     @Setter
-    private Integer stock;
+    private Integer stock = 0;
 
-    @Column(name = "재고상태")
+    @Column(name = "stock_status", nullable = false, columnDefinition = "TINYINT DEFAULT 0")
     @Setter
-    @Enumerated(value = EnumType.STRING)
-    private StockStatus stockStatus = StockStatus.OUT_OF_STOCK;
+    @Convert(converter = StockStatusConverter.class)
+    private StockStatus stockStatus = StockStatus.PRE_ORDER;
 
-    @Column(name = "포장가능여부")
+    @Column(name = "packaging_available", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     @Setter
-    private Boolean packagingAvailable = false;
+    private Boolean packagingAvailable = true;
 
-    @Column(name = "총권수", columnDefinition = "INT DEFAULT 0")
+    @Column(name = "volume_number", columnDefinition = "INT DEFAULT 1")
     @Setter
-    private Integer volumeNumber;
+    private Integer volumeNumber = 1;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "category_id", nullable = false)
+    @Setter
+    private Category category;
 
     @Builder
-    public Book(String isbn, String title, String description,
-        Publisher publisher,
-        LocalDate publishedDate, Integer priceStandard, Integer priceSales) {
-        this.isbn = isbn;
+    public Book(String isbn13,
+                String title,
+                String description,
+                Publisher publisher,
+                LocalDate publishedDate,
+                Integer priceStandard,
+                Integer priceSales) {
+        this.isbn13 = isbn13;
         this.title = title;
         this.description = description;
         this.publisher = publisher;

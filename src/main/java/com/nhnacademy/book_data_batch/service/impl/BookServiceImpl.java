@@ -27,7 +27,7 @@ public class BookServiceImpl implements BookService {
         }
 
         Book book = new Book();
-        book.setIsbn(dto.getIsbn());
+        book.setIsbn13(dto.getIsbn());
         book.setTitle(dto.getTitle());
         book.setPriceStandard(dto.getPriceStandard());
         book.setDescription(dto.getDescription());
@@ -53,7 +53,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Book createByApi(Book book) {
-        if (exist(book.getIsbn())) {
+        if (exist(book.getIsbn13())) {
             throw new IllegalArgumentException("이미 등록된 도서입니다.");
         }
         return bookRepository.save(book);
@@ -63,16 +63,16 @@ public class BookServiceImpl implements BookService {
     public List<Book> createAll(List<Book> newBooks) {
 
         List<String> isbns = newBooks.stream()
-            .map(Book::getIsbn)
+            .map(Book::getIsbn13)
             .toList();
 
         List<Book> existingBooks = bookRepository.findAllByIsbnIn(isbns);
 
-        Set<String> existingIsbnSet = existingBooks.stream().map(Book::getIsbn)
+        Set<String> existingIsbnSet = existingBooks.stream().map(Book::getIsbn13)
             .collect(Collectors.toSet());
 
         List<Book> booksToSave = newBooks.stream()
-            .filter(b -> !existingIsbnSet.contains(b.getIsbn())).toList();
+            .filter(b -> !existingIsbnSet.contains(b.getIsbn13())).toList();
 
         if (!booksToSave.isEmpty()) {
             return bookRepository.saveAll(booksToSave);
