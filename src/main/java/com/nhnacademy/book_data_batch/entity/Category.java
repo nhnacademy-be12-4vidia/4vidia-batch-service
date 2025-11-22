@@ -1,10 +1,7 @@
 package com.nhnacademy.book_data_batch.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
@@ -38,4 +35,13 @@ public class Category extends BaseEntity {
     @Column(name = "depth", nullable = false, columnDefinition = "TINYINT")
     @Setter
     private Integer depth;
+
+    @Builder
+    public Category(Category parentCategory, String kdcCode, String name, String path, Integer depth) {
+        this.parentCategory = parentCategory;
+        this.kdcCode = kdcCode;
+        this.name = name;
+        this.path = path;
+        this.depth = depth;
+    }
 }
