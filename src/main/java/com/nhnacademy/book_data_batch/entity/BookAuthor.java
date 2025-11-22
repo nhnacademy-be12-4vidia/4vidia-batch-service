@@ -1,18 +1,20 @@
 package com.nhnacademy.book_data_batch.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
+@Table(name = "book_author", indexes = {
+    @Index(name = "idx_book_id", columnList = "book_id"),
+    @Index(name = "idx_author_id", columnList = "author_id")
+}, uniqueConstraints = {
+    @UniqueConstraint(name = "uk_book_author", columnNames = {"book_id", "author_id"})
+})
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookAuthor {
@@ -24,11 +26,13 @@ public class BookAuthor {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "book_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @Setter
     private Book book;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "author_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @Setter
     private Author author;
 

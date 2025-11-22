@@ -4,6 +4,12 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
+@Table(name = "category", indexes = {
+    @Index(name = "idx_category_parent_category_id", columnList = "parent_category_id"),
+    @Index(name = "idx_category_name", columnList = "category_name"),
+    @Index(name = "idx_category_path", columnList = "path"),
+    @Index(name = "idx_category_depth", columnList = "depth")
+})
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,7 +20,7 @@ public class Category extends BaseEntity {
     @Column(name = "category_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_category_id")
     @Setter
     private Category parentCategory;
@@ -28,7 +34,7 @@ public class Category extends BaseEntity {
     private String name;
 
     // e.g. "/8/81/811/"
-    @Column(name = "path", nullable = false, length = 9)
+    @Column(name = "path", nullable = false, length = 20)
     @Setter
     private String path;
 

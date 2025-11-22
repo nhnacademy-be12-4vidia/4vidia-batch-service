@@ -2,14 +2,7 @@ package com.nhnacademy.book_data_batch.entity;
 
 import com.nhnacademy.book_data_batch.entity.converters.StockStatusConverter;
 import com.nhnacademy.book_data_batch.entity.enums.StockStatus;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Convert;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
@@ -19,6 +12,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@Table(name = "book", indexes = {
+    @Index(name = "idx_book_publisher_id", columnList = "publisher_id"),
+    @Index(name = "idx_book_category_id", columnList = "category_id")
+})
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,7 +26,7 @@ public class Book extends BaseEntity {
     @Column(name = "book_id")
     private Long id;
 
-    @Column(name = "isbn_13", length = 13)
+    @Column(name = "isbn_13", unique = true, length = 13)
     @Setter
     private String isbn13;
 
@@ -43,13 +40,13 @@ public class Book extends BaseEntity {
 
     @Column(name = "book_index", columnDefinition = "TEXT")
     @Setter
-    private String index;
+    private String bookIndex;
 
     @Column(name = "description", columnDefinition = "TEXT")
     @Setter
     private String description;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "publisher_id", nullable = false)
     @Setter
     private Publisher publisher;
@@ -91,7 +88,7 @@ public class Book extends BaseEntity {
     @Setter
     private Integer volumeNumber = 1;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     @Setter
     private Category category;
