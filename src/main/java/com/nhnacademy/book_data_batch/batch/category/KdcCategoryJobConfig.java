@@ -124,6 +124,7 @@ public class KdcCategoryJobConfig {
                            FlatFileItemReader<KdcCategoryCsv> reader,
                            ItemProcessor<KdcCategoryCsv, Category> processor,
                            JpaItemWriter<Category> writer) {
+        // TODO: 공부 필요..
         // 동일한 CSV 에 대해 세 번 반복해서 읽기 때문에 StepScope 빈을 활용하고, 고정 청크 크기 사용
         // 각 Step 별로 Reader, Processor, Writer 를 주입받아 구성
         // Reader 와 Processor 는 StepScope 로 정의되어 있어 Step 실행 시점에 생성됨
