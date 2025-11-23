@@ -40,13 +40,13 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public boolean exist(String isbn) {
-        return bookRepository.existsByIsbn(isbn);
+        return bookRepository.existsByIsbn13(isbn);
     }
 
     @Override
     public Book getBook(String isbn) {
-        if (bookRepository.existsByIsbn(isbn)) {
-            return bookRepository.findByIsbn(isbn);
+        if (bookRepository.existsByIsbn13(isbn)) {
+            return bookRepository.findByIsbn13(isbn);
         }
         return null;
     }
@@ -66,7 +66,7 @@ public class BookServiceImpl implements BookService {
             .map(Book::getIsbn13)
             .toList();
 
-        List<Book> existingBooks = bookRepository.findAllByIsbnIn(isbns);
+        List<Book> existingBooks = bookRepository.findAllByIsbn13In(isbns);
 
         Set<String> existingIsbnSet = existingBooks.stream().map(Book::getIsbn13)
             .collect(Collectors.toSet());

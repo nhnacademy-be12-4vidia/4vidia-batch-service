@@ -52,11 +52,22 @@ public class AladinApiParsingService {
     @Value("${aladin.api.key}")
     private String aladinKey;
 
+    @Value("${spring.batch.job.name:}")
+    private String batchJobName;
+
     record BookAndAuthors(Book book, List<AladinAuthorWithRoleDto> authors) {}
 
     @EventListener(ApplicationReadyEvent.class)
     void init() {
+        if (shouldSkipAutoRun()) {
+            log.info("Aladin auto-run skipped because batch job '{}' is active", batchJobName);
+            return;
+        }
         searchAndSaveBooks("만화");
+    }
+
+    private boolean shouldSkipAutoRun() {
+        return StringUtils.hasText(batchJobName);
     }
 
     public void searchAndSaveBooks(String keyword) {
@@ -96,7 +107,7 @@ public class AladinApiParsingService {
                             .priceSales(dto.getPriceSales())
                             .publisher(publisher)
                             .description(dto.getDescription())
-                            .isbn(dto.getIsbn13())
+                            .isbn13(dto.getIsbn13())
                             .publishedDate(parseDateSafe(dto.getPubDate()))
                             .build();
 

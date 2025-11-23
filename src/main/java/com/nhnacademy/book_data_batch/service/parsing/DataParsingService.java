@@ -164,7 +164,7 @@ public class DataParsingService {
         // 4. [책 처리] 이미 있는 ISBN 제외하고 저장
         // ==========================================
         // 4-1. 이미 등록된 책 조회
-        List<Book> existingBooks = bookRepository.findAllByIsbnIn(allIsbns);
+        List<Book> existingBooks = bookRepository.findAllByIsbn13In(allIsbns);
         Set<String> existingIsbns = existingBooks.stream()
             .map(Book::getIsbn13)
             .collect(Collectors.toSet());

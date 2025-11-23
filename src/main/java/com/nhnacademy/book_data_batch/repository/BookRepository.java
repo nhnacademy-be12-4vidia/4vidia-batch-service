@@ -7,11 +7,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BookRepository extends JpaRepository<Book, Long> {
 
+    Book findByIsbn13(String isbn13);
 
-    Book findByIsbn(String isbn);
+    boolean existsByIsbn13(String isbn13);
 
-    boolean existsByIsbn(String isbn);
-
-    List<Book> findAllByIsbnIn(Collection<String> isbns);
+    List<Book> findAllByIsbn13In(Collection<String> isbns);
 
 }

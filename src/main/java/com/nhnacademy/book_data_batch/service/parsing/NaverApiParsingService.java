@@ -87,7 +87,7 @@ public class NaverApiParsingService {
                         .priceSales(parseIntFromString(dto.getDiscount()))
                         .publisher(publisher)
                         .description(dto.getDescription())
-                        .isbn(dto.getIsbn())
+                        .isbn13(dto.getIsbn())
                         .publishedDate(parseDateSafe(dto.getPubDate()))
                         .build();
 
