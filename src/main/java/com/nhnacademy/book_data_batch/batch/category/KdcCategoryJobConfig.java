@@ -2,6 +2,7 @@ package com.nhnacademy.book_data_batch.batch.category;
 
 import com.nhnacademy.book_data_batch.batch.category.dto.KdcCategoryCsv;
 import com.nhnacademy.book_data_batch.batch.category.mapper.KdcCategoryLineMapper;
+import com.nhnacademy.book_data_batch.batch.category.processor.KdcCategoryDepth;
 import com.nhnacademy.book_data_batch.batch.category.processor.KdcCategoryItemProcessor;
 import com.nhnacademy.book_data_batch.entity.Category;
 import com.nhnacademy.book_data_batch.repository.CategoryRepository;
@@ -93,21 +94,21 @@ public class KdcCategoryJobConfig {
     @Bean
     @StepScope
     public ItemProcessor<KdcCategoryCsv, Category> kdcMainCategoryProcessor() {
-        return new KdcCategoryItemProcessor(categoryRepository, KdcCategoryItemProcessor.Depth.MAIN);
+        return new KdcCategoryItemProcessor(categoryRepository, KdcCategoryDepth.MAIN);
     }
 
     // Processor: 강목(depth 2) 카테고리 처리
     @Bean
     @StepScope
     public ItemProcessor<KdcCategoryCsv, Category> kdcDivisionCategoryProcessor() {
-        return new KdcCategoryItemProcessor(categoryRepository, KdcCategoryItemProcessor.Depth.DIVISION);
+        return new KdcCategoryItemProcessor(categoryRepository, KdcCategoryDepth.DIVISION);
     }
 
     // Processor: 요목(depth 3) 카테고리 처리
     @Bean
     @StepScope
     public ItemProcessor<KdcCategoryCsv, Category> kdcSectionCategoryProcessor() {
-        return new KdcCategoryItemProcessor(categoryRepository, KdcCategoryItemProcessor.Depth.SECTION);
+        return new KdcCategoryItemProcessor(categoryRepository, KdcCategoryDepth.SECTION);
     }
 
     // Writer: JPA 를 사용하여 Category 엔티티 저장
@@ -123,7 +124,12 @@ public class KdcCategoryJobConfig {
                            FlatFileItemReader<KdcCategoryCsv> reader,
                            ItemProcessor<KdcCategoryCsv, Category> processor,
                            JpaItemWriter<Category> writer) {
-        // 동일한 CSV 에 대해 세 번 반복해서 읽기 때문에 StepScope 빈을 활용하고, 고정 청크 크기를 사용한다.
+        // 동일한 CSV 에 대해 세 번 반복해서 읽기 때문에 StepScope 빈을 활용하고, 고정 청크 크기 사용
+        // 각 Step 별로 Reader, Processor, Writer 를 주입받아 구성
+        // Reader 와 Processor 는 StepScope 로 정의되어 있어 Step 실행 시점에 생성됨
+        // Writer 는 공통으로 사용
+        // *StepScope: Step 실행 시점에 빈이 생성되어 Step 별로 독립적인 상태를 유지할 수 있음
+        // *고정 청크 크기: 메모리 사용량과 성능 간의 균형을 맞추기 위해 적절한 크기를 설정
         return new StepBuilder(stepName, jobRepository)
             .<KdcCategoryCsv, Category>chunk(CHUNK_SIZE, transactionManager)
             .reader(reader)
@@ -135,6 +141,8 @@ public class KdcCategoryJobConfig {
     // Reader 생성 메서드
     private FlatFileItemReader<KdcCategoryCsv> createReader(Resource resource, String name) {
         // 동일한 라인 매퍼를 공유하지만 Step 마다 이름을 달리하여 상태 구분을 명확히 한다.
+        // strict(true): 파일이 없거나 읽을 수 없을 때 예외를 발생시켜 문제를 조기에 발견할 수 있도록 함
+        // 상태 구분: 동일한 CSV 파일을 세 번 읽기 때문에 Reader 이름을 다르게 하여 Step 별로 구분 (로그에서 식별용)
         return new FlatFileItemReaderBuilder<KdcCategoryCsv>()
             .name(name)
             .resource(resource)
