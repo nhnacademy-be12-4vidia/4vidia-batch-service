@@ -183,7 +183,7 @@ public class DataParsingService {
 
             Book book = Book.builder()
                 .title(dto.getTitle())
-                .isbn(dto.getIsbn())
+                .isbn13(dto.getIsbn())
                 .description(dto.getDescription())
                 .priceStandard(dto.getPriceStandard())
                 .publishedDate(parseDateSafe(dto.getPublishedDate()))
