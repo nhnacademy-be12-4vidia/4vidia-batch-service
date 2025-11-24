@@ -20,24 +20,28 @@ public class BookCsvItemReader extends FlatFileItemReader<BookCsvRow> {
         setLineMapper(createLineMapper());
     }
 
-    // CSV 파일의 각 라인을 BookCsvRow 객체로 매핑하는 LineMapper 생성
+    // LineMapper: CSV 한 라인 -> BookCsvRow 객체 매핑
     private DefaultLineMapper<BookCsvRow> createLineMapper() {
+
+        // 라인 매퍼의 역할: 토큰화 + 필드셋 매핑
         DefaultLineMapper<BookCsvRow> lineMapper = new DefaultLineMapper<>();
         lineMapper.setLineTokenizer(createTokenizer());
 
+        // 필드셋 매퍼의 역할: 토큰 -> BookCsvRow 객체
         BeanWrapperFieldSetMapper<BookCsvRow> fieldSetMapper = new BeanWrapperFieldSetMapper<>();
         fieldSetMapper.setTargetType(BookCsvRow.class);
         lineMapper.setFieldSetMapper(fieldSetMapper);
+
         return lineMapper;
     }
 
     // CSV 파일의 각 라인을 구분자(,)로 토큰화하는 Tokenizer 생성
     private DelimitedLineTokenizer createTokenizer() {
         DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-        tokenizer.setDelimiter(",");
-        tokenizer.setQuoteCharacter('"');
-        tokenizer.setStrict(false);
-        tokenizer.setNames(
+        tokenizer.setDelimiter(",");      // 구분자 설정
+        tokenizer.setQuoteCharacter('"'); // 따옴표로 감싸인 필드 처리
+        tokenizer.setStrict(false);       // 필드 개수가 맞지 않아도 예외 발생 안함
+        tokenizer.setNames( // BookCsvRow 필드명과 매핑
             "seqNo",
             "isbn13",
             "volumeNumber",
