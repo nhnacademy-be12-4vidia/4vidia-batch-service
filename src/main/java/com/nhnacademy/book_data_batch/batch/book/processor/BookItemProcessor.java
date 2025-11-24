@@ -57,7 +57,7 @@ public class BookItemProcessor implements ItemProcessor<BookCsvRow, BookNormaliz
             .imageUrl(blankToNull(item.imageUrl()))
             .kdcCode(normalizeKdc(item.kdcCode()))
             .publisherName(publisher)
-            .authorRoles(authorRoleResolver.parse(item.author()))
+            .authorRoles(authorRoleResolver.parse(item.author(), item.authorSearch()))
             .build();
     }
 

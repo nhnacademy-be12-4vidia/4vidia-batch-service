@@ -28,11 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-/**
- * 정규화된 도서 데이터를 실제 DB 엔티티로 저장하는 Writer 입니다.
- * - 출판사/저자/카테고리 캐시를 마련해 중복 저장을 방지합니다.
- * - 신규 도서만 선별하여 book, book_author, batch 테이블에 일괄 저장합니다.
- */
+// Writer: BookNormalizedItem -> DB 저장 (도서, 저자, 출판사, 카테고리 매핑 등)
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
