@@ -235,7 +235,7 @@ public class BookItemWriter implements ItemWriter<BookNormalizedItem> {
     }
 
     /**
-     * Collect author names while collapsing whitespace/case so the DB unique key is never violated within a chunk.
+     * 저자명도 동일한 정규화 키로 관리해 중복 저장을 예방합니다.
      */
     private Map<String, String> extractCanonicalAuthorNames(List<? extends BookNormalizedItem> items) {
         Map<String, String> canonical = new LinkedHashMap<>();

@@ -10,7 +10,6 @@ import org.springframework.core.io.Resource;
 
 /**
  * BOOK_DB_202112.csv 파일을 한 줄씩 BookCsvRow 로 변환하는 Reader 입니다.
- * <p>
  * - DelimitedLineTokenizer 를 이용해 CSV 헤더 순서를 그대로 매핑합니다.
  * - Spring Batch 의 FlatFileItemReader 를 상속받아 재사용 가능한 Reader 로 구성했습니다.
  */
