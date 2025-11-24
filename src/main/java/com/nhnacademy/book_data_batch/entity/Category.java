@@ -33,7 +33,7 @@ public class Category extends BaseEntity {
     @Setter
     private String name;
 
-    // e.g. "/8/81/811/"
+    // e.g. "/8/81/811"
     @Column(name = "path", nullable = false, length = 20)
     @Setter
     private String path;

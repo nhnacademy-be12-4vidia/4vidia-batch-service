@@ -20,10 +20,11 @@ public class BookCsvItemReader extends FlatFileItemReader<BookCsvRow> {
         setResource(resource);
         setEncoding(StandardCharsets.UTF_8.name());
         setLinesToSkip(1);
-        setStrict(true);
+        setStrict(true); // 파일이 없으면 예외 발생
         setLineMapper(createLineMapper());
     }
 
+    // CSV 파일의 각 라인을 BookCsvRow 객체로 매핑하는 LineMapper 생성
     private DefaultLineMapper<BookCsvRow> createLineMapper() {
         DefaultLineMapper<BookCsvRow> lineMapper = new DefaultLineMapper<>();
         lineMapper.setLineTokenizer(createTokenizer());
@@ -34,6 +35,7 @@ public class BookCsvItemReader extends FlatFileItemReader<BookCsvRow> {
         return lineMapper;
     }
 
+    // CSV 파일의 각 라인을 구분자(,)로 토큰화하는 Tokenizer 생성
     private DelimitedLineTokenizer createTokenizer() {
         DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
         tokenizer.setDelimiter(",");

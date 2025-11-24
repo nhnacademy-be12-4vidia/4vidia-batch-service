@@ -1,10 +1,14 @@
 package com.nhnacademy.book_data_batch.entity;
 
 import com.nhnacademy.book_data_batch.entity.converters.StockStatusConverter;
+import com.nhnacademy.book_data_batch.entity.enums.ImageType;
 import com.nhnacademy.book_data_batch.entity.enums.StockStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -97,17 +101,22 @@ public class Book extends BaseEntity {
     public Book(String isbn13,
                 String title,
                 String description,
+                String subtitle,
+                String bookIndex,
                 Publisher publisher,
                 LocalDate publishedDate,
                 Integer priceStandard,
-                Integer priceSales) {
+                Integer priceSales,
+                Integer volumeNumber) {
         this.isbn13 = isbn13;
         this.title = title;
+        this.subtitle = subtitle;
+        this.bookIndex = bookIndex;
         this.description = description;
         this.publisher = publisher;
         this.publishedDate = publishedDate;
+        this.priceStandard = priceStandard;
         this.priceSales = priceSales;
+        this.volumeNumber = volumeNumber;
     }
-
-
 }

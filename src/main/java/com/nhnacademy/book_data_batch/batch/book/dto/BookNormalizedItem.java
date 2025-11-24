@@ -4,9 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import lombok.Builder;
 
-/**
- * Reader → Processor → Writer 로 전달되는 정규화된 도서 데이터입니다.
- */
+// 정규화된 도서 정보를 담는 DTO
 @Builder
 public record BookNormalizedItem(
         String isbn13,

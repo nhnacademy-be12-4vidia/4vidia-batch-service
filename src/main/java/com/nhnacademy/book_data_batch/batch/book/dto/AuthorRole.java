@@ -2,9 +2,7 @@ package com.nhnacademy.book_data_batch.batch.book.dto;
 
 import lombok.Builder;
 
-/**
- * Parsed author information with the resolved role.
- */
+// 작가 이름과 역할을 담는 DTO
 @Builder
 public record AuthorRole(
 

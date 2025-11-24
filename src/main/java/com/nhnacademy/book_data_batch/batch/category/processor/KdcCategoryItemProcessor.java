@@ -28,7 +28,7 @@ public class KdcCategoryItemProcessor implements ItemProcessor<KdcCategoryCsv, C
         String rawCode = item.rawCode();
         KdcCategoryDepth depth = KdcCategoryDepth.fromCode(rawCode);
 
-        // 목표 깊이가 아니면 건너뜀
+        // 목표 깊이가 아니면 건너뜀 (주류 -> 강목 -> 요목 순)
         if (depth != targetDepth) {
             if (log.isTraceEnabled()) {
                 log.trace("목표 깊이가 아니라서 건너뜀 - target={}, actual={}, code={}", targetDepth, depth, rawCode);
@@ -57,7 +57,7 @@ public class KdcCategoryItemProcessor implements ItemProcessor<KdcCategoryCsv, C
             .kdcCode(codeForStorage)
             .name(name)
             .path(path)
-            .depth(depth.level())
+            .depth(depth.getLevel())
             .build();
     }
 

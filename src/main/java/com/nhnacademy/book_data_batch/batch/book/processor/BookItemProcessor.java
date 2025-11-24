@@ -29,19 +29,19 @@ public class BookItemProcessor implements ItemProcessor<BookCsvRow, BookNormaliz
 
     @Override
     public BookNormalizedItem process(BookCsvRow item) {
-        String isbn = safeTrim(item.getIsbnThirteenNo());
-        String title = safeTrim(item.getTitle());
+        String isbn = safeTrim(item.isbnThirteenNo());
+        String title = safeTrim(item.title());
         if (!StringUtils.hasText(isbn) || !StringUtils.hasText(title)) { // TODO: 제목은 없어도 괜찮지 않나?
-            log.warn("필수값 누락으로 레코드를 건너뜁니다. isbn={}", item.getIsbnThirteenNo());
+            log.warn("필수값 누락으로 레코드를 건너뜁니다. isbn={}", item.isbnThirteenNo());
             return null;
         }
 
-        String publisher = StringUtils.hasText(item.getPublisher())
-            ? item.getPublisher().trim()
+        String publisher = StringUtils.hasText(item.publisher())
+            ? item.publisher().trim()
             : DEFAULT_PUBLISHER;
 
         // TODO: 아... 카테고리를 null로 두고 하는 게 당연한데, 뭔 생각으로 했지
-        String kdcCode = normalizeKdc(item.getKdcCode());
+        String kdcCode = normalizeKdc(item.kdcCode());
         if (!StringUtils.hasText(kdcCode)) {
             log.debug("KDC 코드가 없어 레코드를 건너뜁니다. isbn={}, title={}", isbn, title);
             return null;
@@ -50,15 +50,15 @@ public class BookItemProcessor implements ItemProcessor<BookCsvRow, BookNormaliz
         return BookNormalizedItem.builder()
             .isbn13(isbn)
             .title(title)
-            .subtitle(blankToNull(item.getTitleSummary()))
-            .authorRoles(authorRoleParser.parse(item.getAuthorField()))
+            .subtitle(blankToNull(item.titleSummary()))
+            .authorRoles(authorRoleParser.parse(item.authorField()))
             .publisherName(publisher)
-            .priceStandard(parsePrice(item.getPrice()))
-            .imageUrl(blankToNull(item.getImageUrl()))
-            .description(blankToNull(item.getDescription()))
-            .publishedDate(parsePublishedDate(item.getPublishedDate(), item.getSecondaryPublishedDate()))
+            .priceStandard(parsePrice(item.price()))
+            .imageUrl(blankToNull(item.imageUrl()))
+            .description(blankToNull(item.description()))
+            .publishedDate(parsePublishedDate(item.publishedDate(), item.secondaryPublishedDate()))
             .kdcCode(kdcCode)
-            .volumeNumber(parseVolumeNumber(item.getVolumeName()))
+            .volumeNumber(parseVolumeNumber(item.volumeName()))
             .build();
     }
 

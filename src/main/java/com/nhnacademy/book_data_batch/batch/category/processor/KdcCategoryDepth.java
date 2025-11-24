@@ -2,6 +2,7 @@ package com.nhnacademy.book_data_batch.batch.category.processor;
 
 import com.nhnacademy.book_data_batch.entity.Category;
 import com.nhnacademy.book_data_batch.repository.CategoryRepository;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
@@ -10,6 +11,7 @@ import java.util.Optional;
 /**
  * KDC 코드에 따른 깊이(Root → Division → Section)와 부가 정보를 계산하는 헬퍼.
  */
+@Getter
 @RequiredArgsConstructor
 public enum KdcCategoryDepth {
 
@@ -72,16 +74,11 @@ public enum KdcCategoryDepth {
 
     private final int level;
 
-    public int level() {
-        return level;
-    }
-
     public abstract boolean matches(String code);
-
     public abstract Optional<String> parentCode(String code);
-
     public abstract String buildPath(Category parent, String code);
 
+    // KDC -> Depth 매핑
     public static KdcCategoryDepth fromCode(String normalizedCode) {
         return Arrays.stream(values())
             .filter(depth -> depth.matches(normalizedCode))
@@ -89,6 +86,7 @@ public enum KdcCategoryDepth {
             .orElseThrow(() -> new IllegalArgumentException("지원하지 않는 KDC 코드입니다. code=" + normalizedCode));
     }
 
+    // 상위 카테고리 조회
     public Category resolveParent(CategoryRepository repository, String normalizedCode) {
         return parentCode(normalizedCode)
             .map(parentCode -> repository.findByKdcCode(parentCode)

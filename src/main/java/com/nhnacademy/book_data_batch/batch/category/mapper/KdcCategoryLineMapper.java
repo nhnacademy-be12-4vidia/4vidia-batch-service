@@ -9,7 +9,7 @@ public class KdcCategoryLineMapper implements LineMapper<KdcCategoryCsv> {
     @Override
     public KdcCategoryCsv mapLine(String line, int lineNumber) {
 
-        // 빈 라인 처리
+        // 빈 라인: 빈 코드와 이름 반환
         if (!StringUtils.hasText(line)) {
             return new KdcCategoryCsv("", "");
         }
