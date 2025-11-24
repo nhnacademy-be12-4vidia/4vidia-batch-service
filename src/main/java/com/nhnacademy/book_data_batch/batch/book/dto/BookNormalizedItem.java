@@ -9,14 +9,13 @@ import lombok.Builder;
 public record BookNormalizedItem(
         String isbn13,
         String title,
-        String subtitle,
-        List<AuthorRole> authorRoles,
-        String publisherName,
-        Integer priceStandard,
-        String imageUrl,
         String description,
         LocalDate publishedDate,
+        Integer priceStandard,
+        Integer volumeNumber,
+        String imageUrl,
         String kdcCode,
-        Integer volumeNumber
+        String publisherName,
+        List<AuthorRole> authorRoles
 ) {
 }

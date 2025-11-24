@@ -8,12 +8,8 @@ import com.nhnacademy.book_data_batch.entity.Book;
 import com.nhnacademy.book_data_batch.entity.BookAuthor;
 import com.nhnacademy.book_data_batch.entity.Category;
 import com.nhnacademy.book_data_batch.entity.Publisher;
-import com.nhnacademy.book_data_batch.repository.AuthorRepository;
-import com.nhnacademy.book_data_batch.repository.BatchRepository;
-import com.nhnacademy.book_data_batch.repository.BookAuthorRepository;
-import com.nhnacademy.book_data_batch.repository.BookRepository;
-import com.nhnacademy.book_data_batch.repository.CategoryRepository;
-import com.nhnacademy.book_data_batch.repository.PublisherRepository;
+import com.nhnacademy.book_data_batch.repository.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -47,6 +43,7 @@ public class BookItemWriter implements ItemWriter<BookNormalizedItem> {
     private final BookRepository bookRepository;
     private final BookAuthorRepository bookAuthorRepository;
     private final CategoryRepository categoryRepository;
+    private final BookImageRepository bookImageRepository;
     private final BatchRepository batchRepository;
 
     @Override
@@ -90,7 +87,6 @@ public class BookItemWriter implements ItemWriter<BookNormalizedItem> {
             Book book = new Book();
             book.setIsbn13(item.isbn13());
             book.setTitle(item.title());
-            book.setSubtitle(item.subtitle());
             book.setDescription(item.description());
             book.setPublisher(publisher);
             book.setPublishedDate(item.publishedDate());

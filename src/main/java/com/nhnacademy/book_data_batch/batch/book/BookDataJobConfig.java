@@ -2,15 +2,12 @@ package com.nhnacademy.book_data_batch.batch.book;
 
 import com.nhnacademy.book_data_batch.batch.book.dto.BookCsvRow;
 import com.nhnacademy.book_data_batch.batch.book.dto.BookNormalizedItem;
+import com.nhnacademy.book_data_batch.batch.book.resolver.AuthorRoleResolver;
+import com.nhnacademy.book_data_batch.batch.book.resolver.IsbnResolver;
 import com.nhnacademy.book_data_batch.batch.book.processor.BookItemProcessor;
 import com.nhnacademy.book_data_batch.batch.book.reader.BookCsvItemReader;
 import com.nhnacademy.book_data_batch.batch.book.writer.BookItemWriter;
-import com.nhnacademy.book_data_batch.repository.AuthorRepository;
-import com.nhnacademy.book_data_batch.repository.BatchRepository;
-import com.nhnacademy.book_data_batch.repository.BookAuthorRepository;
-import com.nhnacademy.book_data_batch.repository.BookRepository;
-import com.nhnacademy.book_data_batch.repository.CategoryRepository;
-import com.nhnacademy.book_data_batch.repository.PublisherRepository;
+import com.nhnacademy.book_data_batch.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -43,7 +40,10 @@ public class BookDataJobConfig {
     private final CategoryRepository categoryRepository;
     private final BookRepository bookRepository;
     private final BookAuthorRepository bookAuthorRepository;
+    private final BookImageRepository bookImageRepository;
     private final BatchRepository batchRepository;
+    private final IsbnResolver isbnResolver;
+    private final AuthorRoleResolver authorRoleResolver;
 
     @Bean
     public Job bookDataImportJob(Step bookDataImportStep) {
@@ -87,7 +87,10 @@ public class BookDataJobConfig {
     @Bean
     @StepScope
     public ItemProcessor<BookCsvRow, BookNormalizedItem> bookItemProcessor() {
-        return new BookItemProcessor();
+        return new BookItemProcessor(
+            isbnResolver,
+            authorRoleResolver
+        );
     }
 
     // Writer: 정규화된 BookNormalizedItem을 DB 에 저장
@@ -99,6 +102,7 @@ public class BookDataJobConfig {
             bookRepository,
             bookAuthorRepository,
             categoryRepository,
+            bookImageRepository,
             batchRepository
         );
     }

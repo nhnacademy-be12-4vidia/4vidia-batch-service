@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.batch.book.parser;
+package com.nhnacademy.book_data_batch.batch.book.resolver;
 
 import com.nhnacademy.book_data_batch.batch.book.dto.AuthorRole;
 import java.util.ArrayList;
@@ -8,14 +8,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 /**
- * 도서의 저자 및 역할 정보를 파싱하는 유틸리티 클래스입니다.
+ * 도서의 저자 및 역할 정보를 파싱하는 유틸리티 클래스
  * 저자 필드에서 여러 저자와 그 역할을 추출 -> AuthorRole 객체 리스트로 반환
- * 예: "홍길동 (지음), 김철수 [옮김]" → [{name: "홍길동", role: "지음"}, {name: "김철수", role: "옮김"}]
  */
-public record AuthorRoleParser(String defaultAuthor, String defaultRole) {
+@Component
+public class AuthorRoleResolver {
 
     private static final Pattern ROLE_BRACKET = Pattern.compile(
             "(\\(|\\[)([^()\\[\\]]+?)(\\)|\\])"
@@ -26,6 +28,8 @@ public record AuthorRoleParser(String defaultAuthor, String defaultRole) {
     private static final Pattern LEADING_INDICATOR = Pattern.compile(
             "(?i)^(?:by|text by|story by|words by|illustrated by|photo by|photos by|compiled by|edited by)[:\\s]+"
     );
+    private static final String defaultAuthor = "작자미상";
+    private static final String defaultRole = "지은이";
 
     // 주요 메서드: 저자 필드 파싱
     public List<AuthorRole> parse(String authorField) {

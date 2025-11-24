@@ -50,8 +50,8 @@ public class Book extends BaseEntity {
     @Setter
     private String description;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "publisher_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "publisher_id")
     @Setter
     private Publisher publisher;
 
@@ -92,8 +92,8 @@ public class Book extends BaseEntity {
     @Setter
     private Integer volumeNumber = 1;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
     @Setter
     private Category category;
 
