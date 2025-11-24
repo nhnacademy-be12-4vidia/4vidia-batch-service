@@ -27,9 +27,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
 
-/**
- * BOOK_DB_202112.csv → Book/Author/Publisher/Batch 엔티티로 저장하는 Spring Batch Job 설정입니다.
- */
+// 도서 데이터 일괄 처리 배치 잡 설정
 @Configuration
 @RequiredArgsConstructor
 public class BookDataJobConfig {
