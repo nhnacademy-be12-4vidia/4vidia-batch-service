@@ -105,9 +105,12 @@ public class Book extends BaseEntity {
                 String bookIndex,
                 Publisher publisher,
                 LocalDate publishedDate,
+                Integer pageCount,
+                String language,
                 Integer priceStandard,
                 Integer priceSales,
-                Integer volumeNumber) {
+                Integer volumeNumber,
+                Category category) {
         this.isbn13 = isbn13;
         this.title = title;
         this.subtitle = subtitle;
@@ -115,8 +118,11 @@ public class Book extends BaseEntity {
         this.description = description;
         this.publisher = publisher;
         this.publishedDate = publishedDate;
+        this.pageCount = pageCount;
+        this.language = language;
         this.priceStandard = priceStandard;
         this.priceSales = priceSales;
         this.volumeNumber = volumeNumber;
+        this.category = category;
     }
 }

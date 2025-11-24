@@ -8,11 +8,7 @@ import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.core.io.Resource;
 
-/**
- * BOOK_DB_202112.csv 파일을 한 줄씩 BookCsvRow 로 변환하는 Reader 입니다.
- * - DelimitedLineTokenizer 를 이용해 CSV 헤더 순서를 그대로 매핑합니다.
- * - Spring Batch 의 FlatFileItemReader 를 상속받아 재사용 가능한 Reader 로 구성했습니다.
- */
+// Reader: CSV -> BookCsvRow 객체 변환
 public class BookCsvItemReader extends FlatFileItemReader<BookCsvRow> {
 
     public BookCsvItemReader(Resource resource) {
@@ -43,10 +39,10 @@ public class BookCsvItemReader extends FlatFileItemReader<BookCsvRow> {
         tokenizer.setStrict(false);
         tokenizer.setNames(
             "seqNo",
-            "isbnThirteenNo",
-            "volumeName",
+            "isbn13",
+            "volumeNumber",
             "title",
-            "authorField",
+            "author",
             "publisher",
             "publishedDate",
             "editionSymbol",
@@ -54,12 +50,12 @@ public class BookCsvItemReader extends FlatFileItemReader<BookCsvRow> {
             "imageUrl",
             "description",
             "kdcCode",
-            "titleSummary",
-            "authorSummary",
+            "titleSearch",
+            "authorSearch",
             "secondaryPublishedDate",
             "internalBookstoreYn",
             "portalSiteYn",
-            "isbnTenNo"
+            "isbn10"
         );
         return tokenizer;
     }

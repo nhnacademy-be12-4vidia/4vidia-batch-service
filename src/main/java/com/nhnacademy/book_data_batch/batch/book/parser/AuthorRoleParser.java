@@ -12,10 +12,9 @@ import org.springframework.util.StringUtils;
 
 /**
  * 도서의 저자 및 역할 정보를 파싱하는 유틸리티 클래스입니다.
- * 저자 필드에서 여러 저자와 그 역할을 추출하여 {@link AuthorRole} 객체 리스트로 반환합니다. TODO: 공부 필요
+ * 저자 필드에서 여러 저자와 그 역할을 추출 -> AuthorRole 객체 리스트로 반환
  * 예: "홍길동 (지음), 김철수 [옮김]" → [{name: "홍길동", role: "지음"}, {name: "김철수", role: "옮김"}]
  */
-// TODO: 딸깍이의 힘을 빌렸으나.. 이해가 안됐다... 리팩토링 필요..
 public record AuthorRoleParser(String defaultAuthor, String defaultRole) {
 
     private static final Pattern ROLE_BRACKET = Pattern.compile(

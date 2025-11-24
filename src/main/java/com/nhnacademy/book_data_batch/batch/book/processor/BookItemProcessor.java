@@ -29,10 +29,10 @@ public class BookItemProcessor implements ItemProcessor<BookCsvRow, BookNormaliz
 
     @Override
     public BookNormalizedItem process(BookCsvRow item) {
-        String isbn = safeTrim(item.isbnThirteenNo());
+        String isbn = safeTrim(item.isbn13());
         String title = safeTrim(item.title());
         if (!StringUtils.hasText(isbn) || !StringUtils.hasText(title)) { // TODO: 제목은 없어도 괜찮지 않나?
-            log.warn("필수값 누락으로 레코드를 건너뜁니다. isbn={}", item.isbnThirteenNo());
+            log.warn("필수값 누락으로 레코드를 건너뜁니다. isbn={}", item.isbn13());
             return null;
         }
 
@@ -50,15 +50,15 @@ public class BookItemProcessor implements ItemProcessor<BookCsvRow, BookNormaliz
         return BookNormalizedItem.builder()
             .isbn13(isbn)
             .title(title)
-            .subtitle(blankToNull(item.titleSummary()))
-            .authorRoles(authorRoleParser.parse(item.authorField()))
+            .subtitle(blankToNull(item.titleSearch()))
+            .authorRoles(authorRoleParser.parse(item.author()))
             .publisherName(publisher)
             .priceStandard(parsePrice(item.price()))
             .imageUrl(blankToNull(item.imageUrl()))
             .description(blankToNull(item.description()))
             .publishedDate(parsePublishedDate(item.publishedDate(), item.secondaryPublishedDate()))
             .kdcCode(kdcCode)
-            .volumeNumber(parseVolumeNumber(item.volumeName()))
+            .volumeNumber(parseVolumeNumber(item.volumeNumber()))
             .build();
     }
 
