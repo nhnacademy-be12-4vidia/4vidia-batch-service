@@ -36,3 +36,7 @@ build/
 
 ### custom data ###
 src/main/resources/data/BOOK_DB_202112.csv
+
+### application.yml ###
+src/main/resources/application.yml
+src/main/resources/application-*.yml

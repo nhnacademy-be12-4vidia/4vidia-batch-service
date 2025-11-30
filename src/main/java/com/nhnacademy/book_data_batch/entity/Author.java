@@ -10,7 +10,7 @@ import lombok.Setter;
 @Table(name = "author")
 @Getter
 @NoArgsConstructor
-public class Author extends BaseEntity{
+public class Author extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

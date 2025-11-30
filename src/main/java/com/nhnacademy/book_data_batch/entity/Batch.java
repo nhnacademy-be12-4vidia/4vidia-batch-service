@@ -33,35 +33,28 @@ public class Batch extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", nullable = false, unique = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @Setter
     private Book book;
 
     @Column(name = "enrichment_status", nullable = false, columnDefinition = "TINYINT DEFAULT 0")
-    @Setter
     @Convert(converter = BatchStatusConverter.class)
     private BatchStatus enrichmentStatus = BatchStatus.PENDING;
 
     @Column(name = "tagging_status", nullable = false, columnDefinition = "TINYINT DEFAULT 0")
-    @Setter
     @Convert(converter = BatchStatusConverter.class)
     private BatchStatus taggingStatus = BatchStatus.PENDING;
 
     @Column(name = "embedding_status", nullable = false, columnDefinition = "TINYINT DEFAULT 0")
-    @Setter
     @Convert(converter = BatchStatusConverter.class)
     private BatchStatus embeddingStatus = BatchStatus.PENDING;
 
     @Column(name = "indexing_status", nullable = false, columnDefinition = "TINYINT DEFAULT 0")
-    @Setter
     @Convert(converter = BatchStatusConverter.class)
     private BatchStatus indexingStatus = BatchStatus.PENDING;
 
     @Column(name = "retry_count", nullable = false, columnDefinition = "INT DEFAULT 0")
-    @Setter
     private Integer retryCount = 0;
 
     @Column(name = "error_message", columnDefinition = "TEXT")
-    @Setter
     private String errorMessage;
 
     @Builder

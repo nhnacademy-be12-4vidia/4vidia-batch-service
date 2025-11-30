@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.config;
+package com.nhnacademy.book_data_batch.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -104,7 +104,7 @@ public class KdcCategoryJobConfig {
         return new KdcCategoryItemProcessor(categoryRepository, KdcCategoryDepth.DIVISION);
     }
 
-    // Processor: 요목(depth 3) 카테고리 처리
+    // Processor: 요목(depth 3) 카테고리 처리 // TODO: 강목별 요목은 병렬처리해도 되지 않을까? -> 의존관계가 없으므로 가능할 듯?
     @Bean
     @StepScope
     public ItemProcessor<KdcCategoryCsv, Category> kdcSectionCategoryProcessor() {

@@ -1,9 +1,6 @@
 package com.nhnacademy.book_data_batch.batch.book.dto;
 
-import lombok.Builder;
-
 // 주어진 도서 csv의 한 행 그대로 매핑되는 DTO
-@Builder
 public record BookCsvRow(
         String seqNo,               // 버림
         String isbn13,
@@ -20,7 +17,7 @@ public record BookCsvRow(
         String titleSearch,
         String authorSearch,
         String secondaryPublishedDate,
-        String internalBookstoreYn, // 버림
+        String internetBookstoreYn, // 버림
         String portalSiteYn,        // 버림
         String isbn10 // isbn13이 없으면 isbn10 -> isbn13 변환해 사용
 ) {

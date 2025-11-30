@@ -34,11 +34,11 @@ public class Book extends BaseEntity {
     @Setter
     private String isbn13;
 
-    @Column(name = "title", nullable = false, length = 255)
+    @Column(name = "title", nullable = false, length = 500)
     @Setter
     private String title;
 
-    @Column(name = "subtitle", length = 255)
+    @Column(name = "subtitle", length = 500)
     @Setter
     private String subtitle;
 

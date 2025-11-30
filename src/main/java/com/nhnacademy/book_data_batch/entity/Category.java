@@ -22,24 +22,19 @@ public class Category extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_category_id")
-    @Setter
     private Category parentCategory;
 
     @Column(name = "kdc_code", nullable = false, unique = true, length = 3)
-    @Setter
     private String kdcCode;
 
     @Column(name = "category_name", nullable = false, length = 70)
-    @Setter
     private String name;
 
     // e.g. "/8/81/811"
     @Column(name = "path", nullable = false, length = 20)
-    @Setter
     private String path;
 
     @Column(name = "depth", nullable = false, columnDefinition = "TINYINT")
-    @Setter
     private Integer depth;
 
     @Builder

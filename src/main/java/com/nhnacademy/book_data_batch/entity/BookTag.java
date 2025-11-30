@@ -17,7 +17,7 @@ import org.hibernate.annotations.OnDeleteAction;
 })
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookTag {
+public class BookTag extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,13 +27,11 @@ public class BookTag {
     @ManyToOne(optional = false)
     @JoinColumn(name = "book_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @Setter
     private Book book;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "tag_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @Setter
     private Tag tag;
 
     @Builder

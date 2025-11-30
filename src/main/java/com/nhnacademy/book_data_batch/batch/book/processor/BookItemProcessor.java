@@ -2,136 +2,77 @@ package com.nhnacademy.book_data_batch.batch.book.processor;
 
 import com.nhnacademy.book_data_batch.batch.book.dto.BookCsvRow;
 import com.nhnacademy.book_data_batch.batch.book.dto.BookNormalizedItem;
-import com.nhnacademy.book_data_batch.batch.book.formatter.DateFormatter;
-import com.nhnacademy.book_data_batch.batch.book.resolver.AuthorRoleResolver;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
-import com.nhnacademy.book_data_batch.batch.book.resolver.IsbnResolver;
+import com.nhnacademy.book_data_batch.service.AuthorNameExtractor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.util.StringUtils;
 
-// Processor: BookCsvRow -> BookNormalizedItem 변환 (정규화 및 유효성 검사 포함)
+import java.util.List;
+
+/**
+ * <pre>
+ * BookItemProcessor
+ * - CSV 원시 데이터(BookCsvRow) → 정규화된 도서 정보(BookNormalizedItem)
+ * 
+ * @see BookCsvRow Reader에서 전달받는 원시 데이터 DTO
+ * @see BookNormalizedItem Writer에 전달할 정규화된 DTO
+ * @see FieldNormalizer 필드 변환 유틸리티
+ * @see IsbnResolver ISBN 처리 유틸리티
+ * @see AuthorNameExtractor 저자명 추출 서비스
+ * </pre>
+ */
 @Slf4j
 @RequiredArgsConstructor
 public class BookItemProcessor implements ItemProcessor<BookCsvRow, BookNormalizedItem> {
 
     private final IsbnResolver isbnResolver;
-    private final AuthorRoleResolver authorRoleResolver;
+    private final AuthorNameExtractor authorNameExtractor;
+    private final FieldNormalizer fieldNormalizer;
 
+    /**
+     * process
+     * 1. ISBN 유효성 검사 - 필수, 없으면 null 반환
+     * 2. 제목 유효성 검사 - 필수, 없으면 null 반환
+     * 3. 저자 이름 추출 - 복합 저자 문자열 분리
+     * 4. 필드 정규화 - 날짜, 가격, KDC 등 변환
+     * 5. BookNormalizedItem 생성
+     * 
+     * @param item CSV에서 읽은 원시 데이터
+     * @return 정규화된 도서 정보, 유효하지 않으면 null
+     */
     @Override
     public BookNormalizedItem process(BookCsvRow item) {
-
-        // ISBN 처리 (NOT NULL)
+        // 1. ISBN 유효성 검사 (필수)
         String isbn = isbnResolver.resolve(item.isbn13(), item.isbn10());
         if (!StringUtils.hasText(isbn)) {
-            log.warn("ISBN이 없어 레코드를 건너뜁니다. isbn13={}, isbn10={}", item.isbn13(), item.isbn10());
+            log.debug("ISBN이 없어 레코드를 건너뜁니다. isbn13={}, isbn10={}", item.isbn13(), item.isbn10());
             return null;
         }
 
-        // 제목 처리 (NOT NULL)
-        String title = item.title() != null ? item.title().trim() : null;
-        if (!StringUtils.hasText(item.title())) {
-            log.warn("제목이 없어 레코드를 건너뜁니다. title={}", title);
+        // 2. 제목 유효성 검사 (필수)
+        String title = fieldNormalizer.trimOrNull(item.title());
+        if (!StringUtils.hasText(title)) {
+            log.debug("제목이 없어 레코드를 건너뜁니다. isbn={}", isbn);
             return null;
         }
 
-        // 출판사 처리 (NULLABLE)
-        String publisher = safeTrim(item.publisher());
-        if (!StringUtils.hasText(publisher)) {
-            publisher = "출판사 미상";
-        }
+        // 3. 저자 이름 추출
+        List<String> authorNames = authorNameExtractor.extractAuthorNames(item.author());
 
-        // 정규화된 도서 정보 생성
-        return BookNormalizedItem.builder()
-            // 책 기본 정보
-            .isbn13(isbn)
-            .title(title)
-            .description(blankToNull(item.description()))
-            .publishedDate(parsePublishedDate(item.publishedDate(), item.secondaryPublishedDate()))
-            .priceStandard(parsePrice(item.price()))
-            .volumeNumber(parseVolumeNumber(item.volumeNumber()))
-            // 이미지, 카테고리, 출판사, 작가
-            .imageUrl(blankToNull(item.imageUrl()))
-            .kdcCode(normalizeKdc(item.kdcCode()))
-            .publisherName(publisher)
-            .authorRoles(authorRoleResolver.parse(item.author(), item.authorSearch()))
-            .build();
-    }
-
-    // 가격 String -> Integer 변환
-    private Integer parsePrice(String priceText) {
-        if (!StringUtils.hasText(priceText)) {
-            return null;
-        }
-        try {
-            return Integer.parseInt(priceText);
-        } catch (NumberFormatException ex) {
-            log.debug("가격 파싱 실패로 0원 처리. price={}, message={} ", priceText, ex.getMessage());
-            return 0;
-        }
-    }
-
-    // 출판일 String -> LocalDate 변환
-    private LocalDate parsePublishedDate(String primary, String secondary) {
-        String value = StringUtils.hasText(primary) ? primary : secondary;
-        if (!StringUtils.hasText(value)) {
-            return null;
-        }
-        value = value.trim();
-        for (DateTimeFormatter formatter : DateFormatter.PATTERNS) {
-            try {
-                return LocalDate.parse(value, formatter);
-            } catch (Exception ignored) {
-                // 포맷이 맞지 않으면 다음 후보로 넘어간다.
-            }
-        }
-        log.debug("날짜 포매팅 실패로 null 반환 value={}", value);
-        return null;
-    }
-
-    // 권수 String -> Integer 변환
-    private Integer parseVolumeNumber(String volumeText) {
-        if (!StringUtils.hasText(volumeText)) {
-            return 1;
-        }
-        try {
-            return Integer.parseInt(volumeText.trim());
-        } catch (NumberFormatException ex) {
-            return 1;
-        }
-    }
-
-    // KDC 코드 정규화 (세목 버리기: 앞부분 숫자만 추출)
-    private String normalizeKdc(String rawKdc) {
-        if (!StringUtils.hasText(rawKdc)) {
-            return null;
-        }
-
-        // 첫 번째 점(.) 이전 부분 추출
-        String trimmed = rawKdc.trim();
-        String[] tokens = trimmed.split("\\.");
-        String base = tokens[0];
-        if (!StringUtils.hasText(base)) {
-            return null;
-        }
-
-        // 숫자 이외 문자 제거
-        base = base.replaceAll("\\D", "");
-        if (!StringUtils.hasText(base)) {
-            return null;
-        }
-
-        return base;
-    }
-
-    private String safeTrim(String text) {
-        return text == null ? null : text.trim();
-    }
-
-    private String blankToNull(String text) {
-        return StringUtils.hasText(text) ? text.trim() : null;
+        // 4. 정규화된 DTO 생성
+        return new BookNormalizedItem(
+                isbn,
+                title,
+                fieldNormalizer.blankToNull(item.description()),
+                fieldNormalizer.parseDate(item.publishedDate(), item.secondaryPublishedDate()),
+                fieldNormalizer.parsePrice(item.price()),
+                fieldNormalizer.parseVolumeNumber(item.volumeNumber()),
+                fieldNormalizer.blankToNull(item.imageUrl()),
+                fieldNormalizer.normalizeKdc(item.kdcCode()),
+                fieldNormalizer.defaultIfBlank(item.publisher(), "출판사 미상"),
+                authorNames,
+                item.author() // TODO: 추후 작가 역할 파싱용 원본 필드 보존
+        );
     }
 }
