@@ -1,10 +1,9 @@
-package com.nhnacademy.book_data_batch.repository.querydsl.impl;
+package com.nhnacademy.book_data_batch.repository.querydsl;
 
 import com.nhnacademy.book_data_batch.batch.aladin.dto.BookEnrichmentTarget;
 import com.nhnacademy.book_data_batch.entity.QBatch;
 import com.nhnacademy.book_data_batch.entity.QBook;
 import com.nhnacademy.book_data_batch.entity.enums.BatchStatus;
-import com.nhnacademy.book_data_batch.repository.querydsl.BatchRepositoryCustom;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -12,14 +11,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 /**
  * Batch 엔티티의 복잡한 쿼리를 QueryDSL로 구현
  */
-@Repository
 @RequiredArgsConstructor
 public class BatchRepositoryCustomImpl implements BatchRepositoryCustom {
 

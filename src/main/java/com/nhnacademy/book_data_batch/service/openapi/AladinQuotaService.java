@@ -22,7 +22,6 @@ import java.time.format.DateTimeFormatter;
 @RequiredArgsConstructor
 public class AladinQuotaService {
 
-    @Getter
     private static final int DAILY_QUOTA_LIMIT = 5000;
     private static final String KEY_PREFIX = "aladin:quota:";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -80,6 +79,10 @@ public class AladinQuotaService {
     public long getRemainingQuota(String apiKey) {
         long current = getCurrentUsage(apiKey);
         return Math.max(0, DAILY_QUOTA_LIMIT - current);
+    }
+
+    public int getDailyQuotaLimit() {
+        return DAILY_QUOTA_LIMIT;
     }
 
     /**
