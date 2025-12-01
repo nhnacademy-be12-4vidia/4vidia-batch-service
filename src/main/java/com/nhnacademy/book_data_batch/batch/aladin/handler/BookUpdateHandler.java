@@ -28,7 +28,7 @@ public class BookUpdateHandler implements EnrichmentSaveHandler {
             return;
         }
 
-        bookRepository.bulkUpdateEnrichedFields(books);
+        bookRepository.bulkUpdate(books);
     }
 
     @Override

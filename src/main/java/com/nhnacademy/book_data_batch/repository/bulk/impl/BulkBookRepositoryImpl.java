@@ -16,7 +16,7 @@ public class BulkBookRepositoryImpl implements BulkBookRepository {
     private final BulkUpdateHelper bulkUpdateHelper;
 
     private static final String UPDATE_ENRICHED_FIELDS_SQL = """
-            UPDATE book SET 
+            UPDATE book SET
                 description = ?,
                 subtitle = ?,
                 book_index = ?,
@@ -28,7 +28,7 @@ public class BulkBookRepositoryImpl implements BulkBookRepository {
             """;
 
     @Override
-    public void bulkUpdateEnrichedFields(List<Book> books) {
+    public void bulkUpdate(List<Book> books) {
         if (books.isEmpty()) {
             return;
         }

@@ -16,5 +16,5 @@ public interface BulkBookRepository {
      *
      * @param books 업데이트할 Book 목록
      */
-    void bulkUpdateEnrichedFields(List<Book> books);
+    void bulkUpdate(List<Book> books);
 }
