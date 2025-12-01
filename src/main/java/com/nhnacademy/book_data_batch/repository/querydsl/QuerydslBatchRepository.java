@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 /**
  * Batch 엔티티의 복잡한 쿼리를 위한 Custom Repository
  */
-public interface BatchRepositoryCustom {
+public interface QuerydslBatchRepository {
 
     /**
      * 특정 상태의 batch_id 최솟값 조회

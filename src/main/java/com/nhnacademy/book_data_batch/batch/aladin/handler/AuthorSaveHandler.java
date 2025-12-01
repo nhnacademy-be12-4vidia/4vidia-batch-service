@@ -25,28 +25,29 @@ public class AuthorSaveHandler implements EnrichmentSaveHandler {
 
     @Override
     public void handle(List<EnrichmentResultDto> items) {
-        List<EnrichmentResultDto> successItems = filterSuccess(items);
-        if (successItems.isEmpty()) {
-            return;
-        }
-
-        // 모든 저자 이름 수집
-        Set<String> allAuthorNames = collectAuthorNames(successItems);
-        if (allAuthorNames.isEmpty()) {
-            return;
-        }
-
-        // 1. Author bulk insert
-        authorRepository.bulkInsert(allAuthorNames);
-
-        // 2. Author 캐시 로드
-        Map<String, Author> authorCache = loadAuthorCache(allAuthorNames);
-
-        // 3. BookAuthor 연결
-        List<BookAuthorDto> bookAuthorDtos = buildBookAuthorDtos(successItems, authorCache);
-        if (!bookAuthorDtos.isEmpty()) {
-            bookAuthorRepository.bulkInsert(bookAuthorDtos);
-        }
+        // TODO: 알라딘에서 authors를 그렇게 많이 안 주네... 아.... 일단... 보류.... 아... 그냥 어지럽네...
+//        List<EnrichmentResultDto> successItems = filterSuccess(items);
+//        if (successItems.isEmpty()) {
+//            return;
+//        }
+//
+//        // 모든 저자 이름 수집
+//        Set<String> allAuthorNames = collectAuthorNames(successItems);
+//        if (allAuthorNames.isEmpty()) {
+//            return;
+//        }
+//
+//        // 1. Author bulk insert
+//        authorRepository.bulkInsert(allAuthorNames);
+//
+//        // 2. Author 캐시 로드
+//        Map<String, Author> authorCache = loadAuthorCache(allAuthorNames);
+//
+//        // 3. BookAuthor 연결
+//        List<BookAuthorDto> bookAuthorDtos = buildBookAuthorDtos(successItems, authorCache);
+//        if (!bookAuthorDtos.isEmpty()) {
+//            bookAuthorRepository.bulkInsert(bookAuthorDtos);
+//        }
     }
 
     @Override
