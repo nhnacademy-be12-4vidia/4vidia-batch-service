@@ -1,8 +1,8 @@
 package com.nhnacademy.book_data_batch.batch.aladin.handler;
 
+import com.nhnacademy.book_data_batch.batch.aladin.dto.BookAuthorDto;
 import com.nhnacademy.book_data_batch.batch.aladin.dto.EnrichmentResultDto;
 import com.nhnacademy.book_data_batch.batch.aladin.dto.EnrichmentResultDto.AuthorWithRole;
-import com.nhnacademy.book_data_batch.batch.book.dto.BookAuthorDto;
 import com.nhnacademy.book_data_batch.entity.Author;
 import com.nhnacademy.book_data_batch.repository.AuthorRepository;
 import com.nhnacademy.book_data_batch.repository.BookAuthorRepository;

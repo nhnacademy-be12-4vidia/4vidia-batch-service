@@ -1,9 +1,12 @@
 package com.nhnacademy.book_data_batch.batch.book.dto;
 
 import java.time.LocalDate;
-import java.util.List;
 
-// 정규화된 도서 정보를 담는 DTO
+/**
+ * 정규화된 도서 정보를 담는 DTO
+ * - CSV에서 읽은 원시 데이터를 정규화한 결과
+ * - 작가 정보는 rawAuthor(원본)만 저장 (정규화된 작가는 알라딘 API에서 처리)
+ */
 public record BookNormalizedItem(
         String isbn13,
         String title,
@@ -14,8 +17,6 @@ public record BookNormalizedItem(
         String imageUrl,
         String kdcCode,
         String publisherName,
-
-        List<String> authorNames,
-        String rawAuthorField
+        String rawAuthor  // CSV 원본 작가 필드 (검색/임베딩용)
 ) {
 }

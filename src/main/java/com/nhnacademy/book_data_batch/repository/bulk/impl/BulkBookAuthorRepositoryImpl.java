@@ -1,6 +1,6 @@
 package com.nhnacademy.book_data_batch.repository.bulk.impl;
 
-import com.nhnacademy.book_data_batch.batch.book.dto.BookAuthorDto;
+import com.nhnacademy.book_data_batch.batch.aladin.dto.BookAuthorDto;
 import com.nhnacademy.book_data_batch.common.jdbc.BulkInsertHelper;
 import com.nhnacademy.book_data_batch.repository.bulk.BulkBookAuthorRepository;
 import lombok.RequiredArgsConstructor;
