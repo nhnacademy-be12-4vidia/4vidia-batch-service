@@ -2,9 +2,6 @@ package com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-/**
- * Aladin ItemLookUp API 응답의 item 배열 요소를 매핑하는 DTO
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AladinItemDto(
         String title,
