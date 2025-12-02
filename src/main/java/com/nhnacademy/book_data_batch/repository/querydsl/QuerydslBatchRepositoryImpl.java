@@ -79,4 +79,20 @@ public class QuerydslBatchRepositoryImpl implements QuerydslBatchRepository {
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
+
+    @Override
+    public List<BookEnrichmentTarget> findAllPending() {
+        return queryFactory
+                .select(Projections.constructor(
+                        BookEnrichmentTarget.class,
+                        book.id,
+                        book.isbn,
+                        batch.id
+                ))
+                .from(book)
+                .join(batch).on(book.id.eq(batch.book.id))
+                .where(batch.enrichmentStatus.eq(BatchStatus.PENDING))
+                .orderBy(batch.id.asc())
+                .fetch();
+    }
 }

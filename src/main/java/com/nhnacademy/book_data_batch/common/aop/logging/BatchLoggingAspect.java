@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * 배치 로깅 AOP
- * - Tasklet 로깅
+ * - Tasklet 로깅 (시작/완료/예외)
  * - ItemWriter 로깅
  */
 @Aspect
@@ -24,6 +24,7 @@ public class BatchLoggingAspect {
     public Object logTasklet(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
         String operation = joinPoint.getTarget().getClass().getSimpleName();
+        
         log.info("[TASKLET] {} 시작", operation);
 
         try {

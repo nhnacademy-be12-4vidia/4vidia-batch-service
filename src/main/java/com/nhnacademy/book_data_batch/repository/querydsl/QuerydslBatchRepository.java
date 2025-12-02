@@ -5,6 +5,8 @@ import com.nhnacademy.book_data_batch.entity.enums.BatchStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface QuerydslBatchRepository {
 
     Long findMinIdByEnrichmentStatus(BatchStatus status);
@@ -17,4 +19,11 @@ public interface QuerydslBatchRepository {
             Long endId,
             Pageable pageable
     );
+
+    /**
+     * PENDING 상태의 모든 도서 조회 (Tasklet용)
+     * 
+     * @return 보강 대상 도서 목록
+     */
+    List<BookEnrichmentTarget> findAllPending();
 }

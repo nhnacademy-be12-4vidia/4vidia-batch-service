@@ -6,9 +6,20 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Enrichment Job 설정
+ * 
+ * <p>3-Step 구조:</p>
+ * <ol>
+ *   <li>loadPendingStep: PENDING 도서 전체 로드</li>
+ *   <li>parallelApiCallStep: 8개 스레드로 병렬 API 호출</li>
+ *   <li>bulkSaveStep: 모든 결과 한 번에 저장</li>
+ * </ol>
+ */
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
@@ -17,12 +28,17 @@ public class EnrichmentJobConfig {
     private static final String JOB_NAME = "enrichmentJob";
 
     private final JobRepository jobRepository;
-    private final Step aladinStep;
 
     @Bean
-    public Job enrichmentJob() {
+    public Job enrichmentJob(
+            @Qualifier("loadPendingStep") Step loadPendingStep,
+            @Qualifier("parallelApiCallStep") Step parallelApiCallStep,
+            @Qualifier("bulkSaveStep") Step bulkSaveStep) {
+        
         return new JobBuilder(JOB_NAME, jobRepository)
-                .start(aladinStep)
+                .start(loadPendingStep)
+                .next(parallelApiCallStep)
+                .next(bulkSaveStep)
                 .build();
     }
 }

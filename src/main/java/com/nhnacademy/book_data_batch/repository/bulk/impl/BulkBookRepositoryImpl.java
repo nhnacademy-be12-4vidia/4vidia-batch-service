@@ -1,5 +1,6 @@
 package com.nhnacademy.book_data_batch.repository.bulk.impl;
 
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.AladinEnrichmentData;
 import com.nhnacademy.book_data_batch.common.jdbc.BulkJdbcExecutor;
 import com.nhnacademy.book_data_batch.entity.Book;
 import com.nhnacademy.book_data_batch.repository.bulk.BulkBookRepository;
@@ -81,6 +82,31 @@ public class BulkBookRepositoryImpl implements BulkBookRepository {
                     ps.setObject(7, book.getPublishedDate() != null 
                             ? Date.valueOf(book.getPublishedDate()) : null);
                     ps.setLong(8, book.getId());
+                }
+        );
+    }
+
+    @Override
+    public void bulkUpdateFromEnrichment(List<AladinEnrichmentData> enrichmentData) {
+        if (enrichmentData.isEmpty()) {
+            return;
+        }
+
+        log.info("Book Bulk Update (Enrichment): {}건", enrichmentData.size());
+
+        bulkExecutor.execute(
+                UPDATE_ENRICHED_FIELDS_SQL,
+                enrichmentData,
+                (ps, data) -> {
+                    ps.setString(1, data.description());
+                    ps.setString(2, data.subtitle());
+                    ps.setString(3, data.bookIndex());
+                    ps.setObject(4, data.pageCount());
+                    ps.setObject(5, data.priceStandard());
+                    ps.setObject(6, data.priceSales());
+                    ps.setObject(7, data.publishedDate() != null
+                            ? Date.valueOf(data.publishedDate()) : null);
+                    ps.setLong(8, data.bookId());
                 }
         );
     }
