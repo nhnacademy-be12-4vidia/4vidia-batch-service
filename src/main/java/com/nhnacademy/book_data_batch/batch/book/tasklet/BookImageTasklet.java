@@ -15,6 +15,7 @@ import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -38,6 +39,9 @@ public class BookImageTasklet implements Tasklet {
     private final BatchRepository batchRepository;
     private final IsbnResolver isbnResolver;
 
+    @Value("${image.default.thumbnail}")
+    private String defaultThumbnailUrl;
+
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
@@ -53,7 +57,7 @@ public class BookImageTasklet implements Tasklet {
         for (BookCsvRow row : csvRows) {
             String imageUrl = row.imageUrl();
             if (!StringUtils.hasText(imageUrl)) {
-                imageUrl = "";
+                imageUrl = defaultThumbnailUrl;
             }
 
             // ISBN으로 Book 찾기
