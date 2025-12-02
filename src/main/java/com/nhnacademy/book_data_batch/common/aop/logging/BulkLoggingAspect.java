@@ -67,12 +67,28 @@ public class BulkLoggingAspect {
         return logBulkInsert(joinPoint, "도서-태그", count);
     }
 
+    // 도서 Bulk Insert 로깅
+    @Around("execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkBookRepositoryImpl.bulkInsert(..))")
+    public Object logBookBulkInsert(ProceedingJoinPoint joinPoint) throws Throwable {
+        Object[] args = joinPoint.getArgs();
+        int count = getCollectionSize(args, 0);
+        return logBulkInsert(joinPoint, "도서", count);
+    }
+
     // 도서 Bulk Update 로깅
     @Around("execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkBookRepositoryImpl.bulkUpdate(..))")
     public Object logBookBulkUpdate(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         int count = getCollectionSize(args, 0);
-        return logBulkInsert(joinPoint, "도서", count);
+        return logBulkInsert(joinPoint, "도서-UPDATE", count);
+    }
+
+    // 배치 Bulk Insert 로깅
+    @Around("execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkBatchRepositoryImpl.bulkInsert(..))")
+    public Object logBatchBulkInsert(ProceedingJoinPoint joinPoint) throws Throwable {
+        Object[] args = joinPoint.getArgs();
+        int count = getCollectionSize(args, 0);
+        return logBulkInsert(joinPoint, "배치", count);
     }
 
     // 배치 Bulk Update 로깅
@@ -81,7 +97,7 @@ public class BulkLoggingAspect {
     public Object logBatchBulkUpdate(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         int count = getCollectionSize(args, 0);
-        return logBulkInsert(joinPoint, "배치", count);
+        return logBulkInsert(joinPoint, "배치-UPDATE", count);
     }
 
     // 공통 Bulk 로깅 로직

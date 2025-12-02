@@ -14,14 +14,26 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * JDBC Bulk Insert를 위한 공통 유틸리티 클래스
- * - 배치 분할, 재시도 로직, PreparedStatement 설정 기능 제공
- * - MySQL/MariaDB: INSERT IGNORE로 중복 무시 가능
+ * JDBC Bulk 작업을 위한 공통 유틸리티 클래스
+ * 
+ * [역할]
+ * - INSERT, UPDATE 등 모든 Bulk 작업을 단일 메서드로 처리
+ * - 배치 분할, 재시도 로직 제공
+ * 
+ * [사용 예시]
+ * - INSERT: bulkExecute("INSERT INTO ...", items, setter)
+ * - UPDATE: bulkExecute("UPDATE ... WHERE id = ?", items, setter)
+ * 
+ * [설계 결정]
+ * 기존에 BulkInsertHelper와 BulkUpdateHelper로 분리되어 있었으나,
+ * 두 클래스의 구현이 완전히 동일하여 통합함.
+ * SQL 문의 종류(INSERT/UPDATE)는 호출자가 결정하므로
+ * Helper는 SQL 실행에만 집중하는 것이 단일 책임 원칙(SRP)에 부합.
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class BulkInsertHelper {
+public class BulkJdbcExecutor {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -30,31 +42,31 @@ public class BulkInsertHelper {
     private static final long RETRY_DELAY_MS = 100;
 
     /**
-     * Bulk Insert 실행 (기본 배치 사이즈 사용)
+     * Bulk SQL 실행 (기본 배치 사이즈 사용)
      *
-     * @param sql    INSERT SQL
-     * @param items  삽입할 아이템들
+     * @param sql    실행할 SQL (INSERT, UPDATE 등)
+     * @param items  처리할 아이템들
      * @param setter PreparedStatement에 값을 설정하는 함수
      * @param <T>    아이템 타입
      */
-    public <T> void bulkInsert(
+    public <T> void execute(
             String sql,
             Collection<T> items,
             PreparedStatementSetter<T> setter
     ) {
-        bulkInsert(sql, items, setter, DEFAULT_BATCH_SIZE);
+        execute(sql, items, setter, DEFAULT_BATCH_SIZE);
     }
 
     /**
-     * Bulk Insert 실행 (커스텀 배치 사이즈)
+     * Bulk SQL 실행 (커스텀 배치 사이즈)
      *
-     * @param sql       INSERT SQL
-     * @param items     삽입할 아이템들
+     * @param sql       실행할 SQL (INSERT, UPDATE 등)
+     * @param items     처리할 아이템들
      * @param setter    PreparedStatement에 값을 설정하는 함수
      * @param batchSize 배치 사이즈
      * @param <T>       아이템 타입
      */
-    public <T> void bulkInsert(
+    public <T> void execute(
             String sql,
             Collection<T> items,
             PreparedStatementSetter<T> setter,
@@ -104,7 +116,7 @@ public class BulkInsertHelper {
             } catch (CannotAcquireLockException e) {
                 attempt++;
                 if (attempt >= MAX_RETRIES) {
-                    log.error("Bulk Insert 실패 - {}회 재시도 후 포기", MAX_RETRIES);
+                    log.error("Bulk 실행 실패 - {}회 재시도 후 포기", MAX_RETRIES);
                     throw e;
                 }
                 log.warn("Deadlock/Lock timeout 발생 - {}회 재시도 중...", attempt);

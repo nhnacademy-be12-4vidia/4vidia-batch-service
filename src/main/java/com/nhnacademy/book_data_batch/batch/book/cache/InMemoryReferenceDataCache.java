@@ -1,28 +1,38 @@
 package com.nhnacademy.book_data_batch.batch.book.cache;
 
+import com.nhnacademy.book_data_batch.batch.book.dto.BookCsvRow;
+import com.nhnacademy.book_data_batch.entity.Book;
+import com.nhnacademy.book_data_batch.entity.Category;
 import com.nhnacademy.book_data_batch.entity.Publisher;
+import com.nhnacademy.book_data_batch.repository.BookRepository;
+import com.nhnacademy.book_data_batch.repository.CategoryRepository;
 import com.nhnacademy.book_data_batch.repository.PublisherRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 참조 데이터 캐시 구현체 (In-Memory)
- * - Step 1 (ReferenceDataLoadTasklet): CSV 스캔 → Bulk INSERT → buildFromRepository() 호출
- * - Step 2 (BookItemWriter): findPublisher()로 캐시 조회 (멀티스레드 안전)
- * - Job 완료 후: 필요시 clear() 호출
  * 
- * 작가는 알라딘 API에서 처리하므로 Publisher만 캐시
+ * Step 1: CSV 로드 + Publisher/Category 캐시
+ * Step 2: Book 변환 + Bulk INSERT + Book 캐시
+ * Step 3: BookImage/Batch 저장 (Book 캐시 사용)
  */
 @Slf4j
 @Component
 public class InMemoryReferenceDataCache implements ReferenceDataCache {
 
     private final Map<String, Publisher> publisherCache = new ConcurrentHashMap<>();
+    private final Map<String, Category> categoryCache = new ConcurrentHashMap<>();
+    private final Map<String, Book> bookCache = new ConcurrentHashMap<>();
+    private List<BookCsvRow> csvDataCache = Collections.emptyList();
     private final AtomicBoolean ready = new AtomicBoolean(false);
+
+
+    // Publisher 캐시
 
     @Override
     public Publisher findPublisher(String publisherName) {
@@ -33,14 +43,7 @@ public class InMemoryReferenceDataCache implements ReferenceDataCache {
     }
 
     @Override
-    public void putPublisher(String name, Publisher publisher) {
-        if (name != null && publisher != null) {
-            publisherCache.put(normalizeKey(name), publisher);
-        }
-    }
-
-    @Override
-    public void buildFromRepository(PublisherRepository publisherRepository) {
+    public void buildPublisherCache(PublisherRepository publisherRepository) {
         log.info("[Cache] Publisher 캐시 구축 시작...");
         long startTime = System.currentTimeMillis();
 
@@ -50,14 +53,110 @@ public class InMemoryReferenceDataCache implements ReferenceDataCache {
             }
         });
 
-        ready.set(true);
         log.info("[Cache] Publisher 캐시 구축 완료: {}개, {}ms",
                 publisherCache.size(), System.currentTimeMillis() - startTime);
     }
 
     @Override
+    public int getPublisherCacheSize() {
+        return publisherCache.size();
+    }
+
+
+    // Category 캐시
+
+    @Override
+    public Category findCategory(String kdcCode) {
+        if (kdcCode == null || kdcCode.isBlank()) {
+            return null;
+        }
+        return categoryCache.get(kdcCode.trim());
+    }
+
+    @Override
+    public void buildCategoryCache(CategoryRepository categoryRepository) {
+        log.info("[Cache] Category 캐시 구축 시작...");
+        long startTime = System.currentTimeMillis();
+
+        categoryRepository.findAll().forEach(category -> {
+            if (category.getKdcCode() != null) {
+                categoryCache.put(category.getKdcCode().trim(), category);
+            }
+        });
+
+        log.info("[Cache] Category 캐시 구축 완료: {}개, {}ms",
+                categoryCache.size(), System.currentTimeMillis() - startTime);
+    }
+
+    @Override
+    public int getCategoryCacheSize() {
+        return categoryCache.size();
+    }
+
+
+    // Book 캐시
+
+    @Override
+    public Book findBook(String isbn13) {
+        if (isbn13 == null || isbn13.isBlank()) {
+            return null;
+        }
+        return bookCache.get(isbn13.trim());
+    }
+
+    @Override
+    public void buildBookCache(BookRepository bookRepository, Collection<String> isbns) {
+        log.info("[Cache] Book 캐시 구축 시작... (ISBN {}개)", isbns.size());
+        long startTime = System.currentTimeMillis();
+
+        bookRepository.findAllByIsbn13In(isbns).forEach(book -> {
+            if (book.getIsbn13() != null) {
+                bookCache.put(book.getIsbn13(), book);
+            }
+        });
+
+        log.info("[Cache] Book 캐시 구축 완료: {}개, {}ms",
+                bookCache.size(), System.currentTimeMillis() - startTime);
+    }
+
+    @Override
+    public Collection<Book> getAllBooks() {
+        return bookCache.values();
+    }
+
+    @Override
+    public int getBookCacheSize() {
+        return bookCache.size();
+    }
+
+
+    // CSV 데이터 캐시
+
+    @Override
+    public void setCsvData(List<BookCsvRow> csvData) {
+        this.csvDataCache = csvData != null ? new ArrayList<>(csvData) : Collections.emptyList();
+        log.info("[Cache] CSV 데이터 캐시 완료: {}건", csvDataCache.size());
+    }
+
+    @Override
+    public List<BookCsvRow> getCsvData() {
+        return csvDataCache;
+    }
+
+    @Override
+    public int getCsvDataSize() {
+        return csvDataCache.size();
+    }
+
+
+    // 공통
+
+    @Override
     public void clear() {
         publisherCache.clear();
+        categoryCache.clear();
+        bookCache.clear();
+        csvDataCache = Collections.emptyList();
         ready.set(false);
         log.info("[Cache] 캐시 초기화 완료");
     }
@@ -67,9 +166,8 @@ public class InMemoryReferenceDataCache implements ReferenceDataCache {
         return ready.get();
     }
 
-    @Override
-    public int getPublisherCacheSize() {
-        return publisherCache.size();
+    public void markReady() {
+        ready.set(true);
     }
 
     private String normalizeKey(String key) {

@@ -14,9 +14,6 @@ import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.List;
 
-/**
- * Batch 엔티티의 복잡한 쿼리를 QueryDSL로 구현
- */
 @RequiredArgsConstructor
 public class QuerydslBatchRepositoryImpl implements QuerydslBatchRepository {
 
