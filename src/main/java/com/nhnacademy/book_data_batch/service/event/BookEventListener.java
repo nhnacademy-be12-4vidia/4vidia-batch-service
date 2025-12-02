@@ -1,7 +1,7 @@
 package com.nhnacademy.book_data_batch.service.event;
 
 import com.nhnacademy.book_data_batch.dto.event.BookSavedEvent;
-import com.nhnacademy.book_data_batch.batch.embedding.client.OllamaClient;
+import com.nhnacademy.book_data_batch.batch.enrichment.client.OllamaClient;
 import com.nhnacademy.book_data_batch.document.BookDocument;
 import com.nhnacademy.book_data_batch.entity.Book;
 import com.nhnacademy.book_data_batch.repository.search.BookSearchRepository;

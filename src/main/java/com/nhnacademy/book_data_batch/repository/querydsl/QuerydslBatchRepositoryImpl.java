@@ -1,6 +1,6 @@
 package com.nhnacademy.book_data_batch.repository.querydsl;
 
-import com.nhnacademy.book_data_batch.batch.aladin.dto.BookEnrichmentTarget;
+import com.nhnacademy.book_data_batch.batch.enrichment.dto.BookEnrichmentTarget;
 import com.nhnacademy.book_data_batch.entity.QBatch;
 import com.nhnacademy.book_data_batch.entity.QBook;
 import com.nhnacademy.book_data_batch.entity.enums.BatchStatus;
