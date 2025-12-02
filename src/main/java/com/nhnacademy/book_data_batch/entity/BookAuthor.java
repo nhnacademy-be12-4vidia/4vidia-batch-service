@@ -25,17 +25,14 @@ public class BookAuthor extends BaseEntity {
     @ManyToOne(optional = false)
     @JoinColumn(name = "book_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @Setter
     private Book book;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "author_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @Setter
     private Author author;
 
     @Column(name = "author_role")
-    @Setter
     private String role;
 
     @Builder

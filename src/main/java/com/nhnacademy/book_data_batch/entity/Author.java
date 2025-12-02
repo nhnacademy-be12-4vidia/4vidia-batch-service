@@ -19,7 +19,6 @@ public class Author extends BaseEntity {
 
     @Column(name = "author_name", nullable = false, unique = true, length = 255,
             columnDefinition = "VARCHAR(255) DEFAULT '작자미상'")
-    @Setter
     private String name;
 
     @Builder
