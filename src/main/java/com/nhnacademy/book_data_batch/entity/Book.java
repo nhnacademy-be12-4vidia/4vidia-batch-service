@@ -57,12 +57,12 @@ public class Book extends BaseEntity {
     @Column(name = "price_sales")
     private Integer priceSales;
 
-    @Column(name = "stock", columnDefinition = "INT DEFAULT 0")
-    private Integer stock = 0;
+    @Column(name = "stock", columnDefinition = "INT DEFAULT 10")
+    private Integer stock = 10;
 
-    @Column(name = "stock_status", nullable = false, columnDefinition = "TINYINT DEFAULT 0")
+    @Column(name = "stock_status", nullable = false, columnDefinition = "TINYINT DEFAULT 1")
     @Convert(converter = StockStatusConverter.class)
-    private StockStatus stockStatus = StockStatus.PRE_ORDER;
+    private StockStatus stockStatus = StockStatus.IN_STOCK;
 
     @Column(name = "packaging_available", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean packagingAvailable = true;
@@ -73,9 +73,6 @@ public class Book extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
-
-    @Column(name = "raw_author", columnDefinition = "TEXT")
-    private String rawAuthor;
 
     @Builder
     public Book(String isbn,
@@ -90,8 +87,7 @@ public class Book extends BaseEntity {
                 Integer priceStandard,
                 Integer priceSales,
                 Integer volumeNumber,
-                Category category,
-                String rawAuthor) {
+                Category category) {
         this.isbn = isbn;
         this.title = title;
         this.subtitle = subtitle;
@@ -105,6 +101,5 @@ public class Book extends BaseEntity {
         this.priceSales = priceSales;
         this.volumeNumber = volumeNumber;
         this.category = category;
-        this.rawAuthor = rawAuthor;
     }
 }

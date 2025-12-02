@@ -38,7 +38,7 @@ public class KdcCategoryItemProcessor implements ItemProcessor<KdcCategoryCsv, C
 
         // 카테고리 정보 생성
         String codeForStorage = rawCode;
-        String name = StringUtils.hasText(item.rawName()) ? item.rawName().trim() : "미정";
+        String name = StringUtils.hasText(item.rawName()) ? item.rawName().trim() : null;
 
         // 이미 존재하는 카테고리면 건너뜀
         if (categoryRepository.existsByKdcCode(codeForStorage)) {

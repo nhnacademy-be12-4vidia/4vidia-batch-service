@@ -8,10 +8,6 @@ import java.util.List;
 
 public interface BookAuthorService {
 
-    BookAuthor save(Book book, Author author);
-
-    Boolean isExists(ParsingDto dto);
-
     BookAuthor createByApi(BookAuthor bookAuthor);
 
     List<BookAuthor> createAll(List<BookAuthor> bookAuthors);

@@ -27,7 +27,7 @@ public class Category extends BaseEntity {
     @Column(name = "kdc_code", nullable = false, unique = true, length = 3)
     private String kdcCode;
 
-    @Column(name = "category_name", nullable = false, length = 70)
+    @Column(name = "category_name", length = 70)
     private String name;
 
     // e.g. "/8/81/811"

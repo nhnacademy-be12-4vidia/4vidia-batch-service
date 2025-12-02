@@ -109,7 +109,6 @@ public class BookProcessingTasklet implements Tasklet {
                 .priceSales(priceSales)
                 .category(category)
                 .volumeNumber(volumeNumber)
-                .rawAuthor(fieldNormalizer.blankToNull(row.author()))
                 .build();
     }
 }

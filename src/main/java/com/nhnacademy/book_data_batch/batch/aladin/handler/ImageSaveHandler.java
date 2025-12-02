@@ -29,7 +29,8 @@ public class ImageSaveHandler implements EnrichmentSaveHandler {
                 .map(item -> new BookImageDto(
                         item.bookId(),
                         item.coverUrl(),
-                        ImageType.THUMBNAIL.getCode()
+                        ImageType.THUMBNAIL.getCode(),
+                        0
                 ))
                 .toList();
 

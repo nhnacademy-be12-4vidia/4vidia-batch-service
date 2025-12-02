@@ -53,7 +53,7 @@ public class BookImageTasklet implements Tasklet {
         for (BookCsvRow row : csvRows) {
             String imageUrl = row.imageUrl();
             if (!StringUtils.hasText(imageUrl)) {
-                continue;
+                imageUrl = "";
             }
 
             // ISBN으로 Book 찾기
@@ -70,7 +70,8 @@ public class BookImageTasklet implements Tasklet {
             bookImages.add(new BookImageDto(
                     book.getId(),
                     imageUrl.trim(),
-                    ImageType.THUMBNAIL.getCode()
+                    ImageType.THUMBNAIL.getCode(),
+                    0
             ));
         }
 

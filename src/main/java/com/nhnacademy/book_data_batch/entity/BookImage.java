@@ -24,17 +24,21 @@ public class BookImage extends BaseEntity {
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
-    @Column(name = "image_url", nullable = false)
+    @Column(name = "image_url", nullable = false, length = 500)
     private String imageUrl;
 
     @Column(name = "image_type", nullable = false)
     @Convert(converter = ImageTypeConverter.class)
     private ImageType imageType;
 
+    @Column(name = "display_order")
+    private Integer displayOrder;
+
     @Builder
-    public BookImage(Book book, String imageUrl, ImageType imageType) {
+    public BookImage(Book book, String imageUrl, ImageType imageType, Integer displayOrder) {
         this.book = book;
         this.imageUrl = imageUrl;
         this.imageType = imageType;
+        this.displayOrder = displayOrder;
     }
 }

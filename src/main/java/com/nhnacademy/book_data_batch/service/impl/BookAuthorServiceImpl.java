@@ -19,19 +19,6 @@ public class BookAuthorServiceImpl implements BookAuthorService {
     private final BookAuthorRepository bookAuthorRepository;
 
     @Override
-    public BookAuthor save(Book book, Author author) {
-        BookAuthor bookAuthor = new BookAuthor();
-        bookAuthor.setBook(book);
-        bookAuthor.setAuthor(author);
-        return bookAuthorRepository.save(bookAuthor);
-    }
-
-    @Override
-    public Boolean isExists(ParsingDto dto) {
-        return null;
-    }
-
-    @Override
     public BookAuthor createByApi(BookAuthor bookAuthor) {
         return bookAuthorRepository.save(bookAuthor);
     }

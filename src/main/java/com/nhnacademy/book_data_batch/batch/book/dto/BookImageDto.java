@@ -11,7 +11,8 @@ public record BookImageDto(
 
         Long bookId,
         String imageUrl,
-        int imageType
+        int imageType,
+        int displayOrder
 ) {
 
 }

@@ -15,7 +15,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class BookAuthor extends BaseEntity {
+public class BookAuthor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,12 +24,10 @@ public class BookAuthor extends BaseEntity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "book_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Book book;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "author_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Author author;
 
     @Column(name = "author_role")

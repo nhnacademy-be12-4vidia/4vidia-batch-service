@@ -18,9 +18,9 @@ public class BulkBookRepositoryImpl implements BulkBookRepository {
     private static final String INSERT_BOOK_SQL = """
             INSERT IGNORE INTO book (
                 isbn_13, title, description, publisher_id, published_date,
-                price_standard, price_sales, category_id, volume_number, raw_author,
+                price_standard, price_sales, category_id, volume_number,
                 stock, stock_status, packaging_available
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """;
 
     private static final String UPDATE_ENRICHED_FIELDS_SQL = """
@@ -55,10 +55,9 @@ public class BulkBookRepositoryImpl implements BulkBookRepository {
                     ps.setObject(7, book.getPriceSales());
                     ps.setObject(8, book.getCategory() != null ? book.getCategory().getId() : null);
                     ps.setObject(9, book.getVolumeNumber() != null ? book.getVolumeNumber() : 1);
-                    ps.setString(10, book.getRawAuthor());
-                    ps.setInt(11, 0);  // stock 기본값
-                    ps.setInt(12, 0);  // stock_status 기본값 (PRE_ORDER)
-                    ps.setBoolean(13, true);  // packaging_available 기본값
+                    ps.setInt(10, 0);  // stock 기본값
+                    ps.setInt(11, 0);  // stock_status 기본값 (PRE_ORDER)
+                    ps.setBoolean(12, true);  // packaging_available 기본값
                 }
         );
     }
