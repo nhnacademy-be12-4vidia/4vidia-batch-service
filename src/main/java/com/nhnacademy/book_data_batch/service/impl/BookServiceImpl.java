@@ -26,14 +26,14 @@ public class BookServiceImpl implements BookService {
             throw new IllegalArgumentException("이미 등록된 도서입니다.");
         }
 
-        Book book = new Book();
-        book.setIsbn13(dto.getIsbn());
-        book.setTitle(dto.getTitle());
-        book.setPriceStandard(dto.getPriceStandard());
-        book.setDescription(dto.getDescription());
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate publishDate = LocalDate.parse(dto.getPublishedDate(), formatter);
-        book.setPublishedDate(publishDate);
+        Book book = Book.builder()
+            .isbn(dto.getIsbn())
+            .title(dto.getTitle())
+            .priceStandard(dto.getPriceStandard())
+            .description(dto.getDescription())
+            .publishedDate(LocalDate.parse(dto.getPublishedDate(),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+            .build();
 
         return bookRepository.save(book);
     }

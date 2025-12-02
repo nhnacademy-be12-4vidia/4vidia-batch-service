@@ -40,7 +40,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 /**
  * <pre>
  * EnrichmentJobConfig: Aladin API를 이용한 도서 정보 보강 배치 Job 설정
- * - 이름: aladinEnrichmentJob
+ * - 이름: enrichmentJob
  * - 목적: PENDING 상태의 도서를 Aladin API로 보강
  * - 방식: 8개 API 키로 병렬 파티셔닝 (하루 최대 4만건)
  * - 쿼터 제한: 파티션당 5,000건/일 (총 4만건/일)
@@ -60,7 +60,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @RequiredArgsConstructor
 public class EnrichmentJobConfig {
 
-    private static final String JOB_NAME = "EnrichmentJob";
+    private static final String JOB_NAME = "enrichmentJob";
     private static final String MASTER_STEP_NAME = "aladinMasterStep";
     private static final String WORKER_STEP_NAME = "aladinWorkerStep";
 
@@ -96,7 +96,7 @@ public class EnrichmentJobConfig {
      * Aladin Enrichment Job 정의
      */
     @Bean
-    public Job aladinEnrichmentJob() {
+    public Job enrichmentJob() {
         return new JobBuilder(JOB_NAME, jobRepository)
                 .start(aladinMasterStep())
                 .build();

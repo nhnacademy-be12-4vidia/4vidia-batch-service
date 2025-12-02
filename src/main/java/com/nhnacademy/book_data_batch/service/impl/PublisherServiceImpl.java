@@ -43,8 +43,9 @@ public class PublisherServiceImpl implements PublisherService {
             throw new IllegalArgumentException();
         }
 
-        Publisher publisher = new Publisher();
-        publisher.setName(dto.getPublisher());
+        Publisher publisher = Publisher.builder()
+                .name(dto.getPublisher())
+                .build();
         return publisherRepository.save(publisher);
     }
 

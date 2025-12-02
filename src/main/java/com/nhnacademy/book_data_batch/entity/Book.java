@@ -30,12 +30,15 @@ public class Book extends BaseEntity {
     private String title;
 
     @Column(name = "subtitle", length = 500)
+    @Setter
     private String subtitle;
 
     @Column(name = "book_index", columnDefinition = "TEXT")
+    @Setter
     private String bookIndex;
 
     @Column(name = "description", columnDefinition = "TEXT")
+    @Setter
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -43,18 +46,22 @@ public class Book extends BaseEntity {
     private Publisher publisher;
 
     @Column(name = "published_date")
+    @Setter
     private LocalDate publishedDate;
 
     @Column(name = "page_count")
+    @Setter
     private Integer pageCount;
 
     @Column(name = "language", length = 10)
     private String language;
 
     @Column(name = "price_standard")
+    @Setter
     private Integer priceStandard;
 
     @Column(name = "price_sales")
+    @Setter
     private Integer priceSales;
 
     @Column(name = "stock", columnDefinition = "INT DEFAULT 10")
@@ -86,6 +93,7 @@ public class Book extends BaseEntity {
                 String language,
                 Integer priceStandard,
                 Integer priceSales,
+                Integer stock,
                 Integer volumeNumber,
                 Category category) {
         this.isbn = isbn;
@@ -99,6 +107,7 @@ public class Book extends BaseEntity {
         this.language = language;
         this.priceStandard = priceStandard;
         this.priceSales = priceSales;
+        this.stock = stock;
         this.volumeNumber = volumeNumber;
         this.category = category;
     }

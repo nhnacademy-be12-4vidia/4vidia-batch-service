@@ -107,6 +107,7 @@ public class BookProcessingTasklet implements Tasklet {
                 .publishedDate(fieldNormalizer.parseDate(row.publishedDate(), row.secondaryPublishedDate()))
                 .priceStandard(priceStandard != null ? priceStandard : 0)
                 .priceSales(priceSales)
+                .stock(10)
                 .category(category)
                 .volumeNumber(volumeNumber)
                 .build();

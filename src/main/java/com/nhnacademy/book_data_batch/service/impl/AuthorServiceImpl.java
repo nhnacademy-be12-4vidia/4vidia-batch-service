@@ -38,8 +38,9 @@ public class AuthorServiceImpl implements AuthorService {
         if (authorRepository.existsByName(authorName)) {
             throw new IllegalArgumentException("이미 등록된 저자입니다.");
         }
-        Author author = new Author();
-        author.setName(authorName);
+        Author author = Author.builder()
+                .name(authorName)
+                .build();
         return authorRepository.save(author);
     }
 

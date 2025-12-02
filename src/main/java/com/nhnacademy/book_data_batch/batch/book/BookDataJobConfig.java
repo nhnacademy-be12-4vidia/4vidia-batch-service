@@ -110,13 +110,15 @@ public class BookDataJobConfig {
      * Step 3: BookImage + Batch 처리
      */
     @Bean
-    public Step bookImageStep() {
+    public Step bookImageStep(
+            @Value("${image.default.thumbnail}") String defaultThumbnailUrl) {
         return new StepBuilder(STEP3_NAME, jobRepository)
                 .tasklet(new BookImageTasklet(
                         cache,
                         bookImageRepository,
                         batchRepository,
-                        isbnResolver
+                        isbnResolver,
+                        defaultThumbnailUrl
                 ), transactionManager)
                 .build();
     }
