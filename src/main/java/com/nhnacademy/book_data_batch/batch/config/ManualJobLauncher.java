@@ -43,7 +43,7 @@ public class ManualJobLauncher implements ApplicationRunner {
             JobParameters parameters = new JobParametersBuilder()
                 .addLong("launchTimestamp", System.currentTimeMillis())
                 .toJobParameters();
-            log.info("배치 잡 '{}' 을(를) 매개변수 {} 로 실행합니다.", jobName, parameters);
+            log.info("[BATCH START] Job name: {} 을(를) 매개변수 {} 로 실행합니다.", jobName, parameters);
             jobLauncher.run(job, parameters);
         }
     }

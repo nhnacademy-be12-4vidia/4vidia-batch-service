@@ -97,6 +97,10 @@ public class Book extends BaseEntity {
     @Setter
     private Category category;
 
+    @Column(name = "raw_author", columnDefinition = "TEXT")
+    @Setter
+    private String rawAuthor;
+
     @Builder
     public Book(String isbn13,
                 String title,
@@ -110,7 +114,8 @@ public class Book extends BaseEntity {
                 Integer priceStandard,
                 Integer priceSales,
                 Integer volumeNumber,
-                Category category) {
+                Category category,
+                String rawAuthor) {
         this.isbn13 = isbn13;
         this.title = title;
         this.subtitle = subtitle;
@@ -124,5 +129,6 @@ public class Book extends BaseEntity {
         this.priceSales = priceSales;
         this.volumeNumber = volumeNumber;
         this.category = category;
+        this.rawAuthor = rawAuthor;
     }
 }
