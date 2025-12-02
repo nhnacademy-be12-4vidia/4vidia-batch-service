@@ -21,7 +21,7 @@ import org.hibernate.annotations.OnDeleteAction;
     @Index(name = "idx_batch_indexing_status", columnList = "indexing_status")
 })
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Batch extends BaseEntity {
 

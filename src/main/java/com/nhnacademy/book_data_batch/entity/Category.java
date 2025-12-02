@@ -11,7 +11,7 @@ import lombok.*;
     @Index(name = "idx_category_depth", columnList = "depth")
 })
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Category extends BaseEntity {
 

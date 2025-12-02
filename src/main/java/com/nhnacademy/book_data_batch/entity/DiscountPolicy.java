@@ -10,7 +10,7 @@ import java.time.LocalDate;
     @Index(name = "idx_discount_policy_category_id", columnList = "category_id")
 })
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class DiscountPolicy {
 

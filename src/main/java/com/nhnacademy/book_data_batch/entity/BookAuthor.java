@@ -13,7 +13,7 @@ import org.hibernate.annotations.OnDeleteAction;
     @UniqueConstraint(name = "uk_book_author", columnNames = {"book_id", "author_id"})
 })
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class BookAuthor extends BaseEntity {
 

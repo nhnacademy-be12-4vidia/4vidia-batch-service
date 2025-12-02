@@ -6,7 +6,7 @@ import lombok.*;
 @Entity
 @Table(name = "publisher")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Publisher extends BaseEntity{
 

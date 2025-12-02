@@ -1,10 +1,7 @@
 package com.nhnacademy.book_data_batch.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -15,7 +12,7 @@ import org.hibernate.annotations.OnDeleteAction;
 }, uniqueConstraints = {
     @UniqueConstraint(name = "uk_book_tag", columnNames = {"book_id", "tag_id"})
 })
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class BookTag extends BaseEntity {
 
