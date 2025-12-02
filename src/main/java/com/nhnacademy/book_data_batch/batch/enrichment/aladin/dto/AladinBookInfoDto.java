@@ -19,7 +19,7 @@ public record AladinBookInfoDto(
      */
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record AladinBookAuthorDto(
-            String authorName,
-            String authorRole
+            String name, // 저자 이름
+            String desc  // 저자 역할
     ) {}
 }

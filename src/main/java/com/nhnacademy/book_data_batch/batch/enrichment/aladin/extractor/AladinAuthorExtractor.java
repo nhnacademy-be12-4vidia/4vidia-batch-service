@@ -41,11 +41,11 @@ public class AladinAuthorExtractor {
 
     private List<AuthorWithRole> extractFromBookInfo(AladinBookInfoDto bookinfo) {
         return bookinfo.authors().stream()
-                .filter(a -> StringUtils.hasText(a.authorName()))
+                .filter(a -> StringUtils.hasText(a.name()))
                 .map(a -> new AuthorWithRole(
-                        a.authorName().trim(),
-                        StringUtils.hasText(a.authorRole())
-                                ? a.authorRole().trim() : DEFAULT_ROLE))
+                        a.name().trim(),
+                        StringUtils.hasText(a.desc())
+                                ? a.desc().trim() : DEFAULT_ROLE))
                 .toList();
     }
 
