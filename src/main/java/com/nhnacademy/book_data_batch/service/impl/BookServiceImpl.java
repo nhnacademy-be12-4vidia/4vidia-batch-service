@@ -40,20 +40,20 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public boolean exist(String isbn) {
-        return bookRepository.existsByIsbn13(isbn);
+        return bookRepository.existsByIsbn(isbn);
     }
 
     @Override
     public Book getBook(String isbn) {
-        if (bookRepository.existsByIsbn13(isbn)) {
-            return bookRepository.findByIsbn13(isbn);
+        if (bookRepository.existsByIsbn(isbn)) {
+            return bookRepository.findByIsbn(isbn);
         }
         return null;
     }
 
     @Override
     public Book createByApi(Book book) {
-        if (exist(book.getIsbn13())) {
+        if (exist(book.getIsbn())) {
             throw new IllegalArgumentException("이미 등록된 도서입니다.");
         }
         return bookRepository.save(book);
@@ -63,16 +63,16 @@ public class BookServiceImpl implements BookService {
     public List<Book> createAll(List<Book> newBooks) {
 
         List<String> isbns = newBooks.stream()
-            .map(Book::getIsbn13)
+            .map(Book::getIsbn)
             .toList();
 
-        List<Book> existingBooks = bookRepository.findAllByIsbn13In(isbns);
+        List<Book> existingBooks = bookRepository.findAllByIsbnIn(isbns);
 
-        Set<String> existingIsbnSet = existingBooks.stream().map(Book::getIsbn13)
+        Set<String> existingIsbnSet = existingBooks.stream().map(Book::getIsbn)
             .collect(Collectors.toSet());
 
         List<Book> booksToSave = newBooks.stream()
-            .filter(b -> !existingIsbnSet.contains(b.getIsbn13())).toList();
+            .filter(b -> !existingIsbnSet.contains(b.getIsbn())).toList();
 
         if (!booksToSave.isEmpty()) {
             return bookRepository.saveAll(booksToSave);

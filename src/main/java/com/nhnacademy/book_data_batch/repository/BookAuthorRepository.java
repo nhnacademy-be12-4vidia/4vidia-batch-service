@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BookAuthorRepository extends JpaRepository<BookAuthor, Long>, BulkBookAuthorRepository {
 
-    Boolean existsByAuthor_NameAndBook_Isbn13(String authorName, String bookIsbn13);
+    Boolean existsByAuthor_NameAndBook_Isbn(String authorName, String bookIsbn13);
 
 }

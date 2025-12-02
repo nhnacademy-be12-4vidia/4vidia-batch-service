@@ -109,9 +109,9 @@ public class InMemoryReferenceDataCache implements ReferenceDataCache {
         log.info("[Cache] Book 캐시 구축 시작... (ISBN {}개)", isbns.size());
         long startTime = System.currentTimeMillis();
 
-        bookRepository.findAllByIsbn13In(isbns).forEach(book -> {
-            if (book.getIsbn13() != null) {
-                bookCache.put(book.getIsbn13(), book);
+        bookRepository.findAllByIsbnIn(isbns).forEach(book -> {
+            if (book.getIsbn() != null) {
+                bookCache.put(book.getIsbn(), book);
             }
         });
 

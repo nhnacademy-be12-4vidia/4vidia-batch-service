@@ -45,7 +45,7 @@ public class BulkBookRepositoryImpl implements BulkBookRepository {
                 INSERT_BOOK_SQL,
                 books,
                 (ps, book) -> {
-                    ps.setString(1, book.getIsbn13());
+                    ps.setString(1, book.getIsbn());
                     ps.setString(2, book.getTitle());
                     ps.setString(3, book.getDescription());
                     ps.setObject(4, book.getPublisher() != null ? book.getPublisher().getId() : null);

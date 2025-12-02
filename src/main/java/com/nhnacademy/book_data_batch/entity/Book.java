@@ -1,13 +1,10 @@
 package com.nhnacademy.book_data_batch.entity;
 
 import com.nhnacademy.book_data_batch.entity.converters.StockStatusConverter;
-import com.nhnacademy.book_data_batch.entity.enums.ImageType;
 import com.nhnacademy.book_data_batch.entity.enums.StockStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 import lombok.*;
 
@@ -27,7 +24,7 @@ public class Book extends BaseEntity {
     private Long id;
 
     @Column(name = "isbn_13", unique = true, length = 13)
-    private String isbn13;
+    private String isbn;
 
     @Column(name = "title", nullable = false, length = 500)
     private String title;
@@ -81,7 +78,7 @@ public class Book extends BaseEntity {
     private String rawAuthor;
 
     @Builder
-    public Book(String isbn13,
+    public Book(String isbn,
                 String title,
                 String description,
                 String subtitle,
@@ -95,7 +92,7 @@ public class Book extends BaseEntity {
                 Integer volumeNumber,
                 Category category,
                 String rawAuthor) {
-        this.isbn13 = isbn13;
+        this.isbn = isbn;
         this.title = title;
         this.subtitle = subtitle;
         this.bookIndex = bookIndex;

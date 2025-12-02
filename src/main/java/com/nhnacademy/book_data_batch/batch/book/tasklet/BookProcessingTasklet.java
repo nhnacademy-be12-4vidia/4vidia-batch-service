@@ -51,7 +51,7 @@ public class BookProcessingTasklet implements Tasklet {
             Book book = convertToBook(row);
             if (book != null) {
                 books.add(book);
-                isbns.add(book.getIsbn13());
+                isbns.add(book.getIsbn());
             }
         }
 
@@ -77,8 +77,8 @@ public class BookProcessingTasklet implements Tasklet {
      */
     private Book convertToBook(BookCsvRow row) {
         // ISBN 결정
-        String isbn13 = isbnResolver.resolve(row.isbn13(), row.isbn10());
-        if (!StringUtils.hasText(isbn13)) {
+        String isbn = isbnResolver.resolve(row.isbn13(), row.isbn10());
+        if (!StringUtils.hasText(isbn)) {
             return null;  // ISBN 없으면 스킵
         }
 
@@ -100,7 +100,7 @@ public class BookProcessingTasklet implements Tasklet {
         Integer volumeNumber = fieldNormalizer.parseVolumeNumber(row.volumeNumber());
 
         return Book.builder()
-                .isbn13(isbn13)
+                .isbn(isbn)
                 .title(row.title())
                 .description(description)
                 .publisher(publisher)
