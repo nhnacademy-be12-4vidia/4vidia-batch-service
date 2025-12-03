@@ -17,6 +17,7 @@ import java.util.List;
  * @param authors       저자 목록 (이름 + 역할)
  * @param tags          태그 목록 (카테고리에서 추출)
  * @param coverUrl      표지 이미지 URL
+ * @param language      도서 언어
  */
 public record AladinEnrichmentData(
         Long bookId,
@@ -29,7 +30,8 @@ public record AladinEnrichmentData(
         String bookIndex,
         List<AuthorWithRole> authors,
         List<String> tags,
-        String coverUrl
+        String coverUrl,
+        String language
 ) {
     /**
      * 저자 정보

@@ -2,7 +2,7 @@ package com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet;
 
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.BookEnrichmentTarget;
 import com.nhnacademy.book_data_batch.batch.enrichment.common.EnrichmentCache;
-import com.nhnacademy.book_data_batch.batch.enrichment.common.QuotaTracker;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.QuotaTracker;
 import com.nhnacademy.book_data_batch.repository.BatchRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

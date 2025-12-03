@@ -6,7 +6,7 @@ import com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet.BulkSaveTa
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet.LoadPendingTasklet;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet.ParallelApiCallTasklet;
 import com.nhnacademy.book_data_batch.batch.enrichment.common.EnrichmentCache;
-import com.nhnacademy.book_data_batch.batch.enrichment.common.QuotaTracker;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.QuotaTracker;
 import com.nhnacademy.book_data_batch.repository.AuthorRepository;
 import com.nhnacademy.book_data_batch.repository.BatchRepository;
 import com.nhnacademy.book_data_batch.repository.BookAuthorRepository;

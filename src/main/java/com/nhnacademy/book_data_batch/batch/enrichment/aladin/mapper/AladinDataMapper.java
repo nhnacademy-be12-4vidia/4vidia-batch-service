@@ -41,6 +41,7 @@ public class AladinDataMapper {
         AladinBookInfoDto bookinfo = item.bookinfo();
         List<AuthorWithRole> authors = authorExtractor.extract(item);
         List<String> tags = tagExtractor.extract(item.categoryName());
+        String language = extractLanguage(item.categoryName());
 
         return new AladinEnrichmentData(
                 target.bookId(),
@@ -53,7 +54,8 @@ public class AladinDataMapper {
                 getToc(bookinfo),
                 authors,
                 tags,
-                item.cover()
+                item.cover(),
+                language
         );
     }
 
@@ -92,5 +94,15 @@ public class AladinDataMapper {
             return null;
         }
         return StringUtils.hasText(bookinfo.toc()) ? bookinfo.toc() : null;
+    }
+
+    private String extractLanguage(String categoryName) {
+        if (!StringUtils.hasText(categoryName)) {
+            return null;
+        }
+        if (categoryName.startsWith("국내도서")) {
+            return "ko";
+        }
+        return null;
     }
 }

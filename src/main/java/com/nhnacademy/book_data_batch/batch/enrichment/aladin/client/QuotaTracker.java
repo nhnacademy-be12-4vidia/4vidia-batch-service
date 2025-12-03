@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.batch.enrichment.common;
+package com.nhnacademy.book_data_batch.batch.enrichment.aladin.client;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +28,7 @@ public class QuotaTracker {
 
     /**
      * API 키 사용 가능 여부 확인
-     * 
+     *
      * @param apiKey API 키
      * @return 사용 가능하면 true
      */
@@ -37,14 +37,15 @@ public class QuotaTracker {
     }
 
     /**
-     * API 호출 카운트 증가 및 현재 값 반환
-     * 
+     * API 키 사용 시도
+     * - 사용 성공 시 사용량 1 증가
+     *
      * @param apiKey API 키
-     * @return 증가 후 사용량
+     * @return 사용 성공하면 true
      */
-    public int incrementAndGet(String apiKey) {
+    public boolean tryAcquire(String apiKey) {
         return usageMap.computeIfAbsent(apiKey, k -> new AtomicInteger(0))
-                       .incrementAndGet();
+                .getAndUpdate(current -> current < quotaPerKey ? current + 1 : current) < quotaPerKey;
     }
 
     /**

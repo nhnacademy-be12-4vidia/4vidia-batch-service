@@ -6,7 +6,7 @@ import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.AladinItemDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.BookEnrichmentTarget;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.mapper.AladinDataMapper;
 import com.nhnacademy.book_data_batch.batch.enrichment.common.EnrichmentCache;
-import com.nhnacademy.book_data_batch.batch.enrichment.common.QuotaTracker;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.QuotaTracker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.StepContribution;
@@ -90,21 +90,19 @@ public class ParallelApiCallTasklet implements Tasklet {
         int failed = 0;
 
         for (BookEnrichmentTarget target : targets) {
-            // 쿼터 체크
-            if (!quotaTracker.canUse(apiKey)) {
-                log.debug("[Step2] 파티션 {} 쿼터 소진", partitionIdx);
-                break;
-            }
 
-            // ISBN 체크 (API 호출 없이 실패 처리 - 쿼터 소모 안 함)
+            // ISBN 체크
             if (!StringUtils.hasText(target.isbn13())) {
                 cache.addFailure(target.bookId(), target.batchId(), "ISBN13 없음");
                 failed++;
                 continue;
             }
 
-            // API 호출 시도 → 쿼터 사용 기록
-            quotaTracker.incrementAndGet(apiKey);
+            // 쿼터 체크
+            if (!quotaTracker.tryAcquire(apiKey)) {
+                log.info("[Step2] 파티션 {} 쿼터 소진", partitionIdx);
+                break;
+            }
 
             try {
                 Optional<AladinItemDto> response = apiClient.lookupByIsbn(target.isbn13(), apiKey);
@@ -123,7 +121,7 @@ public class ParallelApiCallTasklet implements Tasklet {
             }
         }
 
-        log.debug("[Step2] 파티션 {} 완료 - 성공: {}, 실패: {}", partitionIdx, success, failed);
+        log.info("[Step2] 파티션 {} 완료 - 성공: {}, 실패: {}", partitionIdx, success, failed);
     }
 
     /**

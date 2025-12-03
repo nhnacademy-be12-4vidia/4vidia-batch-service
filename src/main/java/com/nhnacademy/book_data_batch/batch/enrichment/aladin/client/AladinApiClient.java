@@ -55,11 +55,16 @@ public class AladinApiClient {
 
         int retry429Count = 0;
         int retryNetworkCount = 0;
+        boolean firstTry = true;
 
         while (retry429Count <= MAX_RETRY_429) {
             try {
                 // API Rate Limit 대응 (호출 간 딜레이)
-                Thread.sleep(API_CALL_DELAY_MS);
+                if (!firstTry) {
+                    Thread.sleep(API_CALL_DELAY_MS);
+                } else {
+                    firstTry = false;
+                }
 
                 AladinResponseDto response = restTemplate.getForObject(url, AladinResponseDto.class);
 

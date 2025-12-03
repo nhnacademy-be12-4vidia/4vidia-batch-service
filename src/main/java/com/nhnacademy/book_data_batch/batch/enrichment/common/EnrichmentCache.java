@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class EnrichmentCache {
 
     @Getter
-    private AtomicReference<List<BookEnrichmentTarget>> pendingTargets =
+    private final AtomicReference<List<BookEnrichmentTarget>> pendingTargets =
             new AtomicReference<>(Collections.emptyList());
     private final ConcurrentLinkedQueue<AladinEnrichmentData> successResults =
             new ConcurrentLinkedQueue<>();
@@ -80,7 +80,7 @@ public class EnrichmentCache {
 
     // 모든 캐시 초기화 (Job 시작/종료 시 호출)
     public void clear() {
-        pendingTargets = new AtomicReference<>(Collections.emptyList());
+        pendingTargets.set(Collections.emptyList());
         successResults.clear();
         failedResults.clear();
     }

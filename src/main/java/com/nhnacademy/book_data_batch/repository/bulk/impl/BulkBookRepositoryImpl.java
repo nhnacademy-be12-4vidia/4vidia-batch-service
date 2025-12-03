@@ -32,7 +32,8 @@ public class BulkBookRepositoryImpl implements BulkBookRepository {
                 page_count = ?,
                 price_standard = ?,
                 price_sales = ?,
-                published_date = ?
+                published_date = ?,
+                language = ?
             WHERE book_id = ?
             """;
 
@@ -65,36 +66,10 @@ public class BulkBookRepositoryImpl implements BulkBookRepository {
     }
 
     @Override
-    public void bulkUpdate(List<Book> books) {
-        if (books.isEmpty()) {
-            return;
-        }
-
-        bulkExecutor.execute(
-                UPDATE_ENRICHED_FIELDS_SQL,
-                books,
-                (ps, book) -> {
-                    ps.setString(1, book.getDescription());
-                    ps.setString(2, book.getSubtitle());
-                    ps.setString(3, book.getBookIndex());
-                    ps.setObject(4, book.getPageCount());
-                    ps.setObject(5, book.getPriceStandard());
-                    ps.setObject(6, book.getPriceStandard() != null
-                            ? (int)(book.getPriceStandard() * 0.9) : null); // 10% 할인 판매가
-                    ps.setObject(7, book.getPublishedDate() != null 
-                            ? Date.valueOf(book.getPublishedDate()) : null);
-                    ps.setLong(8, book.getId());
-                }
-        );
-    }
-
-    @Override
     public void bulkUpdateFromEnrichment(List<AladinEnrichmentData> enrichmentData) {
         if (enrichmentData.isEmpty()) {
             return;
         }
-
-        log.info("Book Bulk Update (Enrichment): {}건", enrichmentData.size());
 
         bulkExecutor.execute(
                 UPDATE_ENRICHED_FIELDS_SQL,
@@ -109,7 +84,8 @@ public class BulkBookRepositoryImpl implements BulkBookRepository {
                             ? (int)(data.priceStandard() * 0.9) : null); // 10% 할인 판매가
                     ps.setObject(7, data.publishedDate() != null
                             ? Date.valueOf(data.publishedDate()) : null);
-                    ps.setLong(8, data.bookId());
+                    ps.setString(8, data.language());
+                    ps.setLong(9, data.bookId());
                 }
         );
     }
