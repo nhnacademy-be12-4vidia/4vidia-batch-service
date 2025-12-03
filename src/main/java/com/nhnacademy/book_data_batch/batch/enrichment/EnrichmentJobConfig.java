@@ -30,6 +30,8 @@ public class EnrichmentJobConfig {
 
     private static final String JOB_NAME = "enrichmentJob";
     private static final String ALADIN_ENRICHMENT_STEP_NAME = "aladinEnrichmentStep";
+    private static final String EMBEDDING_STEP_NAME = "embeddingStep";
+    private static final String ClEANUP_STEP_NAME = "cleanupStep";
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
