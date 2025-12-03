@@ -14,16 +14,16 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Slf4j
 @Component
-public class QuotaTracker {
+public class AladinQuotaTracker {
 
     private final Map<String, AtomicInteger> usageMap = new ConcurrentHashMap<>();
 
     @Getter
     private final int quotaPerKey;
 
-    public QuotaTracker(@Value("${aladin.api.quota-per-key}") int quotaPerKey) {
+    public AladinQuotaTracker(@Value("${aladin.api.quota-per-key}") int quotaPerKey) {
         this.quotaPerKey = quotaPerKey;
-        log.info("[QuotaTracker] 초기화 - 키당 쿼터: {}", quotaPerKey);
+        log.info("[AladinQuotaTracker] 초기화 - 키당 쿼터: {}", quotaPerKey);
     }
 
     /**
@@ -85,14 +85,14 @@ public class QuotaTracker {
      */
     public void reset() {
         usageMap.clear();
-        log.info("[QuotaTracker] 쿼터 초기화 완료");
+        log.info("[AladinQuotaTracker] 쿼터 초기화 완료");
     }
 
     /**
      * 현재 사용량 로그 출력
      */
     public void logUsage() {
-        log.info("[QuotaTracker] 사용량 현황:");
+        log.info("[AladinQuotaTracker] 사용량 현황:");
         usageMap.forEach((key, usage) -> {
             String maskedKey = key.length() > 8 ? key.substring(0, 8) + "***" : key;
             log.info("  - {}: {}/{}", maskedKey, usage.get(), quotaPerKey);

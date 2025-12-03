@@ -2,7 +2,7 @@ package com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet;
 
 import com.nhnacademy.book_data_batch.batch.book.dto.BookImageDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.AladinApiClient;
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.QuotaTracker;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.AladinQuotaTracker;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.*;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.mapper.AladinDataMapper;
 import com.nhnacademy.book_data_batch.entity.enums.BatchStatus;
@@ -36,7 +36,7 @@ public class AladinEnrichmentTasklet implements Tasklet {
     private final BookRepository bookRepository;
     private final BookImageRepository bookImageRepository;
 
-    private final QuotaTracker quotaTracker;
+    private final AladinQuotaTracker aladinQuotaTracker;
     private final AladinApiClient aladinApiClient;
     private final AladinDataMapper aladinDataMapper;
     private final List<String> aladinApiKeys;
@@ -52,7 +52,7 @@ public class AladinEnrichmentTasklet implements Tasklet {
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
         // 0. 쿼터 초기화
-        quotaTracker.reset(); // 이거 필요한가?
+        aladinQuotaTracker.reset(); // 이거 필요한가?
 
         // 1. PENDING 상태 전체 조회 (Projection)
         pendingTargets.set(batchRepository.findAllPending());
@@ -144,7 +144,7 @@ public class AladinEnrichmentTasklet implements Tasklet {
             }
 
             // 쿼터 체크
-            if (!quotaTracker.tryAcquire(apiKey)) {
+            if (!aladinQuotaTracker.tryAcquire(apiKey)) {
                 break;
             }
 
@@ -180,11 +180,9 @@ public class AladinEnrichmentTasklet implements Tasklet {
                 .collect(Collectors.toSet());
 
         if (authorNames.isEmpty()) {
-            log.debug("[Step3] 저장할 Author 없음");
+            log.debug("[TASKLET] 저장할 Author 없음");
             return;
         }
-
-        log.info("[Step3] Author 저장 시작 - {}명", authorNames.size());
 
         // 2. Author bulk insert (INSERT IGNORE)
         authorRepository.bulkInsert(authorNames);
@@ -208,7 +206,6 @@ public class AladinEnrichmentTasklet implements Tasklet {
         // 5. BookAuthor bulk insert
         if (!bookAuthors.isEmpty()) {
             bookAuthorRepository.bulkInsert(bookAuthors);
-            log.info("[Step3] BookAuthor 저장 완료 - {}건", bookAuthors.size());
         }
     }
 
@@ -223,11 +220,9 @@ public class AladinEnrichmentTasklet implements Tasklet {
                 .collect(Collectors.toSet());
 
         if (tagNames.isEmpty()) {
-            log.debug("[Step3] 저장할 Tag 없음");
+            log.debug("[TASKLET] 저장할 Tag 없음");
             return;
         }
-
-        log.info("[Step3] Tag 저장 시작 - {}개", tagNames.size());
 
         // 2. Tag bulk insert (INSERT IGNORE)
         tagRepository.bulkInsert(tagNames);
@@ -251,7 +246,6 @@ public class AladinEnrichmentTasklet implements Tasklet {
         // 5. BookTag bulk insert
         if (!bookTagPairs.isEmpty()) {
             bookTagRepository.bulkInsert(bookTagPairs);
-            log.info("[Step3] BookTag 저장 완료 - {}건", bookTagPairs.size());
         }
     }
 
@@ -263,9 +257,7 @@ public class AladinEnrichmentTasklet implements Tasklet {
             return;
         }
 
-        log.info("[Step3] Book 업데이트 시작 - {}건", results.size());
         bookRepository.bulkUpdateFromEnrichment(results);
-        log.info("[Step3] Book 업데이트 완료");
     }
 
     /**
@@ -283,13 +275,11 @@ public class AladinEnrichmentTasklet implements Tasklet {
                 .toList();
 
         if (images.isEmpty()) {
-            log.debug("[Step3] 저장할 BookImage 없음");
+            log.debug("[TASKLET] 저장할 BookImage 없음");
             return;
         }
 
-        log.info("[Step3] BookImage 저장 시작 - {}건", images.size());
         bookImageRepository.bulkInsert(images);
-        log.info("[Step3] BookImage 저장 완료");
     }
 
     /**
@@ -302,7 +292,6 @@ public class AladinEnrichmentTasklet implements Tasklet {
                     .map(AladinEnrichmentData::bookId)
                     .toList();
             batchRepository.bulkUpdateEnrichmentStatus(successBookIds, BatchStatus.COMPLETED);
-            log.info("[Step3] Batch 상태 업데이트 (성공) - {}건", successBookIds.size());
         }
 
         // 실패 항목: FAILED + 에러 메시지
@@ -311,7 +300,6 @@ public class AladinEnrichmentTasklet implements Tasklet {
                     .map(f -> new Object[]{f.bookId(), f.reason()})
                     .toList();
             batchRepository.bulkUpdateEnrichmentFailed(failedData);
-            log.info("[Step3] Batch 상태 업데이트 (실패) - {}건", failedData.size());
         }
     }
 }

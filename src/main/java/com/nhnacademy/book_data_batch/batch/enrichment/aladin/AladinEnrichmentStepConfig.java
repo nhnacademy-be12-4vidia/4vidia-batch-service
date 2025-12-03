@@ -1,13 +1,9 @@
 package com.nhnacademy.book_data_batch.batch.enrichment.aladin;
 
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.AladinApiClient;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.AladinQuotaTracker;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.mapper.AladinDataMapper;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet.AladinEnrichmentTasklet;
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet.BulkSaveTasklet;
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet.LoadPendingTasklet;
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet.ParallelApiCallTasklet;
-import com.nhnacademy.book_data_batch.batch.enrichment.common.EnrichmentCache;
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.QuotaTracker;
 import com.nhnacademy.book_data_batch.repository.AuthorRepository;
 import com.nhnacademy.book_data_batch.repository.BatchRepository;
 import com.nhnacademy.book_data_batch.repository.BookAuthorRepository;
@@ -29,34 +25,21 @@ import java.util.List;
 
 /**
  * Aladin Enrichment Step 설정
- * 
- * <p>3-Step Tasklet 구조:</p>
- * <ol>
- *   <li>LoadPendingTasklet: PENDING 도서 전체 로드</li>
- *   <li>ParallelApiCallTasklet: 8개 스레드로 병렬 API 호출</li>
- *   <li>BulkSaveTasklet: 모든 결과 한 번에 저장</li>
- * </ol>
  */
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class AladinEnrichmentStepConfig {
 
-    private static final String STEP1_NAME = "loadPendingStep";
-    private static final String STEP2_NAME = "parallelApiCallStep";
-    private static final String STEP3_NAME = "bulkSaveStep";
     private static final String ALADIN_ENRICHMENT_STEP_NAME = "aladinEnrichmentStep";
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
 
-    // Common
-    private final EnrichmentCache enrichmentCache;
-    private final QuotaTracker quotaTracker;
-
     // Aladin
     private final AladinApiClient aladinApiClient;
     private final AladinDataMapper aladinDataMapper;
+    private final AladinQuotaTracker aladinQuotaTracker;
 
     // Repositories
     private final BatchRepository batchRepository;
@@ -81,59 +64,10 @@ public class AladinEnrichmentStepConfig {
                         bookTagRepository,
                         bookRepository,
                         bookImageRepository,
-                        quotaTracker,
+                        aladinQuotaTracker,
                         aladinApiClient,
                         aladinDataMapper,
                         aladinApiKeys
-                ), transactionManager)
-                .build();
-    }
-
-    /**
-     * Step 1: PENDING 도서 로드
-     */
-    @Bean
-    public Step loadPendingStep() {
-        return new StepBuilder(STEP1_NAME, jobRepository)
-                .tasklet(new LoadPendingTasklet(
-                        batchRepository,
-                        enrichmentCache,
-                        quotaTracker
-                ), transactionManager)
-                .build();
-    }
-
-    /**
-     * Step 2: 병렬 API 호출
-     */
-    @Bean
-    public Step parallelApiCallStep() {
-        return new StepBuilder(STEP2_NAME, jobRepository)
-                .tasklet(new ParallelApiCallTasklet(
-                        enrichmentCache,
-                        aladinApiClient,
-                        aladinDataMapper,
-                        quotaTracker,
-                        aladinApiKeys
-                ), transactionManager)
-                .build();
-    }
-
-    /**
-     * Step 3: Bulk 저장
-     */
-    @Bean
-    public Step bulkSaveStep() {
-        return new StepBuilder(STEP3_NAME, jobRepository)
-                .tasklet(new BulkSaveTasklet(
-                        enrichmentCache,
-                        authorRepository,
-                        bookAuthorRepository,
-                        tagRepository,
-                        bookTagRepository,
-                        bookRepository,
-                        bookImageRepository,
-                        batchRepository
                 ), transactionManager)
                 .build();
     }
