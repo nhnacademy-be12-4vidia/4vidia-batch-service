@@ -7,7 +7,7 @@ package com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto;
  * @param batchId Batch PK (상태 업데이트용)
  * @param reason  실패 사유
  */
-public record FailedEnrichment(
+public record EnrichmentFailureDto(
         Long bookId,
         Long batchId,
         String reason

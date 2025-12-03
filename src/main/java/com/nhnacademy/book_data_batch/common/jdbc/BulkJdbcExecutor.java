@@ -134,8 +134,24 @@ public class BulkJdbcExecutor {
         }
     }
 
+    /**
+     * 단일 UPDATE/DELETE 실행 (Bulk가 아닌 경우)
+     *
+     * @param sql    실행할 SQL
+     * @param setter PreparedStatement에 값을 설정하는 Consumer
+     * @return 영향받은 행 수
+     */
+    public int executeUpdate(String sql, PreparedStatementSetter2 setter) {
+        return jdbcTemplate.update(sql, ps -> setter.setValues(ps));
+    }
+
     @FunctionalInterface
     public interface PreparedStatementSetter<T> {
         void setValues(PreparedStatement ps, T item) throws SQLException;
+    }
+
+    @FunctionalInterface
+    public interface PreparedStatementSetter2 {
+        void setValues(PreparedStatement ps) throws SQLException;
     }
 }

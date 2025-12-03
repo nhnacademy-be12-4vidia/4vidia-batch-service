@@ -1,10 +1,10 @@
 package com.nhnacademy.book_data_batch.batch.enrichment.aladin.mapper;
 
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.AladinBookInfoDto;
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.AladinEnrichmentData;
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.AladinEnrichmentData.AuthorWithRole;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.EnrichmentSuccessDto;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.EnrichmentSuccessDto.AuthorWithRole;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.AladinItemDto;
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.BookEnrichmentTarget;
+import com.nhnacademy.book_data_batch.dto.BookBatchTarget;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.extractor.CategoryTagExtractor;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.extractor.AuthorExtractor;
 import lombok.RequiredArgsConstructor;
@@ -31,19 +31,19 @@ public class AladinDataMapper {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
-     * BookEnrichmentTarget + AladinItemDto → AladinEnrichmentData 변환
+     * BookBatchTarget + AladinItemDto → EnrichmentSuccessDto 변환
      * 
      * @param target 보강 대상 정보 (bookId, batchId)
      * @param item   Aladin API 응답 아이템
      * @return 변환된 DTO
      */
-    public AladinEnrichmentData map(BookEnrichmentTarget target, AladinItemDto item) {
+    public EnrichmentSuccessDto map(BookBatchTarget target, AladinItemDto item) {
         AladinBookInfoDto bookinfo = item.bookinfo();
         List<AuthorWithRole> authors = authorExtractor.extract(item);
         List<String> tags = tagExtractor.extract(item.categoryName());
         String language = extractLanguage(item.categoryName());
 
-        return new AladinEnrichmentData(
+        return new EnrichmentSuccessDto(
                 target.bookId(),
                 target.batchId(),
                 item.description(),

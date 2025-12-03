@@ -19,7 +19,7 @@ import java.util.List;
  * @param coverUrl      표지 이미지 URL
  * @param language      도서 언어
  */
-public record AladinEnrichmentData(
+public record EnrichmentSuccessDto(
         Long bookId,
         Long batchId,
         String description,

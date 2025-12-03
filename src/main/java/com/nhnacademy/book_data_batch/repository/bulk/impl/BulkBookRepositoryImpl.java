@@ -1,6 +1,6 @@
 package com.nhnacademy.book_data_batch.repository.bulk.impl;
 
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.AladinEnrichmentData;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.EnrichmentSuccessDto;
 import com.nhnacademy.book_data_batch.common.jdbc.BulkJdbcExecutor;
 import com.nhnacademy.book_data_batch.entity.Book;
 import com.nhnacademy.book_data_batch.repository.bulk.BulkBookRepository;
@@ -66,7 +66,7 @@ public class BulkBookRepositoryImpl implements BulkBookRepository {
     }
 
     @Override
-    public void bulkUpdateFromEnrichment(List<AladinEnrichmentData> enrichmentData) {
+    public void bulkUpdateFromEnrichment(List<EnrichmentSuccessDto> enrichmentData) {
         if (enrichmentData.isEmpty()) {
             return;
         }

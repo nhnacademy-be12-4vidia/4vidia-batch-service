@@ -91,24 +91,40 @@ public class BulkLoggingAspect {
         return logBulkInsert(joinPoint, "배치-INSERT", count);
     }
 
-    // 배치 Bulk Update 로깅
+    // 배치 Enrichment Update 로깅
     @Around("execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkBatchRepositoryImpl.bulkUpdateEnrichmentStatus(..)) || " +
             "execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkBatchRepositoryImpl.bulkUpdateEnrichmentFailed(..))")
-    public Object logBatchBulkUpdate(ProceedingJoinPoint joinPoint) throws Throwable {
+    public Object logBatchEnrichmentUpdate(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         int count = getCollectionSize(args, 0);
-        return logBulkInsert(joinPoint, "배치-UPDATE", count);
+        return logBulkInsert(joinPoint, "배치-ENRICHMENT-UPDATE", count);
+    }
+
+    // 배치 Embedding Update 로깅
+    @Around("execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkBatchRepositoryImpl.bulkUpdateEmbeddingStatus(..)) || " +
+            "execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkBatchRepositoryImpl.bulkUpdateEmbeddingFailed(..))")
+    public Object logBatchEmbeddingUpdate(ProceedingJoinPoint joinPoint) throws Throwable {
+        Object[] args = joinPoint.getArgs();
+        int count = getCollectionSize(args, 0);
+        return logBulkInsert(joinPoint, "배치-EMBEDDING-UPDATE", count);
+    }
+
+    // 배치 Cleanup 로깅
+    @Around("execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkBatchRepositoryImpl.deleteAllCompleted(..))")
+    public Object logBatchCleanup(ProceedingJoinPoint joinPoint) throws Throwable {
+        return logBulkInsert(joinPoint, "배치-CLEANUP", -1);  // 건수 불명
     }
 
     // 공통 Bulk 로깅 로직
     private Object logBulkInsert(ProceedingJoinPoint joinPoint, String entityName, int count) throws Throwable {
         long startTime = System.currentTimeMillis();
-        log.info("[Bulk - {}] 시작 - 총 {}건", entityName, count);
+        String countStr = count >= 0 ? count + "건" : "";
+        log.info("[Bulk - {}] 시작 {}", entityName, countStr);
 
         try {
             Object result = joinPoint.proceed();
             long duration = System.currentTimeMillis() - startTime;
-            log.info("[Bulk - {}] 완료 - {}건 처리 ({}ms)", entityName, count, duration);
+            log.info("[Bulk - {}] 완료 {} ({}ms)", entityName, countStr, duration);
             return result;
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - startTime;

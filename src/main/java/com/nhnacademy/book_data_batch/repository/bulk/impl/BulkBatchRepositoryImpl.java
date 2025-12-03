@@ -16,15 +16,29 @@ public class BulkBatchRepositoryImpl implements BulkBatchRepository {
     private final BulkJdbcExecutor bulkExecutor;
 
     private static final String INSERT_BATCH_SQL = """
-            INSERT IGNORE INTO batch (book_id, enrichment_status, error_message, retry_count)
-            VALUES (?, ?, NULL, 0)
+            INSERT IGNORE INTO batch (book_id, enrichment_status, embedding_status, error_message, enrichment_retry_count, embedding_retry_count)
+            VALUES (?, ?, ?, NULL, 0, 0)
             """;
 
-    private static final String UPDATE_STATUS_SQL = 
+    // Enrichment
+    private static final String UPDATE_ENRICHMENT_STATUS_SQL = 
             "UPDATE batch SET enrichment_status = ? WHERE batch_id = ?";
 
-    private static final String UPDATE_FAILED_SQL = 
-            "UPDATE batch SET enrichment_status = ?, error_message = ?, retry_count = retry_count + 1 WHERE batch_id = ?";
+    private static final String UPDATE_ENRICHMENT_FAILED_SQL = 
+            "UPDATE batch SET enrichment_status = ?, error_message = ?, enrichment_retry_count = enrichment_retry_count + 1 WHERE batch_id = ?";
+
+    // Embedding
+    private static final String UPDATE_EMBEDDING_STATUS_SQL = 
+            "UPDATE batch SET embedding_status = ? WHERE batch_id = ?";
+
+    private static final String UPDATE_EMBEDDING_FAILED_SQL = 
+            "UPDATE batch SET embedding_status = ?, error_message = ?, embedding_retry_count = embedding_retry_count + 1 WHERE batch_id = ?";
+
+    // Cleanup
+    private static final String DELETE_COMPLETED_SQL = """
+            DELETE FROM batch 
+            WHERE enrichment_status = ? AND embedding_status = ?
+            """;
 
     @Override
     public void bulkInsert(List<Batch> batches) {
@@ -38,6 +52,7 @@ public class BulkBatchRepositoryImpl implements BulkBatchRepository {
                 (ps, batch) -> {
                     ps.setLong(1, batch.getBook().getId());
                     ps.setInt(2, BatchStatus.PENDING.getCode());
+                    ps.setInt(3, BatchStatus.PENDING.getCode());
                 }
         );
     }
@@ -49,7 +64,7 @@ public class BulkBatchRepositoryImpl implements BulkBatchRepository {
         }
 
         bulkExecutor.execute(
-                UPDATE_STATUS_SQL,
+                UPDATE_ENRICHMENT_STATUS_SQL,
                 batchIds,
                 (ps, batchId) -> {
                     ps.setInt(1, status.getCode());
@@ -65,14 +80,59 @@ public class BulkBatchRepositoryImpl implements BulkBatchRepository {
         }
 
         bulkExecutor.execute(
-                UPDATE_FAILED_SQL,
+                UPDATE_ENRICHMENT_FAILED_SQL,
                 failedBatches,
                 (ps, data) -> {
-                    ps.setInt(1, BatchStatus.FAILED.getCode());
-                    ps.setString(2, truncateMessage((String) data[1]));  // errorMessage
-                    ps.setLong(3, (Long) data[0]);  // batchId
+                    ps.setInt(1, BatchStatus.PENDING.getCode());  // PENDING 유지 (재시도 가능)
+                    ps.setString(2, truncateMessage((String) data[1]));
+                    ps.setLong(3, (Long) data[0]);
                 }
         );
+    }
+
+    @Override
+    public void bulkUpdateEmbeddingStatus(List<Long> batchIds, BatchStatus status) {
+        if (batchIds.isEmpty()) {
+            return;
+        }
+
+        bulkExecutor.execute(
+                UPDATE_EMBEDDING_STATUS_SQL,
+                batchIds,
+                (ps, batchId) -> {
+                    ps.setInt(1, status.getCode());
+                    ps.setLong(2, batchId);
+                }
+        );
+    }
+
+    @Override
+    public void bulkUpdateEmbeddingFailed(List<Object[]> failedBatches) {
+        if (failedBatches.isEmpty()) {
+            return;
+        }
+
+        bulkExecutor.execute(
+                UPDATE_EMBEDDING_FAILED_SQL,
+                failedBatches,
+                (ps, data) -> {
+                    ps.setInt(1, BatchStatus.PENDING.getCode());  // PENDING 유지 (재시도 가능)
+                    ps.setString(2, truncateMessage((String) data[1]));
+                    ps.setLong(3, (Long) data[0]);
+                }
+        );
+    }
+
+    @Override
+    public void deleteAllCompleted() {
+        bulkExecutor.executeUpdate(
+                DELETE_COMPLETED_SQL,
+                ps -> {
+                    ps.setInt(1, BatchStatus.COMPLETED.getCode());
+                    ps.setInt(2, BatchStatus.COMPLETED.getCode());
+                }
+        );
+        log.info("[BATCH] 완료된 Batch 레코드 삭제 완료");
     }
 
     private String truncateMessage(String message) {

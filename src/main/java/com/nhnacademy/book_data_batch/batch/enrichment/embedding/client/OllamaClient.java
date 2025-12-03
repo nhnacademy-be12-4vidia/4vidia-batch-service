@@ -1,46 +1,69 @@
 package com.nhnacademy.book_data_batch.batch.enrichment.embedding.client;
 
-import java.util.Map;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestTemplate;
 
+import java.util.Map;
+
+/**
+ * Ollama 임베딩 API 클라이언트
+ * - BGE-M3 모델 사용 (1024 dims)
+ */
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class OllamaClient {
 
     private final RestClient restClient;
-    private final String OLLAMA_URL = "http://ollama.java21.net/api/embeddings";
+    private final String ollamaUrl;
+    private final String model;
 
+    public OllamaClient(
+            RestClient restClient,
+            @Value("${ollama.api.url}") String ollamaUrl,
+            @Value("${ollama.model:bge-m3}") String model
+    ) {
+        this.restClient = restClient;
+        this.ollamaUrl = ollamaUrl;
+        this.model = model;
+    }
+
+    /**
+     * 텍스트에 대한 임베딩 벡터 생성
+     *
+     * @param text 임베딩할 텍스트
+     * @return 임베딩 벡터 (실패 시 null)
+     */
     public double[] generateEmbedding(String text) {
-
         try {
             Map<String, Object> request = Map.of(
-                "model", "bge-m3",
-                "prompt", text
+                    "model", model,
+                    "prompt", text
             );
 
             EmbeddingResponse response = restClient
                     .post()
-                    .uri(OLLAMA_URL)
+                    .uri(ollamaUrl)
                     .body(request)
                     .retrieve()
                     .body(EmbeddingResponse.class);
 
-            return response != null ? response.getEmbedding() : new double[1024];
+            if (response == null || response.getEmbedding() == null) {
+                log.warn("[OLLAMA] 응답 없음");
+                return null;
+            }
+
+            return response.getEmbedding();
         } catch (Exception e) {
-            log.error("Ollama 호출 에러: {}", e.getMessage());
+            log.error("[OLLAMA] 호출 실패: {}", e.getMessage());
             return null;
         }
     }
 
     @Data
     public static class EmbeddingResponse {
-
         private double[] embedding;
     }
 }

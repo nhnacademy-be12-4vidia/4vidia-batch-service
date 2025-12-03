@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto;
+package com.nhnacademy.book_data_batch.dto;
 
 /**
  * Reader에서 Processor로 전달되는 보강 대상 정보
@@ -9,7 +9,7 @@ package com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto;
  * @param isbn13  Aladin API 호출용
  * @param batchId Batch 상태 업데이트용
  */
-public record BookEnrichmentTarget(
+public record BookBatchTarget(
         Long bookId,
         String isbn13,
         Long batchId
