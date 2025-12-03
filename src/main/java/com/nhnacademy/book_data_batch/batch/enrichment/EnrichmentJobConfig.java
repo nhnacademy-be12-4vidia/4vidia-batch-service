@@ -1,14 +1,24 @@
 package com.nhnacademy.book_data_batch.batch.enrichment;
 
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.AladinApiClient;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.AladinQuotaTracker;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.mapper.AladinDataMapper;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet.AladinEnrichmentTasklet;
+import com.nhnacademy.book_data_batch.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.PlatformTransactionManager;
+
+import java.util.List;
 
 /**
  * Enrichment Job 설정
@@ -19,8 +29,27 @@ import org.springframework.context.annotation.Configuration;
 public class EnrichmentJobConfig {
 
     private static final String JOB_NAME = "enrichmentJob";
+    private static final String ALADIN_ENRICHMENT_STEP_NAME = "aladinEnrichmentStep";
 
     private final JobRepository jobRepository;
+    private final PlatformTransactionManager transactionManager;
+
+    // Aladin
+    private final AladinApiClient aladinApiClient;
+    private final AladinDataMapper aladinDataMapper;
+    private final AladinQuotaTracker aladinQuotaTracker;
+
+    // Repositories
+    private final BatchRepository batchRepository;
+    private final BookRepository bookRepository;
+    private final AuthorRepository authorRepository;
+    private final BookAuthorRepository bookAuthorRepository;
+    private final TagRepository tagRepository;
+    private final BookTagRepository bookTagRepository;
+    private final BookImageRepository bookImageRepository;
+
+    @Value("${aladin.api.keys}")
+    private List<String> aladinApiKeys;
 
     @Bean
     public Job enrichmentJob(
@@ -28,6 +57,25 @@ public class EnrichmentJobConfig {
         
         return new JobBuilder(JOB_NAME, jobRepository)
                 .start(aladinEnrichmentStep)
+                .build();
+    }
+
+    @Bean
+    public Step aladinEnrichmentStep() {
+        return new StepBuilder(ALADIN_ENRICHMENT_STEP_NAME, jobRepository)
+                .tasklet(new AladinEnrichmentTasklet(
+                        batchRepository,
+                        authorRepository,
+                        bookAuthorRepository,
+                        tagRepository,
+                        bookTagRepository,
+                        bookRepository,
+                        bookImageRepository,
+                        aladinQuotaTracker,
+                        aladinApiClient,
+                        aladinDataMapper,
+                        aladinApiKeys
+                ), transactionManager)
                 .build();
     }
 }
