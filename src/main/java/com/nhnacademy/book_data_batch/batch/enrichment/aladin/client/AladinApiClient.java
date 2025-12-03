@@ -3,12 +3,13 @@ package com.nhnacademy.book_data_batch.batch.enrichment.aladin.client;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.AladinItemDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.AladinResponseDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.exception.RateLimitExceededException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Optional;
@@ -19,6 +20,7 @@ import java.util.Optional;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class AladinApiClient {
 
     private static final String BASE_URL = "http://www.aladin.co.kr/ttb/api/ItemLookUp.aspx";
@@ -37,11 +39,7 @@ public class AladinApiClient {
     private static final int MAX_RETRY_NETWORK = 1;          // 최대 재시도 횟수
     private static final long NETWORK_RETRY_WAIT_MS = 1_000; // 대기 시간 (1초)
 
-    private final RestTemplate restTemplate;
-
-    public AladinApiClient(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
+    private final RestClient restClient;
 
     /**
      * ISBN13으로 도서 상세 정보 조회 (재시도 로직 포함)
@@ -66,7 +64,11 @@ public class AladinApiClient {
                     firstTry = false;
                 }
 
-                AladinResponseDto response = restTemplate.getForObject(url, AladinResponseDto.class);
+                AladinResponseDto response = restClient
+                        .get()
+                        .uri(url)
+                        .retrieve()
+                        .body(AladinResponseDto.class);
 
                 if (response == null || response.item() == null || response.item().isEmpty()) {
                     log.debug("[Aladin API] 응답 없음: ISBN={}", isbn13);

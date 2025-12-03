@@ -5,14 +5,15 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class OllamaClient {
 
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
     private final String OLLAMA_URL = "http://ollama.java21.net/api/embeddings";
 
     public double[] generateEmbedding(String text) {
@@ -23,8 +24,13 @@ public class OllamaClient {
                 "prompt", text
             );
 
-            EmbeddingResponse response = restTemplate.postForObject(OLLAMA_URL, request,
-                EmbeddingResponse.class);
+            EmbeddingResponse response = restClient
+                    .post()
+                    .uri(OLLAMA_URL)
+                    .body(request)
+                    .retrieve()
+                    .body(EmbeddingResponse.class);
+
             return response != null ? response.getEmbedding() : new double[1024];
         } catch (Exception e) {
             log.error("Ollama 호출 에러: {}", e.getMessage());
@@ -37,6 +43,4 @@ public class OllamaClient {
 
         private double[] embedding;
     }
-
-
 }
