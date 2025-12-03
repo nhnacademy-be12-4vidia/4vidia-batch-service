@@ -23,64 +23,6 @@ public class QuerydslBatchRepositoryImpl implements QuerydslBatchRepository {
     private static final QBook book = QBook.book;
 
     @Override
-    public Long findMinIdByEnrichmentStatus(BatchStatus status) {
-        return queryFactory
-                .select(batch.id.min())
-                .from(batch)
-                .where(batch.enrichmentStatus.eq(status))
-                .fetchOne();
-    }
-
-    @Override
-    public Long findMaxIdByEnrichmentStatus(BatchStatus status) {
-        return queryFactory
-                .select(batch.id.max())
-                .from(batch)
-                .where(batch.enrichmentStatus.eq(status))
-                .fetchOne();
-    }
-
-    @Override
-    public Page<BookEnrichmentTarget> findPendingForEnrichment(
-            BatchStatus status,
-            Long startId,
-            Long endId,
-            Pageable pageable) {
-
-        // 데이터 조회
-        List<BookEnrichmentTarget> content = queryFactory
-                .select(Projections.constructor(
-                        BookEnrichmentTarget.class,
-                        book.id,
-                        book.isbn,
-                        batch.id
-                ))
-                .from(book)
-                .join(batch).on(book.id.eq(batch.book.id))
-                .where(
-                        batch.enrichmentStatus.eq(status),
-                        batch.id.goe(startId),
-                        batch.id.lt(endId)
-                )
-                .orderBy(batch.id.asc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-        // Count 쿼리 (지연 실행)
-        JPAQuery<Long> countQuery = queryFactory
-                .select(batch.count())
-                .from(batch)
-                .where(
-                        batch.enrichmentStatus.eq(status),
-                        batch.id.goe(startId),
-                        batch.id.lt(endId)
-                );
-
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
-    }
-
-    @Override
     public List<BookEnrichmentTarget> findAllPending() {
         return queryFactory
                 .select(Projections.constructor(
@@ -89,8 +31,8 @@ public class QuerydslBatchRepositoryImpl implements QuerydslBatchRepository {
                         book.isbn,
                         batch.id
                 ))
-                .from(book)
-                .join(batch).on(book.id.eq(batch.book.id))
+                .from(batch)
+                .join(batch.book, book)
                 .where(batch.enrichmentStatus.eq(BatchStatus.PENDING))
                 .orderBy(batch.id.asc())
                 .fetch();

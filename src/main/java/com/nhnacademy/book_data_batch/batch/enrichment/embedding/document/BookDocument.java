@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.document;
+package com.nhnacademy.book_data_batch.batch.enrichment.embedding.document;
 
 import java.util.List;
 import lombok.Builder;

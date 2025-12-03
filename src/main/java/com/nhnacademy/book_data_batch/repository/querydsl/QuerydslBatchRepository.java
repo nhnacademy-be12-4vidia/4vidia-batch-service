@@ -9,21 +9,5 @@ import java.util.List;
 
 public interface QuerydslBatchRepository {
 
-    Long findMinIdByEnrichmentStatus(BatchStatus status);
-
-    Long findMaxIdByEnrichmentStatus(BatchStatus status);
-
-    Page<BookEnrichmentTarget> findPendingForEnrichment(
-            BatchStatus status,
-            Long startId,
-            Long endId,
-            Pageable pageable
-    );
-
-    /**
-     * PENDING 상태의 모든 도서 조회 (Tasklet용)
-     * 
-     * @return 보강 대상 도서 목록
-     */
     List<BookEnrichmentTarget> findAllPending();
 }

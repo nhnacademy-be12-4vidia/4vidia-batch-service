@@ -24,14 +24,10 @@ public class EnrichmentJobConfig {
 
     @Bean
     public Job enrichmentJob(
-            @Qualifier("loadPendingStep") Step loadPendingStep,
-            @Qualifier("parallelApiCallStep") Step parallelApiCallStep,
-            @Qualifier("bulkSaveStep") Step bulkSaveStep) {
+            @Qualifier("aladinEnrichmentStep") Step aladinEnrichmentStep) {
         
         return new JobBuilder(JOB_NAME, jobRepository)
-                .start(loadPendingStep)
-                .next(parallelApiCallStep)
-                .next(bulkSaveStep)
+                .start(aladinEnrichmentStep)
                 .build();
     }
 }

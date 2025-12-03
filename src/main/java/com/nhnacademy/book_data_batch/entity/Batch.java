@@ -16,9 +16,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Table(name = "batch", indexes = {
     @Index(name = "idx_batch_book_id", columnList = "book_id"),
     @Index(name = "idx_batch_enrichment_status", columnList = "enrichment_status"),
-    @Index(name = "idx_batch_tagging_status", columnList = "tagging_status"),
-    @Index(name = "idx_batch_embedding_status", columnList = "embedding_status"),
-    @Index(name = "idx_batch_indexing_status", columnList = "indexing_status")
+    @Index(name = "idx_batch_embedding_status", columnList = "embedding_status")
 })
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -39,20 +37,15 @@ public class Batch extends BaseEntity {
     @Convert(converter = BatchStatusConverter.class)
     private BatchStatus enrichmentStatus = BatchStatus.PENDING;
 
-    @Column(name = "tagging_status", nullable = false, columnDefinition = "TINYINT DEFAULT 0")
-    @Convert(converter = BatchStatusConverter.class)
-    private BatchStatus taggingStatus = BatchStatus.PENDING;
-
     @Column(name = "embedding_status", nullable = false, columnDefinition = "TINYINT DEFAULT 0")
     @Convert(converter = BatchStatusConverter.class)
     private BatchStatus embeddingStatus = BatchStatus.PENDING;
 
-    @Column(name = "indexing_status", nullable = false, columnDefinition = "TINYINT DEFAULT 0")
-    @Convert(converter = BatchStatusConverter.class)
-    private BatchStatus indexingStatus = BatchStatus.PENDING;
+    @Column(name = "enrichment_retry_count", nullable = false, columnDefinition = "INT DEFAULT 0")
+    private Integer enrichmentRetryCount = 0;
 
-    @Column(name = "retry_count", nullable = false, columnDefinition = "INT DEFAULT 0")
-    private Integer retryCount = 0;
+    @Column(name = "embedding_retry_count", nullable = false, columnDefinition = "INT DEFAULT 0")
+    private Integer embeddingRetryCount = 0;
 
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;

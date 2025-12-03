@@ -2,6 +2,7 @@ package com.nhnacademy.book_data_batch.batch.enrichment.aladin;
 
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.AladinApiClient;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.mapper.AladinDataMapper;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet.AladinEnrichmentTasklet;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet.BulkSaveTasklet;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet.LoadPendingTasklet;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet.ParallelApiCallTasklet;
@@ -44,6 +45,7 @@ public class AladinEnrichmentStepConfig {
     private static final String STEP1_NAME = "loadPendingStep";
     private static final String STEP2_NAME = "parallelApiCallStep";
     private static final String STEP3_NAME = "bulkSaveStep";
+    private static final String ALADIN_ENRICHMENT_STEP_NAME = "aladinEnrichmentStep";
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
@@ -67,6 +69,25 @@ public class AladinEnrichmentStepConfig {
 
     @Value("${aladin.api.keys}")
     private List<String> aladinApiKeys;
+
+    @Bean
+    public Step aladinEnrichmentStep() {
+        return new StepBuilder(ALADIN_ENRICHMENT_STEP_NAME, jobRepository)
+                .tasklet(new AladinEnrichmentTasklet(
+                        batchRepository,
+                        authorRepository,
+                        bookAuthorRepository,
+                        tagRepository,
+                        bookTagRepository,
+                        bookRepository,
+                        bookImageRepository,
+                        quotaTracker,
+                        aladinApiClient,
+                        aladinDataMapper,
+                        aladinApiKeys
+                ), transactionManager)
+                .build();
+    }
 
     /**
      * Step 1: PENDING 도서 로드

@@ -7,7 +7,7 @@ import java.util.Arrays;
 @Getter
 public enum BatchStatus {
 
-    PENDING(0), IN_PROGRESS(1), COMPLETED(2), FAILED(3);
+    PENDING(0), COMPLETED(1), FAILED(2);
 
     private final int code;
 

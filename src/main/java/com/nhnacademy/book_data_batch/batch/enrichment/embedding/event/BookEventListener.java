@@ -1,8 +1,8 @@
-package com.nhnacademy.book_data_batch.service.event;
+package com.nhnacademy.book_data_batch.batch.enrichment.embedding.event;
 
-import com.nhnacademy.book_data_batch.dto.event.BookSavedEvent;
+import com.nhnacademy.book_data_batch.batch.enrichment.embedding.dto.BookSavedEvent;
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.client.OllamaClient;
-import com.nhnacademy.book_data_batch.document.BookDocument;
+import com.nhnacademy.book_data_batch.batch.enrichment.embedding.document.BookDocument;
 import com.nhnacademy.book_data_batch.entity.Book;
 import com.nhnacademy.book_data_batch.repository.search.BookSearchRepository;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.dto.event;
+package com.nhnacademy.book_data_batch.batch.enrichment.embedding.dto;
 
 import com.nhnacademy.book_data_batch.entity.Book;
 import java.util.List;
