@@ -40,7 +40,7 @@ public class LoadPendingTasklet implements Tasklet {
         // 3. 캐시에 저장
         cache.setPendingTargets(targets);
 
-        // 4. 처리 건수 로깅 (Tasklet에서는 contribution 사용 제한)
+        // 4. 처리 건수 로깅
         log.info("[Step1] PENDING 도서 로드 완료: {}건", targets.size());
 
         return RepeatStatus.FINISHED;

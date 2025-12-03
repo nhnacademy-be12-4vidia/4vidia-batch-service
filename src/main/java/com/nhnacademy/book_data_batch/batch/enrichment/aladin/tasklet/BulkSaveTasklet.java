@@ -30,15 +30,11 @@ import java.util.stream.Collectors;
 
 /**
  * Step 3: Bulk 저장
- * 
- * <p>모든 보강 결과를 한 번에 저장</p>
- * <ul>
- *   <li>Author → BookAuthor</li>
- *   <li>Tag → BookTag</li>
- *   <li>Book 업데이트</li>
- *   <li>BookImage 저장</li>
- *   <li>Batch 상태 업데이트</li>
- * </ul>
+ * - Author → BookAuthor
+ * - Tag → BookTag
+ * - Book 업데이트
+ * - BookImage 저장
+ * - Batch 상태 업데이트
  */
 @Slf4j
 @RequiredArgsConstructor

@@ -12,13 +12,6 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Enrichment Job 설정
- * 
- * <p>3-Step 구조:</p>
- * <ol>
- *   <li>loadPendingStep: PENDING 도서 전체 로드</li>
- *   <li>parallelApiCallStep: 8개 스레드로 병렬 API 호출</li>
- *   <li>bulkSaveStep: 모든 결과 한 번에 저장</li>
- * </ol>
  */
 @Slf4j
 @Configuration

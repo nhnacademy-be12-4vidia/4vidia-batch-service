@@ -5,8 +5,8 @@ import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.AladinEnrichme
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.AladinEnrichmentData.AuthorWithRole;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.AladinItemDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.BookEnrichmentTarget;
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.extractor.AuthorExtractor;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.extractor.CategoryTagExtractor;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.extractor.AuthorExtractor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,14 +18,7 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 
 /**
- * Aladin API 응답을 AladinEnrichmentData DTO로 변환하는 Mapper
- * 
- * <p>책임:</p>
- * <ul>
- *   <li>API 응답 데이터 → DTO 변환</li>
- *   <li>날짜 파싱</li>
- *   <li>저자/태그 추출 위임</li>
- * </ul>
+ * Aladin API 응답 데이터 → DTO 변환 매퍼
  */
 @Slf4j
 @Component
@@ -54,7 +47,6 @@ public class AladinDataMapper {
                 target.batchId(),
                 item.description(),
                 item.priceStandard(),
-                null,  // priceSales - AladinItemDto에 없음 (필요시 추가)
                 parseDate(item.pubDate()),
                 getSubtitle(bookinfo),
                 getPageCount(bookinfo),
@@ -65,9 +57,7 @@ public class AladinDataMapper {
         );
     }
 
-    /**
-     * 날짜 문자열 파싱 (yyyy-MM-dd)
-     */
+    // 날짜 파싱
     private LocalDate parseDate(String dateStr) {
         if (!StringUtils.hasText(dateStr)) {
             return null;
@@ -80,9 +70,7 @@ public class AladinDataMapper {
         }
     }
 
-    /**
-     * 부제목 추출
-     */
+    // 부제목 추출
     private String getSubtitle(AladinBookInfoDto bookinfo) {
         if (bookinfo == null) {
             return null;
@@ -90,9 +78,7 @@ public class AladinDataMapper {
         return StringUtils.hasText(bookinfo.subTitle()) ? bookinfo.subTitle() : null;
     }
 
-    /**
-     * 페이지 수 추출
-     */
+    // 페이지 수 추출
     private Integer getPageCount(AladinBookInfoDto bookinfo) {
         if (bookinfo == null) {
             return null;
@@ -100,9 +86,7 @@ public class AladinDataMapper {
         return bookinfo.itemPage();
     }
 
-    /**
-     * 목차 추출
-     */
+    // 목차 추출
     private String getToc(AladinBookInfoDto bookinfo) {
         if (bookinfo == null) {
             return null;

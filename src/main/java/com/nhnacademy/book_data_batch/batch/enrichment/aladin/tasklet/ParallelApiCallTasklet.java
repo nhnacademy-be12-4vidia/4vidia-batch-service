@@ -7,6 +7,7 @@ import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.BookEnrichment
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.mapper.AladinDataMapper;
 import com.nhnacademy.book_data_batch.batch.enrichment.common.EnrichmentCache;
 import com.nhnacademy.book_data_batch.batch.enrichment.common.QuotaTracker;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -20,11 +21,13 @@ import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Step 2: 병렬 Aladin API 호출
  */
 @Slf4j
+@RequiredArgsConstructor
 public class ParallelApiCallTasklet implements Tasklet {
 
     private final EnrichmentCache cache;
@@ -33,31 +36,18 @@ public class ParallelApiCallTasklet implements Tasklet {
     private final QuotaTracker quotaTracker;
     private final List<String> apiKeys;
 
-    public ParallelApiCallTasklet(
-            EnrichmentCache cache,
-            AladinApiClient apiClient,
-            AladinDataMapper dataMapper,
-            QuotaTracker quotaTracker,
-            List<String> apiKeys) {
-        this.cache = cache;
-        this.apiClient = apiClient;
-        this.dataMapper = dataMapper;
-        this.quotaTracker = quotaTracker;
-        this.apiKeys = apiKeys;
-    }
-
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        List<BookEnrichmentTarget> targets = cache.getPendingTargets();
+        AtomicReference<List<BookEnrichmentTarget>> targets = cache.getPendingTargets();
 
-        if (targets.isEmpty()) {
+        if (targets.get().isEmpty()) {
             return RepeatStatus.FINISHED;
         }
 
-        log.info("[Step2] API 호출 시작 - 대상: {}건, API키: {}개", targets.size(), apiKeys.size());
+        log.info("[Step2] API 호출 시작 - 대상: {}건, API키: {}개", targets.get().size(), apiKeys.size());
 
         // 1. API 키 수만큼 파티션으로 분할
-        List<List<BookEnrichmentTarget>> partitions = partition(targets, apiKeys.size());
+        List<List<BookEnrichmentTarget>> partitions = partition(targets.get(), apiKeys.size());
 
         // 2. Virtual Threads로 병렬 처리
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
@@ -113,7 +103,7 @@ public class ParallelApiCallTasklet implements Tasklet {
                 continue;
             }
 
-            // API 호출 시도 → 무조건 쿼터 증가 (성공/실패 무관)
+            // API 호출 시도 → 쿼터 사용 기록
             quotaTracker.incrementAndGet(apiKey);
 
             try {

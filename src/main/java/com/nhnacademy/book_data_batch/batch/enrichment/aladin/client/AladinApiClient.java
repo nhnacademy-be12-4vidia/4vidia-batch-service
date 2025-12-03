@@ -15,15 +15,7 @@ import java.util.Optional;
 
 /**
  * Aladin ItemLookUp API 클라이언트
- * 
- * <p>ISBN13으로 도서 상세 정보 조회</p>
- * 
- * <p>재시도 전략:</p>
- * <ul>
- *   <li>429 Rate Limit: 1분 대기 후 최대 3회 재시도</li>
- *   <li>네트워크 오류: 1초 대기 후 1회 재시도</li>
- *   <li>기타 HTTP 오류: 재시도 없이 빈 Optional 반환</li>
- * </ul>
+ * - ISBN13으로 도서 상세 정보 조회
  */
 @Slf4j
 @Component
@@ -72,39 +64,43 @@ public class AladinApiClient {
                 AladinResponseDto response = restTemplate.getForObject(url, AladinResponseDto.class);
 
                 if (response == null || response.item() == null || response.item().isEmpty()) {
-                    log.debug("Aladin API 응답 없음: ISBN={}", isbn13);
+                    log.debug("[Aladin API] 응답 없음: ISBN={}", isbn13);
                     return Optional.empty();
                 }
 
                 return Optional.of(response.item().get(0));
 
+                // 재시도1: 429 Rate Limit - 1분 대기 후 최대 3회 재시도
             } catch (HttpClientErrorException e) {
                 if (e.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS) {
                     retry429Count++;
                     if (retry429Count > MAX_RETRY_429) {
-                        log.warn("429 Rate Limit 재시도 초과: ISBN={}", isbn13);
+                        log.warn("[Aladin API] 429 Rate Limit 재시도 초과: ISBN={}", isbn13);
                         throw new RateLimitExceededException(apiKey, 429, 
-                                "Rate limit exceeded after " + MAX_RETRY_429 + " retries");
+                                "[Aladin API] Rate limit 초과:  " + MAX_RETRY_429 + "번 재시도 실패");
                     }
-                    log.warn("429 Rate Limit: ISBN={}, 재시도 {}/{}", isbn13, retry429Count, MAX_RETRY_429);
+                    log.warn("[Aladin API] 429 Rate Limit: ISBN={}, 재시도 {}/{}", isbn13, retry429Count, MAX_RETRY_429);
                     sleep(RATE_LIMIT_WAIT_MS);
                 } else {
-                    log.debug("API HTTP 오류: ISBN={}, status={}", isbn13, e.getStatusCode());
+                    log.debug("[Aladin API] HTTP 오류: ISBN={}, status={}", isbn13, e.getStatusCode());
                     return Optional.empty();
                 }
+
+                // 재시도2: 네트워크 오류 처리 - 1초 대기 후 1회 재시도
             } catch (RestClientException e) {
-                // 네트워크 오류: 짧은 대기 후 1회 재시도
                 if (retryNetworkCount < MAX_RETRY_NETWORK) {
                     retryNetworkCount++;
-                    log.debug("네트워크 오류, 재시도 {}/{}: ISBN={}", retryNetworkCount, MAX_RETRY_NETWORK, isbn13);
+                    log.debug("[Aladin API] 네트워크 오류, 재시도 {}/{}: ISBN={}", retryNetworkCount, MAX_RETRY_NETWORK, isbn13);
                     sleep(NETWORK_RETRY_WAIT_MS);
                     continue;
                 }
-                log.warn("API 호출 실패: ISBN={}, error={}", isbn13, e.getMessage());
+                log.warn("[Aladin API] 호출 실패: ISBN={}, error={}", isbn13, e.getMessage());
                 return Optional.empty();
+
+                // 재시도3: 인터럽트 처리 - 즉시 종료
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                log.warn("API 호출 중단됨: ISBN={}", isbn13);
+                log.warn("[Aladin API] 호출 중단됨: ISBN={}", isbn13);
                 return Optional.empty();
             }
         }
@@ -118,12 +114,12 @@ public class AladinApiClient {
     private void sleep(long ms) {
         try {
             if (ms >= 1000) {
-                log.info("대기 중... ({}초)", ms / 1000);
+                log.info("[Aladin API] 대기 중... ({}초)", ms / 1000);
             }
             Thread.sleep(ms);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.warn("대기 중 인터럽트 발생");
+            log.warn("[Aladin API] 대기 중 인터럽트 발생");
         }
     }
 

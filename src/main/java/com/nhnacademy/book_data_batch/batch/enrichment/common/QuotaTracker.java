@@ -1,5 +1,6 @@
 package com.nhnacademy.book_data_batch.batch.enrichment.common;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -9,24 +10,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * In-Memory API 쿼터 관리
- * 
- * <p>API 키별 일일 사용량을 메모리에서 관리</p>
- * <ul>
- *   <li>Thread-safe: ConcurrentHashMap + AtomicInteger</li>
- *   <li>Job 시작 시 reset() 호출로 초기화</li>
- *   <li>Redis 의존성 제거</li>
- * </ul>
+ * API 쿼터 추적기
  */
 @Slf4j
 @Component
 public class QuotaTracker {
 
     private final Map<String, AtomicInteger> usageMap = new ConcurrentHashMap<>();
-    
+
+    @Getter
     private final int quotaPerKey;
 
-    public QuotaTracker(@Value("${aladin.api.quota-per-key:5000}") int quotaPerKey) {
+    public QuotaTracker(@Value("${aladin.api.quota-per-key}") int quotaPerKey) {
         this.quotaPerKey = quotaPerKey;
         log.info("[QuotaTracker] 초기화 - 키당 쿼터: {}", quotaPerKey);
     }
@@ -71,15 +66,6 @@ public class QuotaTracker {
      */
     public int getRemainingQuota(String apiKey) {
         return Math.max(0, quotaPerKey - getUsage(apiKey));
-    }
-
-    /**
-     * 키당 쿼터 한도 조회
-     * 
-     * @return 키당 쿼터 한도
-     */
-    public int getQuotaPerKey() {
-        return quotaPerKey;
     }
 
     /**
