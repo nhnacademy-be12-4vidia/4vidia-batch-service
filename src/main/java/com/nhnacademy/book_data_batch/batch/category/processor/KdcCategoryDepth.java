@@ -1,7 +1,7 @@
 package com.nhnacademy.book_data_batch.batch.category.processor;
 
-import com.nhnacademy.book_data_batch.entity.Category;
-import com.nhnacademy.book_data_batch.repository.CategoryRepository;
+import com.nhnacademy.book_data_batch.domain.Category;
+import com.nhnacademy.book_data_batch.infrastructure.repository.CategoryRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

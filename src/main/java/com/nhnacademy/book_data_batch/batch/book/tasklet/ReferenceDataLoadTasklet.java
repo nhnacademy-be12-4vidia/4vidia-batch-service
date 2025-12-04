@@ -2,8 +2,8 @@ package com.nhnacademy.book_data_batch.batch.book.tasklet;
 
 import com.nhnacademy.book_data_batch.batch.book.cache.InMemoryReferenceDataCache;
 import com.nhnacademy.book_data_batch.batch.book.dto.BookCsvRow;
-import com.nhnacademy.book_data_batch.repository.CategoryRepository;
-import com.nhnacademy.book_data_batch.repository.PublisherRepository;
+import com.nhnacademy.book_data_batch.infrastructure.repository.CategoryRepository;
+import com.nhnacademy.book_data_batch.infrastructure.repository.PublisherRepository;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;

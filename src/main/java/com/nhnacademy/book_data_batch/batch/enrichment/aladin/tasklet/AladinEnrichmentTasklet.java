@@ -1,15 +1,16 @@
 package com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet;
 
-import com.nhnacademy.book_data_batch.batch.book.dto.BookImageDto;
+import com.nhnacademy.book_data_batch.batch.dto.BookImageDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.AladinApiClient;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.AladinQuotaTracker;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.*;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.api.AladinItemDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.mapper.AladinDataMapper;
 import com.nhnacademy.book_data_batch.batch.enrichment.utils.Partitioner;
-import com.nhnacademy.book_data_batch.dto.BookBatchTarget;
-import com.nhnacademy.book_data_batch.entity.enums.BatchStatus;
-import com.nhnacademy.book_data_batch.entity.enums.ImageType;
-import com.nhnacademy.book_data_batch.repository.*;
+import com.nhnacademy.book_data_batch.batch.dto.BookBatchTarget;
+import com.nhnacademy.book_data_batch.domain.enums.BatchStatus;
+import com.nhnacademy.book_data_batch.domain.enums.ImageType;
+import com.nhnacademy.book_data_batch.infrastructure.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.StepContribution;

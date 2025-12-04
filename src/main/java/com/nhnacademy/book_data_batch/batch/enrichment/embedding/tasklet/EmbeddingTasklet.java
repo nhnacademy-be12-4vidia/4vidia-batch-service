@@ -1,13 +1,13 @@
 package com.nhnacademy.book_data_batch.batch.enrichment.embedding.tasklet;
 
-import com.nhnacademy.book_data_batch.batch.enrichment.embedding.client.OllamaClient;
+import com.nhnacademy.book_data_batch.infrastructure.client.OllamaClient;
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.document.BookDocument;
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.dto.EmbeddingFailureDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.dto.EmbeddingSuccessDto;
-import com.nhnacademy.book_data_batch.dto.BookEmbeddingTarget;
-import com.nhnacademy.book_data_batch.entity.enums.BatchStatus;
-import com.nhnacademy.book_data_batch.repository.BatchRepository;
-import com.nhnacademy.book_data_batch.repository.search.BookSearchRepository;
+import com.nhnacademy.book_data_batch.batch.enrichment.dto.BookEmbeddingTarget;
+import com.nhnacademy.book_data_batch.domain.enums.BatchStatus;
+import com.nhnacademy.book_data_batch.infrastructure.repository.BatchRepository;
+import com.nhnacademy.book_data_batch.infrastructure.repository.search.BookSearchRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.StepContribution;

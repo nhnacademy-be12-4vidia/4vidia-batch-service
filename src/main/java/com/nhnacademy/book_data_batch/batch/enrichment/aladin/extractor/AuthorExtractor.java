@@ -1,8 +1,8 @@
 package com.nhnacademy.book_data_batch.batch.enrichment.aladin.extractor;
 
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.AladinBookInfoDto;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.api.AladinBookInfoDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.EnrichmentSuccessDto.AuthorWithRole;
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.AladinItemDto;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.api.AladinItemDto;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 

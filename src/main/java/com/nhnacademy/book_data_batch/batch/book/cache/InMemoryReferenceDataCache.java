@@ -1,12 +1,12 @@
 package com.nhnacademy.book_data_batch.batch.book.cache;
 
 import com.nhnacademy.book_data_batch.batch.book.dto.BookCsvRow;
-import com.nhnacademy.book_data_batch.entity.Book;
-import com.nhnacademy.book_data_batch.entity.Category;
-import com.nhnacademy.book_data_batch.entity.Publisher;
-import com.nhnacademy.book_data_batch.repository.BookRepository;
-import com.nhnacademy.book_data_batch.repository.CategoryRepository;
-import com.nhnacademy.book_data_batch.repository.PublisherRepository;
+import com.nhnacademy.book_data_batch.domain.Book;
+import com.nhnacademy.book_data_batch.domain.Category;
+import com.nhnacademy.book_data_batch.domain.Publisher;
+import com.nhnacademy.book_data_batch.infrastructure.repository.BookRepository;
+import com.nhnacademy.book_data_batch.infrastructure.repository.CategoryRepository;
+import com.nhnacademy.book_data_batch.infrastructure.repository.PublisherRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

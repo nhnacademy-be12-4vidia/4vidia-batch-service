@@ -1,7 +1,7 @@
 package com.nhnacademy.book_data_batch.batch.enrichment.aladin.client;
 
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.AladinItemDto;
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.AladinResponseDto;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.api.AladinItemDto;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.api.AladinResponseDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.exception.RateLimitExceededException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

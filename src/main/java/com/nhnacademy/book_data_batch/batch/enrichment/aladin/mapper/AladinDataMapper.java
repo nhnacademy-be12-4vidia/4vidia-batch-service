@@ -1,10 +1,10 @@
 package com.nhnacademy.book_data_batch.batch.enrichment.aladin.mapper;
 
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.AladinBookInfoDto;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.api.AladinBookInfoDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.EnrichmentSuccessDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.EnrichmentSuccessDto.AuthorWithRole;
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.AladinItemDto;
-import com.nhnacademy.book_data_batch.dto.BookBatchTarget;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.api.AladinItemDto;
+import com.nhnacademy.book_data_batch.batch.dto.BookBatchTarget;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.extractor.CategoryTagExtractor;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.extractor.AuthorExtractor;
 import lombok.RequiredArgsConstructor;

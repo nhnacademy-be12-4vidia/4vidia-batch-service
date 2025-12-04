@@ -4,10 +4,10 @@ import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.AladinApiCl
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.AladinQuotaTracker;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.mapper.AladinDataMapper;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet.AladinEnrichmentTasklet;
-import com.nhnacademy.book_data_batch.batch.enrichment.embedding.client.OllamaClient;
+import com.nhnacademy.book_data_batch.infrastructure.client.OllamaClient;
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.tasklet.EmbeddingTasklet;
-import com.nhnacademy.book_data_batch.repository.*;
-import com.nhnacademy.book_data_batch.repository.search.BookSearchRepository;
+import com.nhnacademy.book_data_batch.infrastructure.repository.*;
+import com.nhnacademy.book_data_batch.infrastructure.repository.search.BookSearchRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;

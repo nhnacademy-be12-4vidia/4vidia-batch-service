@@ -20,7 +20,7 @@ import java.util.Collection;
 public class BulkLoggingAspect {
 
     // 작가 Bulk Insert 로깅
-    @Around("execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkAuthorRepositoryImpl.bulkInsert(..))")
+    @Around("execution(* com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl.BulkAuthorRepositoryImpl.bulkInsert(..))")
     public Object logAuthorBulkInsert(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         int count = getCollectionSize(args, 0);
@@ -28,7 +28,7 @@ public class BulkLoggingAspect {
     }
 
     // 도서-작가 Bulk Insert 로깅
-    @Around("execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkBookAuthorRepositoryImpl.bulkInsert(..))")
+    @Around("execution(* com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl.BulkBookAuthorRepositoryImpl.bulkInsert(..))")
     public Object logBookAuthorBulkInsert(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         int count = getCollectionSize(args, 0);
@@ -36,7 +36,7 @@ public class BulkLoggingAspect {
     }
 
     // 출판사 Bulk Insert 로깅
-    @Around("execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkPublisherRepositoryImpl.bulkInsert(..))")
+    @Around("execution(* com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl.BulkPublisherRepositoryImpl.bulkInsert(..))")
     public Object logPublisherBulkInsert(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         int count = getCollectionSize(args, 0);
@@ -44,7 +44,7 @@ public class BulkLoggingAspect {
     }
 
     // 도서 이미지 Bulk Insert 로깅
-    @Around("execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkBookImageRepositoryImpl.bulkInsert(..))")
+    @Around("execution(* com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl.BulkBookImageRepositoryImpl.bulkInsert(..))")
     public Object logBookImageBulkInsert(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         int count = getCollectionSize(args, 0);
@@ -52,7 +52,7 @@ public class BulkLoggingAspect {
     }
 
     // 태그 Bulk Insert 로깅
-    @Around("execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkTagRepositoryImpl.bulkInsert(..))")
+    @Around("execution(* com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl.BulkTagRepositoryImpl.bulkInsert(..))")
     public Object logTagBulkInsert(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         int count = getCollectionSize(args, 0);
@@ -60,7 +60,7 @@ public class BulkLoggingAspect {
     }
 
     // 도서-태그 Bulk Insert 로깅
-    @Around("execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkBookTagRepositoryImpl.bulkInsert(..))")
+    @Around("execution(* com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl.BulkBookTagRepositoryImpl.bulkInsert(..))")
     public Object logBookTagBulkInsert(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         int count = getCollectionSize(args, 0);
@@ -68,7 +68,7 @@ public class BulkLoggingAspect {
     }
 
     // 도서 Bulk Insert 로깅
-    @Around("execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkBookRepositoryImpl.bulkInsert(..))")
+    @Around("execution(* com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl.BulkBookRepositoryImpl.bulkInsert(..))")
     public Object logBookBulkInsert(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         int count = getCollectionSize(args, 0);
@@ -76,7 +76,7 @@ public class BulkLoggingAspect {
     }
 
     // 도서 Bulk Update 로깅
-    @Around("execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkBookRepositoryImpl.bulkUpdateFromEnrichment(..))")
+    @Around("execution(* com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl.BulkBookRepositoryImpl.bulkUpdateFromEnrichment(..))")
     public Object logBookBulkUpdate(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         int count = getCollectionSize(args, 0);
@@ -84,7 +84,7 @@ public class BulkLoggingAspect {
     }
 
     // 배치 Bulk Insert 로깅
-    @Around("execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkBatchRepositoryImpl.bulkInsert(..))")
+    @Around("execution(* com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl.BulkBatchRepositoryImpl.bulkInsert(..))")
     public Object logBatchBulkInsert(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         int count = getCollectionSize(args, 0);
@@ -92,8 +92,8 @@ public class BulkLoggingAspect {
     }
 
     // 배치 Enrichment Update 로깅
-    @Around("execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkBatchRepositoryImpl.bulkUpdateEnrichmentStatus(..)) || " +
-            "execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkBatchRepositoryImpl.bulkUpdateEnrichmentFailed(..))")
+    @Around("execution(* com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl.BulkBatchRepositoryImpl.bulkUpdateEnrichmentStatus(..)) || " +
+            "execution(* com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl.BulkBatchRepositoryImpl.bulkUpdateEnrichmentFailed(..))")
     public Object logBatchEnrichmentUpdate(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         int count = getCollectionSize(args, 0);
@@ -101,8 +101,8 @@ public class BulkLoggingAspect {
     }
 
     // 배치 Embedding Update 로깅
-    @Around("execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkBatchRepositoryImpl.bulkUpdateEmbeddingStatus(..)) || " +
-            "execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkBatchRepositoryImpl.bulkUpdateEmbeddingFailed(..))")
+    @Around("execution(* com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl.BulkBatchRepositoryImpl.bulkUpdateEmbeddingStatus(..)) || " +
+            "execution(* com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl.BulkBatchRepositoryImpl.bulkUpdateEmbeddingFailed(..))")
     public Object logBatchEmbeddingUpdate(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         int count = getCollectionSize(args, 0);
@@ -110,7 +110,7 @@ public class BulkLoggingAspect {
     }
 
     // 배치 Cleanup 로깅
-    @Around("execution(* com.nhnacademy.book_data_batch.repository.bulk.impl.BulkBatchRepositoryImpl.deleteAllCompleted(..))")
+    @Around("execution(* com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl.BulkBatchRepositoryImpl.deleteAllCompleted(..))")
     public Object logBatchCleanup(ProceedingJoinPoint joinPoint) throws Throwable {
         return logBulkInsert(joinPoint, "배치-CLEANUP", -1);  // 건수 불명
     }
