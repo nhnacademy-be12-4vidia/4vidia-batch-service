@@ -63,6 +63,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-dbcp2</artifactId>
+            <version>2.13.0</version>
+        </dependency>
+        <dependency>
             <artifactId>mysql-connector-j</artifactId>
             <groupId>com.mysql</groupId>
             <scope>runtime</scope>
