@@ -18,6 +18,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 임베딩 생성 및 Elasticsearch 인덱싱 Tasklet
@@ -58,13 +59,18 @@ public class EmbeddingTasklet implements Tasklet {
         
         log.info("[EMBEDDING] 임베딩 대상: {}건", targets.size());
 
+        // 진행 상황 추적용
+        AtomicInteger processedCount = new AtomicInteger(0);
+        int totalCount = targets.size();
+        int logInterval = Math.max(1, totalCount / 10); // 10% 단위로 로깅
+
         // 2. 병렬 임베딩 생성 (동시 요청 제한)
         Semaphore semaphore = new Semaphore(MAX_CONCURRENT_REQUESTS);
         
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
             List<CompletableFuture<Void>> futures = targets.stream()
                     .map(target -> CompletableFuture.runAsync(() -> 
-                            processEmbedding(target, semaphore, successResults, failureResults), executor))
+                            processEmbedding(target, semaphore, successResults, failureResults, processedCount, totalCount, logInterval), executor))
                     .toList();
 
             // 모든 임베딩 완료 대기
@@ -99,7 +105,10 @@ public class EmbeddingTasklet implements Tasklet {
             BookEmbeddingTarget target,
             Semaphore semaphore,
             ConcurrentLinkedQueue<EmbeddingSuccessDto> successResults,
-            ConcurrentLinkedQueue<EmbeddingFailureDto> failureResults
+            ConcurrentLinkedQueue<EmbeddingFailureDto> failureResults,
+            AtomicInteger processedCount,
+            int totalCount,
+            int logInterval
     ) {
         try {
             semaphore.acquire();
@@ -133,6 +142,13 @@ public class EmbeddingTasklet implements Tasklet {
             ));
         } finally {
             semaphore.release();
+            
+            // 진행 상황 로깅
+            int currentCount = processedCount.incrementAndGet();
+            if (currentCount % logInterval == 0 || currentCount == totalCount) {
+                int percentage = (int) ((currentCount * 100.0) / totalCount);
+                log.info("[EMBEDDING] 진행률: {}% ({}/{})", percentage, currentCount, totalCount);
+            }
         }
     }
 

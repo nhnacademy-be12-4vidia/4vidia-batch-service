@@ -29,7 +29,7 @@ public class AladinApiClient {
     private static final String VERSION = "20131101";
 
     // API 호출 설정
-    private static final long API_CALL_DELAY_MS = 100;       // 호출 간 딜레이 (100ms)
+    private static final long API_CALL_DELAY_MS = 200;       // 호출 간 딜레이 (100ms)
     
     // 429 Rate Limit 재시도 설정
     private static final int MAX_RETRY_429 = 3;              // 최대 재시도 횟수

@@ -11,15 +11,15 @@ import com.nhnacademy.book_data_batch.domain.QBookAuthor;
 import com.nhnacademy.book_data_batch.domain.QBookTag;
 import com.nhnacademy.book_data_batch.domain.QPublisher;
 import com.nhnacademy.book_data_batch.domain.QTag;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.querydsl.core.group.GroupBy.groupBy;
-import static com.querydsl.core.group.GroupBy.list;
 
 @RequiredArgsConstructor
 public class QuerydslBatchRepositoryImpl implements QuerydslBatchRepository {
@@ -69,9 +69,10 @@ public class QuerydslBatchRepositoryImpl implements QuerydslBatchRepository {
                 .from(batch)
                 .join(batch.book, book)
                 .leftJoin(book.publisher, publisher)
-                .where(batch.enrichmentStatus.eq(BatchStatus.COMPLETED)
-                        .and(batch.embeddingStatus.eq(BatchStatus.PENDING))
-                        .and(batch.embeddingRetryCount.lt(3)))
+//                .where(batch.enrichmentStatus.eq(BatchStatus.COMPLETED)
+//                        .and(batch.embeddingStatus.eq(BatchStatus.PENDING))
+//                        .and(batch.embeddingRetryCount.lt(3)))
+                .where(batch.enrichmentStatus.eq(BatchStatus.PENDING)) // 테스트용: 알라딘 보강 생략
                 .orderBy(batch.id.asc())
                 .fetch();
 
@@ -85,18 +86,35 @@ public class QuerydslBatchRepositoryImpl implements QuerydslBatchRepository {
                 .toList();
 
         // 2. 저자 정보 조회 (bookId -> 저자명 리스트)
-        Map<Long, List<String>> authorMap = queryFactory
+        // Hibernate 6 호환을 위해 transform() 대신 일반 쿼리 사용
+        List<Tuple> authorTuples = queryFactory
+                .select(bookAuthor.book.id, author.name)
                 .from(bookAuthor)
                 .join(bookAuthor.author, author)
                 .where(bookAuthor.book.id.in(bookIds))
-                .transform(groupBy(bookAuthor.book.id).as(list(author.name)));
+                .fetch();
+
+        Map<Long, List<String>> authorMap = new HashMap<>();
+        for (Tuple tuple : authorTuples) {
+            Long bookId = tuple.get(bookAuthor.book.id);
+            String authorName = tuple.get(author.name);
+            authorMap.computeIfAbsent(bookId, k -> new ArrayList<>()).add(authorName);
+        }
 
         // 3. 태그 정보 조회 (bookId -> 태그명 리스트)
-        Map<Long, List<String>> tagMap = queryFactory
+        List<Tuple> tagTuples = queryFactory
+                .select(bookTag.book.id, tag.name)
                 .from(bookTag)
                 .join(bookTag.tag, tag)
                 .where(bookTag.book.id.in(bookIds))
-                .transform(groupBy(bookTag.book.id).as(list(tag.name)));
+                .fetch();
+
+        Map<Long, List<String>> tagMap = new HashMap<>();
+        for (Tuple tuple : tagTuples) {
+            Long bookId = tuple.get(bookTag.book.id);
+            String tagName = tuple.get(tag.name);
+            tagMap.computeIfAbsent(bookId, k -> new ArrayList<>()).add(tagName);
+        }
 
         // 4. 조합하여 BookEmbeddingTarget 생성
         return basics.stream()

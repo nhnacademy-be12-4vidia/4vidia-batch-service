@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -60,6 +61,11 @@ public class AladinEnrichmentTasklet implements Tasklet {
 
         log.info("[ALADIN] 보강 대상: {}건", pendingTargets.size());
 
+        // 진행 상황 추적용
+        AtomicInteger processedCount = new AtomicInteger(0);
+        int totalCount = pendingTargets.size();
+        int logInterval = Math.max(1, totalCount / 10); // 10% 단위로 로깅
+
         // 2. API 키 수만큼 파티션으로 분할
         List<List<BookBatchTarget>> partitions = Partitioner.partition(pendingTargets, aladinApiKeys.size());
 
@@ -72,7 +78,7 @@ public class AladinEnrichmentTasklet implements Tasklet {
                 final List<BookBatchTarget> partition = partitions.get(i);
                 final String apiKey = aladinApiKeys.get(i);
 
-                futures.add(executor.submit(() -> processPartition(partition, apiKey, partitionIdx, successResults, failedResults)));
+                futures.add(executor.submit(() -> processPartition(partition, apiKey, partitionIdx, successResults, failedResults, processedCount, totalCount, logInterval)));
             }
 
             // 모든 가상 스레드 완료 대기
@@ -111,7 +117,10 @@ public class AladinEnrichmentTasklet implements Tasklet {
             String apiKey,
             int partitionIdx,
             ConcurrentLinkedQueue<EnrichmentSuccessDto> successResults,
-            ConcurrentLinkedQueue<EnrichmentFailureDto> failedResults
+            ConcurrentLinkedQueue<EnrichmentFailureDto> failedResults,
+            AtomicInteger processedCount,
+            int totalCount,
+            int logInterval
     ) {
         int partitionSuccess = 0;
         int partitionFailed = 0;
@@ -136,6 +145,13 @@ public class AladinEnrichmentTasklet implements Tasklet {
             } catch (Exception e) {
                 failedResults.add(new EnrichmentFailureDto(target.bookId(), target.batchId(), e.getMessage()));
                 partitionFailed++;
+            }
+
+            // 진행 상황 로깅
+            int currentCount = processedCount.incrementAndGet();
+            if (currentCount % logInterval == 0 || currentCount == totalCount) {
+                int percentage = (int) ((currentCount * 100.0) / totalCount);
+                log.info("[ALADIN] 진행률: {}% ({}/{})", percentage, currentCount, totalCount);
             }
         }
 
