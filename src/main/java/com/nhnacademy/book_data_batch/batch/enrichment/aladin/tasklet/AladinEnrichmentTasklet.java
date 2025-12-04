@@ -5,6 +5,7 @@ import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.AladinApiCl
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.AladinQuotaTracker;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.*;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.api.AladinItemDto;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.exception.RateLimitExceededException;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.mapper.AladinDataMapper;
 import com.nhnacademy.book_data_batch.batch.enrichment.utils.Partitioner;
 import com.nhnacademy.book_data_batch.batch.dto.BookBatchTarget;
@@ -64,7 +65,7 @@ public class AladinEnrichmentTasklet implements Tasklet {
         // 진행 상황 추적용
         AtomicInteger processedCount = new AtomicInteger(0);
         int totalCount = pendingTargets.size();
-        int logInterval = Math.max(1, totalCount / 10); // 10% 단위로 로깅
+        int logInterval = Math.max(1, totalCount / 100);
 
         // 2. API 키 수만큼 파티션으로 분할
         List<List<BookBatchTarget>> partitions = Partitioner.partition(pendingTargets, aladinApiKeys.size());
@@ -142,6 +143,10 @@ public class AladinEnrichmentTasklet implements Tasklet {
                     failedResults.add(new EnrichmentFailureDto(target.bookId(), target.batchId(), "API 응답 없음"));
                     partitionFailed++;
                 }
+            } catch (RateLimitExceededException e) {
+                // 쿼터 초과: 해당 API 키로는 더 이상 호출 불가 → 파티션 종료
+                log.warn("[ALADIN] 파티션-{} 쿼터 초과로 중단: {}", partitionIdx, e.getMessage());
+                break;
             } catch (Exception e) {
                 failedResults.add(new EnrichmentFailureDto(target.bookId(), target.batchId(), e.getMessage()));
                 partitionFailed++;
@@ -174,7 +179,7 @@ public class AladinEnrichmentTasklet implements Tasklet {
             return;
         }
 
-        // 2. Author bulk insert (INSERT IGNORE)
+        // 2. Author bulk insert
         authorRepository.bulkInsert(authorNames);
 
         // 3. Author ID 조회

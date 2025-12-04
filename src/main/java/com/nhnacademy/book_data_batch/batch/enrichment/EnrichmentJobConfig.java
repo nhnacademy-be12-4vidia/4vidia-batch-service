@@ -75,9 +75,10 @@ public class EnrichmentJobConfig {
             @Qualifier("cleanupStep") Step cleanupStep) {
         
         return new JobBuilder(JOB_NAME, jobRepository)
-//                .start(aladinEnrichmentStep)
-//                .next(embeddingStep)
-                .start(embeddingStep) // 임시: Aladin API 호출 없이 Embedding만 실행 (querydsl도 바꿔야함)
+                .start(aladinEnrichmentStep)
+                .next(embeddingStep)
+                // 테스트용: Aladin API 호출 없이 Embedding만 실행 (querydsl, document도 같이 수정 필요)
+//                .start(embeddingStep)
                 .next(cleanupStep)
                 .build();
     }

@@ -69,10 +69,10 @@ public class QuerydslBatchRepositoryImpl implements QuerydslBatchRepository {
                 .from(batch)
                 .join(batch.book, book)
                 .leftJoin(book.publisher, publisher)
-//                .where(batch.enrichmentStatus.eq(BatchStatus.COMPLETED)
-//                        .and(batch.embeddingStatus.eq(BatchStatus.PENDING))
-//                        .and(batch.embeddingRetryCount.lt(3)))
-                .where(batch.enrichmentStatus.eq(BatchStatus.PENDING)) // 테스트용: 알라딘 보강 생략
+                .where(batch.enrichmentStatus.eq(BatchStatus.COMPLETED)
+                        .and(batch.embeddingStatus.eq(BatchStatus.PENDING))
+                        .and(batch.embeddingRetryCount.lt(3)))
+//                .where(batch.enrichmentStatus.eq(BatchStatus.PENDING)) // 테스트용: 알라딘 보강 생략
                 .orderBy(batch.id.asc())
                 .fetch();
 

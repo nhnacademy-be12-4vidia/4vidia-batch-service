@@ -51,7 +51,7 @@ public class EmbeddingTasklet implements Tasklet {
 
         // 1. 임베딩 대상 도서 조회 (Aladin 완료 + 임베딩 미완료)
         List<BookEmbeddingTarget> targets = batchRepository.findPendingEmbeddingStatusBook();
-        
+
         if (targets.isEmpty()) {
             log.debug("[EMBEDDING] 처리할 도서 없음");
             return RepeatStatus.FINISHED;
@@ -62,7 +62,7 @@ public class EmbeddingTasklet implements Tasklet {
         // 진행 상황 추적용
         AtomicInteger processedCount = new AtomicInteger(0);
         int totalCount = targets.size();
-        int logInterval = Math.max(1, totalCount / 10); // 10% 단위로 로깅
+        int logInterval = Math.max(1, totalCount / 100);
 
         // 2. 병렬 임베딩 생성 (동시 요청 제한)
         Semaphore semaphore = new Semaphore(MAX_CONCURRENT_REQUESTS);

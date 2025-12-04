@@ -70,8 +70,26 @@ public class AladinApiClient {
                         .retrieve()
                         .body(AladinResponseDto.class);
 
-                if (response == null || response.item() == null || response.item().isEmpty()) {
+                if (response == null) {
                     log.debug("[Aladin API] 응답 없음: ISBN={}", isbn13);
+                    return Optional.empty();
+                }
+
+                // 에러 응답 체크 (200 OK로 에러가 오는 경우)
+                if (response.hasError()) {
+                    if (response.isQuotaExceeded()) {
+                        // 쿼터 초과: 해당 API 키로 더 이상 호출 불가
+                        log.warn("[Aladin API] 쿼터 초과: ISBN={}, error={}", isbn13, response.errorMessage());
+                        throw new RateLimitExceededException(apiKey, response.errorCode(),
+                                "[Aladin API] 일일 쿼터 초과: " + response.errorMessage());
+                    }
+                    log.debug("[Aladin API] API 에러: ISBN={}, code={}, msg={}", 
+                            isbn13, response.errorCode(), response.errorMessage());
+                    return Optional.empty();
+                }
+
+                if (response.item() == null || response.item().isEmpty()) {
+                    log.debug("[Aladin API] 검색 결과 없음: ISBN={}", isbn13);
                     return Optional.empty();
                 }
 
