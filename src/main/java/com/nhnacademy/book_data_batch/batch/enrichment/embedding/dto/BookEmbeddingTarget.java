@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.batch.enrichment.dto;
+package com.nhnacademy.book_data_batch.batch.enrichment.embedding.dto;
 
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.document.BookDocument;
 

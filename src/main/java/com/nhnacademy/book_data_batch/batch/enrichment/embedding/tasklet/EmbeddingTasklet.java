@@ -4,7 +4,7 @@ import com.nhnacademy.book_data_batch.infrastructure.client.OllamaClient;
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.document.BookDocument;
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.dto.EmbeddingFailureDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.dto.EmbeddingSuccessDto;
-import com.nhnacademy.book_data_batch.batch.enrichment.dto.BookEmbeddingTarget;
+import com.nhnacademy.book_data_batch.batch.enrichment.embedding.dto.BookEmbeddingTarget;
 import com.nhnacademy.book_data_batch.domain.enums.BatchStatus;
 import com.nhnacademy.book_data_batch.infrastructure.repository.BatchRepository;
 import com.nhnacademy.book_data_batch.infrastructure.repository.search.BookSearchRepository;

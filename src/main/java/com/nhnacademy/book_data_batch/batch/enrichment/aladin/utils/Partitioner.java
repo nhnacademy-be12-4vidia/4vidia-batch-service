@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.batch.enrichment.utils;
+package com.nhnacademy.book_data_batch.batch.enrichment.aladin.utils;
 
 import java.util.ArrayList;
 import java.util.List;

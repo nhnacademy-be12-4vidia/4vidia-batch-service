@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.batch.enrichment.dto;
+package com.nhnacademy.book_data_batch.batch.enrichment.embedding.dto;
 
 /**
  * 임베딩 대상 도서 기본 정보 (저자/태그 제외)

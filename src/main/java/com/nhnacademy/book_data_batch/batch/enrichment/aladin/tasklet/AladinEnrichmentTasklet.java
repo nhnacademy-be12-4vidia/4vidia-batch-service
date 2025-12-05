@@ -7,7 +7,7 @@ import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.*;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.api.AladinItemDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.exception.RateLimitExceededException;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.mapper.AladinDataMapper;
-import com.nhnacademy.book_data_batch.batch.enrichment.utils.Partitioner;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.utils.Partitioner;
 import com.nhnacademy.book_data_batch.batch.dto.BookBatchTarget;
 import com.nhnacademy.book_data_batch.domain.enums.BatchStatus;
 import com.nhnacademy.book_data_batch.domain.enums.ImageType;
