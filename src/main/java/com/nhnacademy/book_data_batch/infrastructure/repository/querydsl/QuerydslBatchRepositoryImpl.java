@@ -46,8 +46,10 @@ public class QuerydslBatchRepositoryImpl implements QuerydslBatchRepository {
                 .from(batch)
                 .join(batch.book, book)
                 .where(batch.enrichmentStatus.eq(BatchStatus.PENDING)
-                        .and(batch.enrichmentRetryCount.lt(3)))
-                .orderBy(batch.id.asc())
+                        .and(batch.enrichmentRetryCount.lt(3))
+                        .and(book.priceStandard.isNotNull())  // TODO: 여기는 임시 조건
+                        .and(book.priceStandard.gt(0)))
+                .orderBy(book.publishedDate.desc())
                 .fetch();
     }
 
