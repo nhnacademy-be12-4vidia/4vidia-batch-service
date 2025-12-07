@@ -3,6 +3,10 @@ package com.nhnacademy.book_data_batch.batch.enrichment.aladin.extractor;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.api.AladinBookInfoDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.EnrichmentSuccessDto.AuthorWithRole;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.api.AladinItemDto;
+import com.nhnacademy.book_data_batch.service.author.parser.AuthorParser;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -13,9 +17,11 @@ import java.util.List;
  * Aladin API 응답에서 정규화된 저자 정보 추출
  */
 @Component
+@RequiredArgsConstructor
 public class AuthorExtractor {
 
     private static final String DEFAULT_ROLE = "지은이";
+    private final AuthorParser authorParser;
 
     public List<AuthorWithRole> extract(AladinItemDto item) {
         if (item == null) {
@@ -54,7 +60,8 @@ public class AuthorExtractor {
     }
 
     private List<AuthorWithRole> parseAuthorString(String author) {
-        // TODO: 작가 문자열 파싱 로직 구현
-        return Collections.emptyList();
+        return authorParser.parse(author).stream()
+                .map(parsed -> new AuthorWithRole(parsed.name(), parsed.role()))
+                .toList();
     }
 }
