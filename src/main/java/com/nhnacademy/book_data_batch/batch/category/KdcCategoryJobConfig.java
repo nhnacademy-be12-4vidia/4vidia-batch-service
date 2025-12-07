@@ -104,7 +104,7 @@ public class KdcCategoryJobConfig {
         return new KdcCategoryItemProcessor(categoryRepository, KdcCategoryDepth.DIVISION);
     }
 
-    // Processor: 요목(depth 3) 카테고리 처리 // TODO: 강목별 요목은 병렬처리해도 되지 않을까? -> 의존관계가 없으므로 가능할 듯?
+    // Processor: 요목(depth 3) 카테고리 처리
     @Bean
     @StepScope
     public ItemProcessor<KdcCategoryCsv, Category> kdcSectionCategoryProcessor() {
@@ -124,7 +124,6 @@ public class KdcCategoryJobConfig {
                            FlatFileItemReader<KdcCategoryCsv> reader,
                            ItemProcessor<KdcCategoryCsv, Category> processor,
                            JpaItemWriter<Category> writer) {
-        // TODO: 공부 필요..
         // 동일한 CSV 에 대해 세 번 반복해서 읽기 때문에 StepScope 빈을 활용하고, 고정 청크 크기 사용
         // 각 Step 별로 Reader, Processor, Writer 를 주입받아 구성
         // Reader 와 Processor 는 StepScope 로 정의되어 있어 Step 실행 시점에 생성됨
