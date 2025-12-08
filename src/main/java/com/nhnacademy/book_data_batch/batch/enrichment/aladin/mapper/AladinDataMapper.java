@@ -96,6 +96,7 @@ public class AladinDataMapper {
         return StringUtils.hasText(bookinfo.toc()) ? bookinfo.toc() : null;
     }
 
+    // 언어 추출 (카테고리명 기반)
     private String extractLanguage(String categoryName) {
         if (!StringUtils.hasText(categoryName)) {
             return null;

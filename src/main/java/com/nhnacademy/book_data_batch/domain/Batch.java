@@ -41,12 +41,6 @@ public class Batch extends BaseEntity {
     @Convert(converter = BatchStatusConverter.class)
     private BatchStatus embeddingStatus = BatchStatus.PENDING;
 
-    @Column(name = "enrichment_retry_count", nullable = false, columnDefinition = "INT DEFAULT 0")
-    private Integer enrichmentRetryCount = 0;
-
-    @Column(name = "embedding_retry_count", nullable = false, columnDefinition = "INT DEFAULT 0")
-    private Integer embeddingRetryCount = 0;
-
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 

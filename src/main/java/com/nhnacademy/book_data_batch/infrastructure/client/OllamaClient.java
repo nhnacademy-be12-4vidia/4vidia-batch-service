@@ -3,8 +3,11 @@ package com.nhnacademy.book_data_batch.infrastructure.client;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 import java.util.Map;
 
@@ -34,32 +37,33 @@ public class OllamaClient {
      * 텍스트에 대한 임베딩 벡터 생성
      *
      * @param text 임베딩할 텍스트
-     * @return 임베딩 벡터 (실패 시 null)
+     * @return 임베딩 벡터 (실패 시 예외 발생 -> Tasklet에서 처리)
      */
+    @Retryable(
+            retryFor = {RestClientException.class, IllegalStateException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 1000)
+    )
     public double[] generateEmbedding(String text) {
-        try {
-            Map<String, Object> request = Map.of(
-                    "model", model,
-                    "prompt", text
-            );
+        // try-catch 제거: 예외 발생 시 Retry가 동작하도록 함
+        Map<String, Object> request = Map.of(
+                "model", model,
+                "prompt", text
+        );
 
-            EmbeddingResponse response = restClient
-                    .post()
-                    .uri(ollamaUrl)
-                    .body(request)
-                    .retrieve()
-                    .body(EmbeddingResponse.class);
+        EmbeddingResponse response = restClient
+                .post()
+                .uri(ollamaUrl)
+                .body(request)
+                .retrieve()
+                .body(EmbeddingResponse.class);
 
-            if (response == null || response.getEmbedding() == null) {
-                log.warn("[OLLAMA] 응답 없음");
-                return null;
-            }
-
-            return response.getEmbedding();
-        } catch (Exception e) {
-            log.error("[OLLAMA] 호출 실패: {}", e.getMessage());
-            return null;
+        if (response == null || response.getEmbedding() == null) {
+            // null 응답도 재시도 대상에 포함시키기 위해 예외 발생
+            throw new IllegalStateException("[OLLAMA] 응답이 비어있습니다.");
         }
+
+        return response.getEmbedding();
     }
 
     @Data

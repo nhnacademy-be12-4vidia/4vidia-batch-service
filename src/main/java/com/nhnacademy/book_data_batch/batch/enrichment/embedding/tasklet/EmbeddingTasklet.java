@@ -41,7 +41,7 @@ public class EmbeddingTasklet implements Tasklet {
     private final OllamaClient ollamaClient;
 
     /** 동시 요청 제한 (Ollama 서버 부하 방지) */
-    private static final int MAX_CONCURRENT_REQUESTS = 32;
+    private static final int MAX_CONCURRENT_REQUESTS = 8;
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {

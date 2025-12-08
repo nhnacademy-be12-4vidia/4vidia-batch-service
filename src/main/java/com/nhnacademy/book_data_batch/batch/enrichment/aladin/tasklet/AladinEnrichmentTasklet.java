@@ -44,11 +44,12 @@ public class AladinEnrichmentTasklet implements Tasklet {
     private final AladinDataMapper aladinDataMapper;
     private final List<String> aladinApiKeys;
 
+    // 결과 수집용
+    private final ConcurrentLinkedQueue<EnrichmentSuccessDto> successResults = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<EnrichmentFailureDto> failedResults = new ConcurrentLinkedQueue<>();
+
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        // 결과 수집용
-        ConcurrentLinkedQueue<EnrichmentSuccessDto> successResults = new ConcurrentLinkedQueue<>();
-        ConcurrentLinkedQueue<EnrichmentFailureDto> failedResults = new ConcurrentLinkedQueue<>();
 
         // 0. 쿼터 초기화
         aladinQuotaTracker.reset();
@@ -79,7 +80,7 @@ public class AladinEnrichmentTasklet implements Tasklet {
                 final List<BookBatchTarget> partition = partitions.get(i);
                 final String apiKey = aladinApiKeys.get(i);
 
-                futures.add(executor.submit(() -> processPartition(partition, apiKey, partitionIdx, successResults, failedResults, processedCount, totalCount, logInterval)));
+                futures.add(executor.submit(() -> processPartition(partition, apiKey, partitionIdx, processedCount, totalCount, logInterval)));
             }
 
             // 모든 가상 스레드 완료 대기
@@ -117,8 +118,6 @@ public class AladinEnrichmentTasklet implements Tasklet {
             List<BookBatchTarget> targets,
             String apiKey,
             int partitionIdx,
-            ConcurrentLinkedQueue<EnrichmentSuccessDto> successResults,
-            ConcurrentLinkedQueue<EnrichmentFailureDto> failedResults,
             AtomicInteger processedCount,
             int totalCount,
             int logInterval
@@ -182,8 +181,8 @@ public class AladinEnrichmentTasklet implements Tasklet {
         // 2. Author bulk insert
         authorRepository.bulkInsert(authorNames);
 
-        // 3. Author ID 조회
-        Map<String, Long> authorIdMap = authorRepository.findIdsByNames(authorNames);
+        // 3. Author ID 조회 (대용량 IN 절 분할 조회로 MySQL 메타데이터 오류 회피)
+        Map<String, Long> authorIdMap = authorRepository.findIdsByNames(authorNames, 500);
 
         // 4. BookAuthor 관계 생성
         List<BookAuthorDto> bookAuthors = new ArrayList<>();
@@ -251,7 +250,6 @@ public class AladinEnrichmentTasklet implements Tasklet {
         if (results.isEmpty()) {
             return;
         }
-
         bookRepository.bulkUpdateFromEnrichment(results);
     }
 
@@ -268,12 +266,6 @@ public class AladinEnrichmentTasklet implements Tasklet {
                         0  // displayOrder
                 ))
                 .toList();
-
-        if (images.isEmpty()) {
-            log.debug("[TASKLET] 저장할 BookImage 없음");
-            return;
-        }
-
         bookImageRepository.bulkInsert(images);
     }
 
@@ -283,16 +275,16 @@ public class AladinEnrichmentTasklet implements Tasklet {
     private void updateBatchStatus(List<EnrichmentSuccessDto> success, List<EnrichmentFailureDto> failed) {
         // 성공 항목: COMPLETED
         if (!success.isEmpty()) {
-            List<Long> successBookIds = success.stream()
-                    .map(EnrichmentSuccessDto::bookId)
+            List<Long> successBatchIds = success.stream()
+                    .map(EnrichmentSuccessDto::batchId)
                     .toList();
-            batchRepository.bulkUpdateEnrichmentStatus(successBookIds, BatchStatus.COMPLETED);
+            batchRepository.bulkUpdateEnrichmentStatus(successBatchIds, BatchStatus.COMPLETED);
         }
 
         // 실패 항목: FAILED + 에러 메시지
         if (!failed.isEmpty()) {
             List<Object[]> failedData = failed.stream()
-                    .map(f -> new Object[]{f.bookId(), f.reason()})
+                    .map(f -> new Object[]{f.batchId(), f.reason()})
                     .toList();
             batchRepository.bulkUpdateEnrichmentFailed(failedData);
         }

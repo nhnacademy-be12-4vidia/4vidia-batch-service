@@ -70,7 +70,7 @@ public class EnrichmentJobConfig {
     private List<String> aladinApiKeys;
 
     @Bean
-    public Job enrichmentJob(
+    public Job aladinEnrichmentJob(
             @Qualifier("aladinEnrichmentStep") Step aladinEnrichmentStep,
             @Qualifier("embeddingStep") Step embeddingStep,
             @Qualifier("cleanupStep") Step cleanupStep) {

@@ -16,8 +16,8 @@ public class BulkBatchRepositoryImpl implements BulkBatchRepository {
     private final BulkJdbcExecutor bulkExecutor;
 
     private static final String INSERT_BATCH_SQL = """
-            INSERT IGNORE INTO batch (book_id, enrichment_status, embedding_status, error_message, enrichment_retry_count, embedding_retry_count)
-            VALUES (?, ?, ?, NULL, 0, 0)
+            INSERT IGNORE INTO batch (book_id, enrichment_status, embedding_status, error_message)
+            VALUES (?, ?, ?, NULL)
             """;
 
     // Enrichment
@@ -25,14 +25,14 @@ public class BulkBatchRepositoryImpl implements BulkBatchRepository {
             "UPDATE batch SET enrichment_status = ? WHERE batch_id = ?";
 
     private static final String UPDATE_ENRICHMENT_FAILED_SQL = 
-            "UPDATE batch SET enrichment_status = ?, error_message = ?, enrichment_retry_count = enrichment_retry_count + 1 WHERE batch_id = ?";
+            "UPDATE batch SET enrichment_status = ?, error_message = ? WHERE batch_id = ?";
 
     // Embedding
     private static final String UPDATE_EMBEDDING_STATUS_SQL = 
             "UPDATE batch SET embedding_status = ? WHERE batch_id = ?";
 
     private static final String UPDATE_EMBEDDING_FAILED_SQL = 
-            "UPDATE batch SET embedding_status = ?, error_message = ?, embedding_retry_count = embedding_retry_count + 1 WHERE batch_id = ?";
+            "UPDATE batch SET embedding_status = ?, error_message = ? WHERE batch_id = ?";
 
     // Cleanup
     private static final String DELETE_COMPLETED_SQL = """

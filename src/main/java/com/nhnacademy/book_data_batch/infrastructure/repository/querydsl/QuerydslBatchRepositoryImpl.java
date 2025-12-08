@@ -45,8 +45,7 @@ public class QuerydslBatchRepositoryImpl implements QuerydslBatchRepository {
                 ))
                 .from(batch)
                 .join(batch.book, book)
-                .where(batch.enrichmentStatus.eq(BatchStatus.PENDING)
-                        .and(batch.enrichmentRetryCount.lt(3)))
+                .where(batch.enrichmentStatus.eq(BatchStatus.PENDING))
 //                        .and(book.priceStandard.isNotNull())
 //                        .and(book.priceStandard.gt(0)))
                 .orderBy(book.publishedDate.desc())
@@ -72,8 +71,7 @@ public class QuerydslBatchRepositoryImpl implements QuerydslBatchRepository {
                 .join(batch.book, book)
                 .leftJoin(book.publisher, publisher)
                 .where(batch.enrichmentStatus.eq(BatchStatus.COMPLETED)
-                        .and(batch.embeddingStatus.eq(BatchStatus.PENDING))
-                        .and(batch.embeddingRetryCount.lt(3)))
+                        .and(batch.embeddingStatus.eq(BatchStatus.PENDING)))
 //                .where(batch.enrichmentStatus.eq(BatchStatus.PENDING)) // 테스트용: 알라딘 보강 생략
                 .orderBy(batch.id.asc())
                 .fetch();
