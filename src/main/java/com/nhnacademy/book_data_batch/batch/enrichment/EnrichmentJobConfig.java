@@ -39,7 +39,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EnrichmentJobConfig {
 
-    private static final String JOB_NAME = "enrichmentJob";
+    private static final String ALADIN_JOB_NAME = "aladinEnrichmentJob";
+    private static final String Nl_JOB_NAME = "nlEnrichmentJob";
     private static final String ALADIN_ENRICHMENT_STEP_NAME = "aladinEnrichmentStep";
     private static final String EMBEDDING_STEP_NAME = "embeddingStep";
     private static final String CLEANUP_STEP_NAME = "cleanupStep";
@@ -74,7 +75,7 @@ public class EnrichmentJobConfig {
             @Qualifier("embeddingStep") Step embeddingStep,
             @Qualifier("cleanupStep") Step cleanupStep) {
         
-        return new JobBuilder(JOB_NAME, jobRepository)
+        return new JobBuilder(ALADIN_JOB_NAME, jobRepository)
                 .start(aladinEnrichmentStep)
                 .next(embeddingStep)
                 // 테스트용: Aladin API 호출 없이 Embedding만 실행 (querydsl, document도 같이 수정 필요)
