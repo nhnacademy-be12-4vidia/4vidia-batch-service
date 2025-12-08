@@ -25,6 +25,7 @@ public class AladinApiClient {
 
     private static final String BASE_URL = "http://www.aladin.co.kr/ttb/api/ItemLookUp.aspx";
     private static final String ITEM_ID_TYPE = "ISBN13";
+    private static final String COVER_SIZE = "Big";
     private static final String OUTPUT_FORMAT = "JS";
     private static final String VERSION = "20131101";
 
@@ -156,6 +157,7 @@ public class AladinApiClient {
                 .queryParam("ttbkey", apiKey)
                 .queryParam("ItemIdType", ITEM_ID_TYPE)
                 .queryParam("ItemId", isbn13)
+                .queryParam("Cover", COVER_SIZE)
                 .queryParam("Output", OUTPUT_FORMAT)
                 .queryParam("Version", VERSION)
                 .build()
