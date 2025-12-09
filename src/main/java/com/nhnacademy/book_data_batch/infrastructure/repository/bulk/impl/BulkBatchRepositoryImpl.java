@@ -1,6 +1,6 @@
 package com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl;
 
-import com.nhnacademy.book_data_batch.infrastructure.jdbc.BulkJdbcExecutor;
+import com.nhnacademy.book_data_batch.infrastructure.jdbc.JdbcExecutor;
 import com.nhnacademy.book_data_batch.domain.Batch;
 import com.nhnacademy.book_data_batch.domain.enums.BatchStatus;
 import com.nhnacademy.book_data_batch.infrastructure.repository.bulk.BulkBatchRepository;
@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BulkBatchRepositoryImpl implements BulkBatchRepository {
 
-    private final BulkJdbcExecutor bulkExecutor;
+    private final JdbcExecutor bulkExecutor;
 
     private static final String INSERT_BATCH_SQL = """
             INSERT IGNORE INTO batch (book_id, enrichment_status, embedding_status, error_message)

@@ -235,6 +235,6 @@ public class FieldNormalizer {
 
         // 숫자만 추출 (비숫자 문자 모두 제거)
         String numericOnly = base.replaceAll("\\D", "");
-        return StringUtils.hasText(numericOnly) ? numericOnly : null;
+        return StringUtils.hasText(numericOnly) ? numericOnly : "UNC";  // 숫자 없으면 미분류
     }
 }

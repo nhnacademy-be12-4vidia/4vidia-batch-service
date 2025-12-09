@@ -9,10 +9,4 @@ import com.nhnacademy.book_data_batch.infrastructure.repository.bulk.BulkPublish
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PublisherRepository extends JpaRepository<Publisher, Long>, BulkPublisherRepository {
-
-    Boolean existsByName(String name);
-
-    Publisher findByName(String name);
-
-    List<Publisher> findAllByNameIn(Collection<String> names);
 }

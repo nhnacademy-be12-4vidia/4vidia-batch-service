@@ -181,7 +181,7 @@ public class AladinEnrichmentTasklet implements Tasklet {
         // 2. Author bulk insert
         authorRepository.bulkInsert(authorNames);
 
-        // 3. Author ID 조회 (대용량 IN 절 분할 조회로 MySQL 메타데이터 오류 회피)
+        // 3. Author ID 조회 (JDBC로 직접 조회하여 MySQL 메타데이터 캐시 오류 회피)
         Map<String, Long> authorIdMap = authorRepository.findIdsByNames(authorNames, 500);
 
         // 4. BookAuthor 관계 생성

@@ -1,7 +1,7 @@
 package com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl;
 
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.EnrichmentSuccessDto;
-import com.nhnacademy.book_data_batch.infrastructure.jdbc.BulkJdbcExecutor;
+import com.nhnacademy.book_data_batch.infrastructure.jdbc.JdbcExecutor;
 import com.nhnacademy.book_data_batch.domain.Book;
 import com.nhnacademy.book_data_batch.infrastructure.repository.bulk.BulkBookRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BulkBookRepositoryImpl implements BulkBookRepository {
 
-    private final BulkJdbcExecutor bulkExecutor;
+    private final JdbcExecutor bulkExecutor;
 
     private static final String INSERT_BOOK_SQL = """
             INSERT IGNORE INTO book (

@@ -65,12 +65,15 @@ public class InMemoryReferenceDataCache implements ReferenceDataCache {
 
     // Category 캐시
 
+    private static final String UNCATEGORIZED_CODE = "UNC";
+
     @Override
     public Category findCategory(String kdcCode) {
         if (kdcCode == null || kdcCode.isBlank()) {
-            return null;
+            return categoryCache.get(UNCATEGORIZED_CODE);  // 미분류 반환
         }
-        return categoryCache.get(kdcCode.trim());
+        Category category = categoryCache.get(kdcCode.trim());
+        return category != null ? category : categoryCache.get(UNCATEGORIZED_CODE);  // 없으면 미분류
     }
 
     @Override

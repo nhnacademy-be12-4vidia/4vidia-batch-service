@@ -37,7 +37,7 @@ public class KdcCategoryJobConfig {
     private static final String DIVISION_STEP_NAME = "kdcDivisionCategoryStep";
     private static final String SECTION_STEP_NAME = "kdcSectionCategoryStep";
     private static final String NON_KDC_STEP_NAME = "nonKdcCategoryStep";
-    private static final int CHUNK_SIZE = 100;
+    private static final int CHUNK_SIZE = 20;
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;

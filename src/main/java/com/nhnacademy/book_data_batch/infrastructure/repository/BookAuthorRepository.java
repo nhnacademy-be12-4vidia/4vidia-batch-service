@@ -5,7 +5,4 @@ import com.nhnacademy.book_data_batch.infrastructure.repository.bulk.BulkBookAut
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BookAuthorRepository extends JpaRepository<BookAuthor, Long>, BulkBookAuthorRepository {
-
-    Boolean existsByAuthor_NameAndBook_Isbn(String authorName, String bookIsbn13);
-
 }

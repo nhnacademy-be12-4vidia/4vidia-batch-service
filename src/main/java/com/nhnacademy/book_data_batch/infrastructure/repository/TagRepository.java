@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public interface TagRepository extends JpaRepository<Tag, Long>, BulkTagRepository {
 
@@ -20,7 +21,7 @@ public interface TagRepository extends JpaRepository<Tag, Long>, BulkTagReposito
      */
     default Map<String, Long> findIdsByNames(Collection<String> names) {
         return findAllByNameIn(names).stream()
-                .collect(java.util.stream.Collectors.toMap(
+                .collect(Collectors.toMap(
                         Tag::getName,
                         Tag::getId,
                         (a, b) -> a  // 중복 시 첫 번째 값 유지

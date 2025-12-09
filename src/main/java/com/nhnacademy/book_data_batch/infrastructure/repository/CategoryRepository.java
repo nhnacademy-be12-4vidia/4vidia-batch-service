@@ -11,6 +11,4 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     Optional<Category> findByKdcCode(String kdcCode);
 
     boolean existsByKdcCode(String kdcCode);
-
-    List<Category> findAllByKdcCodeIn(Collection<String> kdcCodes);
 }

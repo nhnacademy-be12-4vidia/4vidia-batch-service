@@ -13,6 +13,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * - Bulk 연산: BulkBatchRepository
  */
 public interface BatchRepository extends JpaRepository<Batch, Long>, BulkBatchRepository, QuerydslBatchRepository {
-
-    long countByEnrichmentStatus(BatchStatus status);
 }

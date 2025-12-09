@@ -9,10 +9,6 @@ import java.util.List;
 
 public interface BookRepository extends JpaRepository<Book, Long>, BulkBookRepository {
 
-    Book findByIsbn(String isbn13);
-
-    boolean existsByIsbn(String isbn13);
-
     List<Book> findAllByIsbnIn(Collection<String> isbns);
 
 }
