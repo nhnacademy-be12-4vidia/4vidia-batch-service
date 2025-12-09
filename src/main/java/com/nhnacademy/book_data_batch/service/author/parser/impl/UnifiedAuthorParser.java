@@ -43,7 +43,9 @@ public class UnifiedAuthorParser implements AuthorParser {
                 return result;
             }
         }
-        return Collections.emptyList();
+
+        // 모든 전략 실패 시, 원본 필드를 이름으로, 역할을 null로 하는 단일 저자 반환
+        return Collections.singletonList(new ParsedAuthor(trimmedInput, null));
     }
 }
 
