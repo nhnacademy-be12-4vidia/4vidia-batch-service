@@ -4,6 +4,7 @@ import com.nhnacademy.book_data_batch.batch.category.dto.KdcCategoryCsv;
 import com.nhnacademy.book_data_batch.batch.category.mapper.KdcCategoryLineMapper;
 import com.nhnacademy.book_data_batch.batch.category.processor.KdcCategoryDepth;
 import com.nhnacademy.book_data_batch.batch.category.processor.KdcCategoryItemProcessor;
+import com.nhnacademy.book_data_batch.batch.category.tasklet.NonKdcCategoryTasklet;
 import com.nhnacademy.book_data_batch.domain.Category;
 import com.nhnacademy.book_data_batch.infrastructure.repository.CategoryRepository;
 import jakarta.persistence.EntityManagerFactory;
@@ -14,6 +15,7 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
@@ -34,6 +36,7 @@ public class KdcCategoryJobConfig {
     private static final String MAIN_STEP_NAME = "kdcMainCategoryStep";
     private static final String DIVISION_STEP_NAME = "kdcDivisionCategoryStep";
     private static final String SECTION_STEP_NAME = "kdcSectionCategoryStep";
+    private static final String NON_KDC_STEP_NAME = "nonKdcCategoryStep";
     private static final int CHUNK_SIZE = 100;
 
     private final JobRepository jobRepository;
@@ -48,11 +51,12 @@ public class KdcCategoryJobConfig {
 
         // KDC 는 주류 → 강목 → 요목 순서를 보장해야 하므로 세 개의 Step 을 직렬로 배치
         return new JobBuilder(JOB_NAME, jobRepository)
-            .start(kdcMainCategoryStep) // 주류
-            .next(kdcDivisionCategoryStep) // 강목
-            .next(kdcSectionCategoryStep) // 요목
-            .preventRestart() // 실패 시 재시작 불가
-            .build();
+                .start(kdcMainCategoryStep) // 주류
+                .next(kdcDivisionCategoryStep) // 강목
+                .next(kdcSectionCategoryStep) // 요목
+                .next(nonKdcCategoryStep()) // KDC 이외의 카테고리
+                .preventRestart() // 실패 시 재시작 불가
+                .build();
     }
 
     // Step: 주류(depth 1) 처리
@@ -80,6 +84,13 @@ public class KdcCategoryJobConfig {
         @Qualifier("kdcSectionCategoryProcessor") ItemProcessor<KdcCategoryCsv, Category> kdcSectionCategoryProcessor,
         JpaItemWriter<Category> kdcCategoryWriter) {
         return buildStep(SECTION_STEP_NAME, kdcSectionCategoryReader, kdcSectionCategoryProcessor, kdcCategoryWriter);
+    }
+
+    @Bean
+    public Step nonKdcCategoryStep() {
+        return new StepBuilder(NON_KDC_STEP_NAME, jobRepository)
+            .tasklet(new NonKdcCategoryTasklet(categoryRepository), transactionManager)
+            .build();
     }
 
     // Reader: KDC 카테고리 CSV 파일 읽기
@@ -117,6 +128,11 @@ public class KdcCategoryJobConfig {
         return new JpaItemWriterBuilder<Category>()
             .entityManagerFactory(entityManagerFactory)
             .build();
+    }
+
+    @Bean
+    public Tasklet nonKdcCategoryTasklet() {
+        return new NonKdcCategoryTasklet(categoryRepository);
     }
 
     // Step 빌더 메서드
