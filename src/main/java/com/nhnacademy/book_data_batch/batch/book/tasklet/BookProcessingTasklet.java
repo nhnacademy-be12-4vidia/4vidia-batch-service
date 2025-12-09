@@ -17,6 +17,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -65,7 +66,7 @@ public class BookProcessingTasklet implements Tasklet {
         }
 
         // 3. ISBN으로 Book 캐시 구축
-        Set<String> isbnSet = isbns.stream().collect(Collectors.toSet());
+        Set<String> isbnSet = new HashSet<>(isbns);
         cache.buildBookCache(bookRepository, isbnSet);
 
         contribution.incrementWriteCount(books.size());
@@ -85,6 +86,9 @@ public class BookProcessingTasklet implements Tasklet {
         // Category 조회
         String kdcCode = fieldNormalizer.normalizeKdc(row.kdcCode());
         Category category = cache.findCategory(kdcCode);
+        if (category == null) {
+            category = cache.findCategory("000");
+        }
 
         // Publisher 조회
         Publisher publisher = cache.findPublisher(row.publisher());
