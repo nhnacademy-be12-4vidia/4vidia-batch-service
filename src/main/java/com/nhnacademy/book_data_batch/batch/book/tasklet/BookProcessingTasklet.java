@@ -86,9 +86,6 @@ public class BookProcessingTasklet implements Tasklet {
         // Category 조회
         String kdcCode = fieldNormalizer.normalizeKdc(row.kdcCode());
         Category category = cache.findCategory(kdcCode);
-        if (category == null) {
-            category = cache.findCategory("000");
-        }
 
         // Publisher 조회
         Publisher publisher = cache.findPublisher(row.publisher());

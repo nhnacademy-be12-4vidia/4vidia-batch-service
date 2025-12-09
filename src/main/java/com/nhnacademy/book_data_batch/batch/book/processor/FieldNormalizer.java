@@ -230,7 +230,7 @@ public class FieldNormalizer {
         String base = tokens[0];
 
         if (!StringUtils.hasText(base)) {
-            return null;
+            return "UNC";  // 미분류 코드 처리
         }
 
         // 숫자만 추출 (비숫자 문자 모두 제거)
