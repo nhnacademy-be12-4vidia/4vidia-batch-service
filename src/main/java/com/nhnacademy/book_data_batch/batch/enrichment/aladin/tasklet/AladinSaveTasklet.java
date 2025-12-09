@@ -1,14 +1,9 @@
 package com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet;
 
 import com.nhnacademy.book_data_batch.batch.dto.BookImageDto;
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.AladinApiClient;
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.AladinQuotaTracker;
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.*;
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.api.AladinItemDto;
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.exception.RateLimitExceededException;
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.mapper.AladinDataMapper;
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.utils.Partitioner;
-import com.nhnacademy.book_data_batch.batch.dto.BookBatchTarget;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.EnrichmentFailureDto;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.EnrichmentSuccessDto;
+import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.BookAuthorDto;
 import com.nhnacademy.book_data_batch.domain.enums.BatchStatus;
 import com.nhnacademy.book_data_batch.domain.enums.ImageType;
 import com.nhnacademy.book_data_batch.infrastructure.repository.*;
@@ -20,146 +15,49 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+/**
+ * Aladin API 결과 저장 Tasklet
+ * 이전 Step에서 수집한 API 결과를 DB에 저장
+ * 트랜잭션으로 관리됨
+ */
 @Slf4j
 @RequiredArgsConstructor
-public class AladinEnrichmentTasklet implements Tasklet {
+public class AladinSaveTasklet implements Tasklet {
 
-    private final BatchRepository batchRepository;
     private final AuthorRepository authorRepository;
     private final BookAuthorRepository bookAuthorRepository;
     private final TagRepository tagRepository;
     private final BookTagRepository bookTagRepository;
     private final BookRepository bookRepository;
     private final BookImageRepository bookImageRepository;
-
-    private final AladinQuotaTracker aladinQuotaTracker;
-    private final AladinApiClient aladinApiClient;
-    private final AladinDataMapper aladinDataMapper;
-    private final List<String> aladinApiKeys;
-
-    // 결과 수집용
-    private final ConcurrentLinkedQueue<EnrichmentSuccessDto> successResults = new ConcurrentLinkedQueue<>();
-    private final ConcurrentLinkedQueue<EnrichmentFailureDto> failedResults = new ConcurrentLinkedQueue<>();
+    private final BatchRepository batchRepository;
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
-        // 0. 쿼터 초기화
-        aladinQuotaTracker.reset();
+        // 이전 Step에서 수집한 결과 조회
+        List<EnrichmentSuccessDto> successList = new ArrayList<>(AladinApiTasklet.getSuccessResults());
+        List<EnrichmentFailureDto> failedList = new ArrayList<>(AladinApiTasklet.getFailedResults());
 
-        // 1. PENDING 상태의 도서 조회
-        List<BookBatchTarget> pendingTargets = batchRepository.findPendingEnrichmentStatusBook();
-        if (pendingTargets.isEmpty()) {
-            log.debug("[ALADIN] 처리할 도서 없음");
-            return RepeatStatus.FINISHED;
-        }
-
-        log.info("[ALADIN] 보강 대상: {}건", pendingTargets.size());
-
-        // 진행 상황 추적용
-        AtomicInteger processedCount = new AtomicInteger(0);
-        int totalCount = pendingTargets.size();
-        int logInterval = Math.max(1, totalCount / 100);
-
-        // 2. API 키 수만큼 파티션으로 분할
-        List<List<BookBatchTarget>> partitions = Partitioner.partition(pendingTargets, aladinApiKeys.size());
-
-        // 3. Virtual Threads로 병렬 처리
-        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            List<Future<?>> futures = new ArrayList<>();
-
-            for (int i = 0; i < partitions.size(); i++) {
-                final int partitionIdx = i;
-                final List<BookBatchTarget> partition = partitions.get(i);
-                final String apiKey = aladinApiKeys.get(i);
-
-                futures.add(executor.submit(() -> processPartition(partition, apiKey, partitionIdx, processedCount, totalCount, logInterval)));
-            }
-
-            // 모든 가상 스레드 완료 대기
-            futures.forEach(future -> {
-                try {
-                    future.get();
-                } catch (Exception e) {
-                    log.error("[ALADIN] 파티션 처리 중 오류: {}", e.getMessage());
-                }
-            });
-        }
-
-        // 4. Bulk 판단
-        if (successResults.isEmpty() && failedResults.isEmpty()) {
+        if (successList.isEmpty() && failedList.isEmpty()) {
             log.debug("[ALADIN] 저장할 데이터 없음");
             return RepeatStatus.FINISHED;
         }
-        List<EnrichmentSuccessDto> successList = new ArrayList<>(successResults);
 
-        // 5. 처리
+        // DB에 저장
         saveAuthors(successList);
         saveTags(successList);
         saveBooks(successList);
         saveImages(successList);
-        updateBatchStatus(successList, new ArrayList<>(failedResults));
+        updateBatchStatus(successList, failedList);
 
-        // 6. 처리 건수 기록
+        // 처리 건수 기록
         contribution.incrementWriteCount(successList.size());
-        log.info("[ALADIN] 완료 - 성공: {}, 실패: {}", successList.size(), failedResults.size());
+        log.info("[ALADIN SAVE] 완료 - 성공: {}, 실패: {}", successList.size(), failedList.size());
 
         return RepeatStatus.FINISHED;
-    }
-
-    private void processPartition(
-            List<BookBatchTarget> targets,
-            String apiKey,
-            int partitionIdx,
-            AtomicInteger processedCount,
-            int totalCount,
-            int logInterval
-    ) {
-        int partitionSuccess = 0;
-        int partitionFailed = 0;
-
-        for (BookBatchTarget target : targets) {
-            // 쿼터 체크
-            if (!aladinQuotaTracker.tryAcquire(apiKey)) {
-                break;
-            }
-
-            try {
-                Optional<AladinItemDto> response = aladinApiClient.lookupByIsbn(target.isbn13(), apiKey);
-
-                if (response.isPresent()) {
-                    EnrichmentSuccessDto data = aladinDataMapper.map(target, response.get());
-                    successResults.add(data);
-                    partitionSuccess++;
-                } else {
-                    failedResults.add(new EnrichmentFailureDto(target.bookId(), target.batchId(), "API 응답 없음"));
-                    partitionFailed++;
-                }
-            } catch (RateLimitExceededException e) {
-                // 쿼터 초과: 해당 API 키로는 더 이상 호출 불가 → 파티션 종료
-                log.warn("[ALADIN] 파티션-{} 쿼터 초과로 중단: {}", partitionIdx, e.getMessage());
-                break;
-            } catch (Exception e) {
-                failedResults.add(new EnrichmentFailureDto(target.bookId(), target.batchId(), e.getMessage()));
-                partitionFailed++;
-            }
-
-            // 진행 상황 로깅
-            int currentCount = processedCount.incrementAndGet();
-            if (currentCount % logInterval == 0 || currentCount == totalCount) {
-                int percentage = (int) ((currentCount * 100.0) / totalCount);
-                log.info("[ALADIN] 진행률: {}% ({}/{})", percentage, currentCount, totalCount);
-            }
-        }
-
-        log.debug("[ALADIN] 파티션-{} 완료 - 성공: {}, 실패: {}", partitionIdx, partitionSuccess, partitionFailed);
     }
 
     /**
