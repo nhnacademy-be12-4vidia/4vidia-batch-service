@@ -5,6 +5,7 @@ import com.nhnacademy.book_data_batch.batch.enrichment.embedding.document.BookDo
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.dto.EmbeddingFailureDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.dto.EmbeddingSuccessDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.dto.BookEmbeddingTarget;
+import com.nhnacademy.book_data_batch.batch.enrichment.context.EnrichmentResultsHolder;
 import com.nhnacademy.book_data_batch.infrastructure.repository.BatchRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Ollama 임베딩 생성 Tasklet
- * Virtual Threads로 병렬로 임베딩을 생성하고 결과를 메모리에 저장
+ * Virtual Threads로 병렬로 임베딩을 생성하고 결과를 StepExecutionContext에 저장
  * 트랜잭션 관리 안 함 (다음 Step에서 DB/ES 저장)
  */
 @Slf4j
@@ -29,19 +30,16 @@ public class EmbeddingProcessTasklet implements Tasklet {
 
     private final BatchRepository batchRepository;
     private final OllamaClient ollamaClient;
+    private final EnrichmentResultsHolder resultsHolder;
 
     /** 동시 요청 제한 (Ollama 서버 부하 방지) */
     private static final int MAX_CONCURRENT_REQUESTS = 8;
 
-    // 결과 수집용 (정적 저장소 - 다음 Step에서 읽음)
-    private static final ConcurrentLinkedQueue<EmbeddingSuccessDto> successResults = new ConcurrentLinkedQueue<>();
-    private static final ConcurrentLinkedQueue<EmbeddingFailureDto> failureResults = new ConcurrentLinkedQueue<>();
-
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        // 결과 큐 초기화
-        successResults.clear();
-        failureResults.clear();
+        // 결과 저장소 획득
+        ConcurrentLinkedQueue<EmbeddingSuccessDto> successResults = resultsHolder.getEmbeddingSuccessResults();
+        ConcurrentLinkedQueue<EmbeddingFailureDto> failureResults = resultsHolder.getEmbeddingFailureResults();
 
         // 1. 임베딩 대상 도서 조회 (Aladin 완료 + 임베딩 미완료)
         List<BookEmbeddingTarget> targets = batchRepository.findPendingEmbeddingStatusBook();
@@ -64,7 +62,7 @@ public class EmbeddingProcessTasklet implements Tasklet {
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
             List<CompletableFuture<Void>> futures = targets.stream()
                     .map(target -> CompletableFuture.runAsync(() -> 
-                            processEmbedding(target, semaphore, processedCount, totalCount, logInterval), executor))
+                            processEmbedding(target, semaphore, processedCount, totalCount, logInterval, successResults, failureResults), executor))
                     .toList();
 
             // 모든 임베딩 완료 대기
@@ -83,7 +81,9 @@ public class EmbeddingProcessTasklet implements Tasklet {
             Semaphore semaphore,
             AtomicInteger processedCount,
             int totalCount,
-            int logInterval
+            int logInterval,
+            ConcurrentLinkedQueue<EmbeddingSuccessDto> successResults,
+            ConcurrentLinkedQueue<EmbeddingFailureDto> failureResults
     ) {
         try {
             semaphore.acquire();
@@ -125,13 +125,5 @@ public class EmbeddingProcessTasklet implements Tasklet {
                 log.info("[EMBEDDING] 진행률: {}% ({}/{})", percentage, currentCount, totalCount);
             }
         }
-    }
-
-    public static ConcurrentLinkedQueue<EmbeddingSuccessDto> getSuccessResults() {
-        return successResults;
-    }
-
-    public static ConcurrentLinkedQueue<EmbeddingFailureDto> getFailureResults() {
-        return failureResults;
     }
 }

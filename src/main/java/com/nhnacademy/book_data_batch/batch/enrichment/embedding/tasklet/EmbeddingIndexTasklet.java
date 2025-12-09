@@ -3,6 +3,7 @@ package com.nhnacademy.book_data_batch.batch.enrichment.embedding.tasklet;
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.document.BookDocument;
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.dto.EmbeddingFailureDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.dto.EmbeddingSuccessDto;
+import com.nhnacademy.book_data_batch.batch.enrichment.context.EnrichmentResultsHolder;
 import com.nhnacademy.book_data_batch.domain.enums.BatchStatus;
 import com.nhnacademy.book_data_batch.infrastructure.repository.BatchRepository;
 import com.nhnacademy.book_data_batch.infrastructure.repository.search.BookSearchRepository;
@@ -16,6 +17,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Elasticsearch 인덱싱 및 Batch 상태 업데이트 Tasklet
@@ -28,12 +30,17 @@ public class EmbeddingIndexTasklet implements Tasklet {
 
     private final BookSearchRepository bookSearchRepository;
     private final BatchRepository batchRepository;
+    private final EnrichmentResultsHolder resultsHolder;
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        // 이전 Step에서 수집한 결과 조회
-        List<EmbeddingSuccessDto> successList = new ArrayList<>(EmbeddingProcessTasklet.getSuccessResults());
-        List<EmbeddingFailureDto> failureList = new ArrayList<>(EmbeddingProcessTasklet.getFailureResults());
+        // 결과 조회
+        List<EmbeddingSuccessDto> successList = new ArrayList<>(
+            resultsHolder.getEmbeddingSuccessResults()
+        );
+        List<EmbeddingFailureDto> failureList = new ArrayList<>(
+            resultsHolder.getEmbeddingFailureResults()
+        );
 
         if (successList.isEmpty() && failureList.isEmpty()) {
             log.debug("[EMBEDDING INDEX] 저장할 데이터 없음");

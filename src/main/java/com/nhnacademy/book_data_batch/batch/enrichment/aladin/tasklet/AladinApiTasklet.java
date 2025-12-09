@@ -7,6 +7,7 @@ import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.api.AladinItem
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.exception.RateLimitExceededException;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.mapper.AladinDataMapper;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.utils.Partitioner;
+import com.nhnacademy.book_data_batch.batch.enrichment.context.EnrichmentResultsHolder;
 import com.nhnacademy.book_data_batch.batch.dto.BookBatchTarget;
 import com.nhnacademy.book_data_batch.infrastructure.repository.BatchRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Aladin API 호출 Tasklet
- * Virtual Threads를 사용하여 병렬로 API를 호출하고 결과를 메모리에 저장
+ * Virtual Threads를 사용하여 병렬로 API를 호출하고 결과를 StepExecutionContext에 저장
  * 트랜잭션 관리 안 함 (다음 Step에서 DB 저장)
  */
 @Slf4j
@@ -37,18 +38,16 @@ public class AladinApiTasklet implements Tasklet {
     private final AladinApiClient aladinApiClient;
     private final AladinDataMapper aladinDataMapper;
     private final List<String> aladinApiKeys;
-
-    // 결과 수집용 (정적 저장소 - 다음 Step에서 읽음)
-    private static final ConcurrentLinkedQueue<EnrichmentSuccessDto> successResults = new ConcurrentLinkedQueue<>();
-    private static final ConcurrentLinkedQueue<EnrichmentFailureDto> failedResults = new ConcurrentLinkedQueue<>();
+    private final EnrichmentResultsHolder resultsHolder;
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
-        // 0. 쿼터 초기화 및 결과 큐 초기화
+        // 0. 쿼터 초기화
         aladinQuotaTracker.reset();
-        successResults.clear();
-        failedResults.clear();
+        
+        ConcurrentLinkedQueue<EnrichmentSuccessDto> successResults = resultsHolder.getAladinSuccessResults();
+        ConcurrentLinkedQueue<EnrichmentFailureDto> failedResults = resultsHolder.getAladinFailedResults();
 
         // 1. PENDING 상태의 도서 조회 (미니 트랜잭션)
         List<BookBatchTarget> pendingTargets = batchRepository.findPendingEnrichmentStatusBook();
@@ -76,7 +75,7 @@ public class AladinApiTasklet implements Tasklet {
                 final List<BookBatchTarget> partition = partitions.get(i);
                 final String apiKey = aladinApiKeys.get(i);
 
-                futures.add(executor.submit(() -> processPartition(partition, apiKey, partitionIdx, processedCount, totalCount, logInterval)));
+                futures.add(executor.submit(() -> processPartition(partition, apiKey, partitionIdx, processedCount, totalCount, logInterval, successResults, failedResults)));
             }
 
             // 모든 가상 스레드 완료 대기
@@ -100,7 +99,9 @@ public class AladinApiTasklet implements Tasklet {
             int partitionIdx,
             AtomicInteger processedCount,
             int totalCount,
-            int logInterval
+            int logInterval,
+            ConcurrentLinkedQueue<EnrichmentSuccessDto> successResults,
+            ConcurrentLinkedQueue<EnrichmentFailureDto> failedResults
     ) {
         int partitionSuccess = 0;
         int partitionFailed = 0;
@@ -139,13 +140,5 @@ public class AladinApiTasklet implements Tasklet {
         }
 
         log.debug("[ALADIN] 파티션-{} 완료 - 성공: {}, 실패: {}", partitionIdx, partitionSuccess, partitionFailed);
-    }
-
-    public static ConcurrentLinkedQueue<EnrichmentSuccessDto> getSuccessResults() {
-        return successResults;
-    }
-
-    public static ConcurrentLinkedQueue<EnrichmentFailureDto> getFailedResults() {
-        return failedResults;
     }
 }

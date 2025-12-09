@@ -4,6 +4,7 @@ import com.nhnacademy.book_data_batch.batch.dto.BookImageDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.EnrichmentFailureDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.EnrichmentSuccessDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.BookAuthorDto;
+import com.nhnacademy.book_data_batch.batch.enrichment.context.EnrichmentResultsHolder;
 import com.nhnacademy.book_data_batch.domain.enums.BatchStatus;
 import com.nhnacademy.book_data_batch.domain.enums.ImageType;
 import com.nhnacademy.book_data_batch.infrastructure.repository.*;
@@ -15,6 +16,7 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
 /**
@@ -33,13 +35,18 @@ public class AladinSaveTasklet implements Tasklet {
     private final BookRepository bookRepository;
     private final BookImageRepository bookImageRepository;
     private final BatchRepository batchRepository;
+    private final EnrichmentResultsHolder resultsHolder;
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
-        // 이전 Step에서 수집한 결과 조회
-        List<EnrichmentSuccessDto> successList = new ArrayList<>(AladinApiTasklet.getSuccessResults());
-        List<EnrichmentFailureDto> failedList = new ArrayList<>(AladinApiTasklet.getFailedResults());
+        // 결과 조회
+        List<EnrichmentSuccessDto> successList = new ArrayList<>(
+            resultsHolder.getAladinSuccessResults()
+        );
+        List<EnrichmentFailureDto> failedList = new ArrayList<>(
+            resultsHolder.getAladinFailedResults()
+        );
 
         if (successList.isEmpty() && failedList.isEmpty()) {
             log.debug("[ALADIN] 저장할 데이터 없음");

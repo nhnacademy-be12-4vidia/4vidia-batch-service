@@ -5,6 +5,7 @@ import com.nhnacademy.book_data_batch.batch.enrichment.aladin.client.AladinQuota
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.mapper.AladinDataMapper;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet.AladinApiTasklet;
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet.AladinSaveTasklet;
+import com.nhnacademy.book_data_batch.batch.enrichment.context.EnrichmentResultsHolder;
 import com.nhnacademy.book_data_batch.infrastructure.client.OllamaClient;
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.tasklet.EmbeddingProcessTasklet;
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.tasklet.EmbeddingIndexTasklet;
@@ -72,6 +73,8 @@ public class EnrichmentJobConfig {
 
     @Value("${aladin.api.keys}")
     private List<String> aladinApiKeys;
+    
+    private final EnrichmentResultsHolder resultsHolder;
 
     @Bean
     public Job aladinEnrichmentJob(
@@ -104,7 +107,8 @@ public class EnrichmentJobConfig {
                         aladinQuotaTracker,
                         aladinApiClient,
                         aladinDataMapper,
-                        aladinApiKeys
+                        aladinApiKeys,
+                        resultsHolder
                 ), transactionManager)
                 .build();
     }
@@ -123,7 +127,8 @@ public class EnrichmentJobConfig {
                         bookTagRepository,
                         bookRepository,
                         bookImageRepository,
-                        batchRepository
+                        batchRepository,
+                        resultsHolder
                 ), transactionManager)
                 .build();
     }
@@ -137,7 +142,8 @@ public class EnrichmentJobConfig {
         return new StepBuilder(EMBEDDING_PROCESS_STEP_NAME, jobRepository)
                 .tasklet(new EmbeddingProcessTasklet(
                         batchRepository,
-                        ollamaClient
+                        ollamaClient,
+                        resultsHolder
                 ), transactionManager)
                 .build();
     }
@@ -151,7 +157,8 @@ public class EnrichmentJobConfig {
         return new StepBuilder(EMBEDDING_INDEX_STEP_NAME, jobRepository)
                 .tasklet(new EmbeddingIndexTasklet(
                         bookSearchRepository,
-                        batchRepository
+                        batchRepository,
+                        resultsHolder
                 ), transactionManager)
                 .build();
     }

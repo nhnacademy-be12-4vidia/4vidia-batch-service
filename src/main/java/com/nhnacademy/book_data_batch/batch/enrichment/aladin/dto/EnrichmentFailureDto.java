@@ -1,5 +1,8 @@
 package com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * 보강 실패 정보
  * 
@@ -11,4 +14,7 @@ public record EnrichmentFailureDto(
         Long bookId,
         Long batchId,
         String reason
-) {}
+) implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+}

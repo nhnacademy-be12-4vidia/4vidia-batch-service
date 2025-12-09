@@ -1,5 +1,8 @@
 package com.nhnacademy.book_data_batch.batch.enrichment.embedding.dto;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * 임베딩 실패 결과
  *
@@ -11,5 +14,7 @@ public record EmbeddingFailureDto(
         Long bookId,
         Long batchId,
         String reason
-) {
+) implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 }

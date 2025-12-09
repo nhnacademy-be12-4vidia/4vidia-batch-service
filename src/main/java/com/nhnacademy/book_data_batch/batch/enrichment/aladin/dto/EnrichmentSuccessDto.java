@@ -1,5 +1,7 @@
 package com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -32,14 +34,20 @@ public record EnrichmentSuccessDto(
         List<String> tags,
         String coverUrl,
         String language
-) {
+) implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     /**
      * 저자 정보
      * 
      * @param name 저자 이름
      * @param role 저자 역할
      */
-    public record AuthorWithRole(String name, String role) {}
+    public record AuthorWithRole(String name, String role) implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 1L;
+    }
 
     // cover 이미지 URL 존재 여부
     public boolean hasCoverUrl() {
