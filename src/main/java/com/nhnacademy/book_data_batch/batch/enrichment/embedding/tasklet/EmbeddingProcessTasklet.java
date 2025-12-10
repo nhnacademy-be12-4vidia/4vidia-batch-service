@@ -6,7 +6,6 @@ import com.nhnacademy.book_data_batch.batch.enrichment.embedding.dto.EmbeddingFa
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.dto.EmbeddingSuccessDto;
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.dto.BookEmbeddingTarget;
 import com.nhnacademy.book_data_batch.batch.enrichment.context.EnrichmentResultsHolder;
-import com.nhnacademy.book_data_batch.infrastructure.repository.BatchRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.StepContribution;
@@ -14,21 +13,21 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Ollama 임베딩 생성 Tasklet
- * Virtual Threads로 병렬로 임베딩을 생성하고 결과를 StepExecutionContext에 저장
+ * Virtual Threads로 병렬로 임베딩을 생성하고 결과를 메모리 저장소에 저장
+ * 
  * 트랜잭션 관리 안 함 (다음 Step에서 DB/ES 저장)
  */
 @Slf4j
 @RequiredArgsConstructor
 public class EmbeddingProcessTasklet implements Tasklet {
 
-    private final BatchRepository batchRepository;
     private final OllamaClient ollamaClient;
     private final EnrichmentResultsHolder resultsHolder;
 
@@ -41,26 +40,27 @@ public class EmbeddingProcessTasklet implements Tasklet {
         ConcurrentLinkedQueue<EmbeddingSuccessDto> successResults = resultsHolder.getEmbeddingSuccessResults();
         ConcurrentLinkedQueue<EmbeddingFailureDto> failureResults = resultsHolder.getEmbeddingFailureResults();
 
-        // 1. 임베딩 대상 도서 조회 (Aladin 완료 + 임베딩 미완료)
-        List<BookEmbeddingTarget> targets = batchRepository.findPendingEmbeddingStatusBook();
+        // 1. 임베딩 대상 조회 (EmbeddingPrepareTasklet에서 병합된 결과 사용)
+        ConcurrentLinkedQueue<BookEmbeddingTarget> targets = resultsHolder.getEmbeddingTargets();
+        List<BookEmbeddingTarget> targetList = new ArrayList<>(targets);
 
-        if (targets.isEmpty()) {
+        if (targetList.isEmpty()) {
             log.debug("[EMBEDDING] 처리할 도서 없음");
             return RepeatStatus.FINISHED;
         }
         
-        log.info("[EMBEDDING] 임베딩 대상: {}건", targets.size());
+        log.info("[EMBEDDING] 임베딩 대상: {}건", targetList.size());
 
         // 진행 상황 추적용
         AtomicInteger processedCount = new AtomicInteger(0);
-        int totalCount = targets.size();
+        int totalCount = targetList.size();
         int logInterval = Math.max(1, totalCount / 100);
 
         // 2. 병렬 임베딩 생성 (동시 요청 제한, DB 연결 점유 안 함)
         Semaphore semaphore = new Semaphore(MAX_CONCURRENT_REQUESTS);
         
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            List<CompletableFuture<Void>> futures = targets.stream()
+            List<CompletableFuture<Void>> futures = targetList.stream()
                     .map(target -> CompletableFuture.runAsync(() -> 
                             processEmbedding(target, semaphore, processedCount, totalCount, logInterval, successResults, failureResults), executor))
                     .toList();

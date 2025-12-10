@@ -54,8 +54,13 @@ public class EmbeddingIndexTasklet implements Tasklet {
                     .filter(Objects::nonNull)
                     .toList();
             
-            bookSearchRepository.saveAll(documents);
-            log.debug("[EMBEDDING INDEX] Elasticsearch 저장 완료: {}건", documents.size());
+            int bulkSize = 1000;
+            for (int i = 0; i < documents.size(); i += bulkSize) {
+                int end = Math.min(documents.size(), i + bulkSize);
+                List<BookDocument> batch = documents.subList(i, end);
+                bookSearchRepository.saveAll(batch);
+                log.debug("[EMBEDDING INDEX] Elasticsearch 분할 저장: {}/{} 완료", end, documents.size());
+            }
         }
 
         // 2. Batch 상태 업데이트

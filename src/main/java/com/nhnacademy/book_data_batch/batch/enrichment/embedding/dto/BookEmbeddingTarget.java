@@ -38,7 +38,7 @@ public record BookEmbeddingTarget(
      */
     public String buildEmbeddingText() {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append("제목: ").append(title).append(" ");
         
         if (description != null && !description.isBlank()) {

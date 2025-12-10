@@ -7,6 +7,7 @@ import com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet.AladinApiT
 import com.nhnacademy.book_data_batch.batch.enrichment.aladin.tasklet.AladinSaveTasklet;
 import com.nhnacademy.book_data_batch.batch.enrichment.context.EnrichmentResultsHolder;
 import com.nhnacademy.book_data_batch.infrastructure.client.OllamaClient;
+import com.nhnacademy.book_data_batch.batch.enrichment.embedding.tasklet.EmbeddingPrepareTasklet;
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.tasklet.EmbeddingProcessTasklet;
 import com.nhnacademy.book_data_batch.batch.enrichment.embedding.tasklet.EmbeddingIndexTasklet;
 import com.nhnacademy.book_data_batch.infrastructure.repository.*;
@@ -46,6 +47,7 @@ public class EnrichmentJobConfig {
     private static final String Nl_JOB_NAME = "nlEnrichmentJob";
     private static final String ALADIN_API_STEP_NAME = "aladinApiStep";
     private static final String ALADIN_SAVE_STEP_NAME = "aladinSaveStep";
+    private static final String EMBEDDING_PREPARE_STEP_NAME = "embeddingPrepareStep";
     private static final String EMBEDDING_PROCESS_STEP_NAME = "embeddingProcessStep";
     private static final String EMBEDDING_INDEX_STEP_NAME = "embeddingIndexStep";
     private static final String CLEANUP_STEP_NAME = "cleanupStep";
@@ -80,6 +82,7 @@ public class EnrichmentJobConfig {
     public Job aladinEnrichmentJob(
             @Qualifier("aladinApiStep") Step aladinApiStep,
             @Qualifier("aladinSaveStep") Step aladinSaveStep,
+            @Qualifier("embeddingPrepareStep") Step embeddingPrepareStep,
             @Qualifier("embeddingProcessStep") Step embeddingProcessStep,
             @Qualifier("embeddingIndexStep") Step embeddingIndexStep,
             @Qualifier("cleanupStep") Step cleanupStep) {
@@ -87,10 +90,9 @@ public class EnrichmentJobConfig {
         return new JobBuilder(ALADIN_JOB_NAME, jobRepository)
                 .start(aladinApiStep)
                 .next(aladinSaveStep)
+                .next(embeddingPrepareStep)
                 .next(embeddingProcessStep)
                 .next(embeddingIndexStep)
-                // 테스트용: Aladin API 호출 없이 Embedding만 실행 (querydsl, document도 같이 수정 필요)
-//                .start(embeddingProcessStep)
                 .next(cleanupStep)
                 .build();
     }
@@ -134,14 +136,32 @@ public class EnrichmentJobConfig {
     }
 
     /**
+     * Aladin 보강 결과 + DB 기본 정보 병합 (JDBC 배치 분할 조회)
+     * EmbeddingPrepareTasklet: aladinSuccessResults + DB 기본 정보 → BookEmbeddingTarget 변환
+     * 
+     * <p>효과:</p>
+     * - EmbeddingProcessTasklet에서 DB 조회 제거 → 백엔드 무영향
+     * - 한 곳에서만 DB 접근 (IN 절 배치 분할로 안전하게 처리)
+     */
+    @Bean
+    public Step embeddingPrepareStep() {
+        return new StepBuilder(EMBEDDING_PREPARE_STEP_NAME, jobRepository)
+                .tasklet(new EmbeddingPrepareTasklet(
+                        batchRepository,
+                        resultsHolder
+                ), transactionManager)
+                .build();
+    }
+
+    /**
      * Ollama 임베딩 생성 (트랜잭션 없음 - I/O 작업만 수행)
      * Virtual Threads로 병렬 처리하면서 DB 연결 점유 안 함
+     * 메모리 저장소(EnrichmentResultsHolder)에서만 데이터 읽음 (DB 접근 0회)
      */
     @Bean
     public Step embeddingProcessStep() {
         return new StepBuilder(EMBEDDING_PROCESS_STEP_NAME, jobRepository)
                 .tasklet(new EmbeddingProcessTasklet(
-                        batchRepository,
                         ollamaClient,
                         resultsHolder
                 ), transactionManager)

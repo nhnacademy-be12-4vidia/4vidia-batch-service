@@ -1,5 +1,7 @@
 package com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl;
 
+import com.nhnacademy.book_data_batch.batch.dto.BookBatchTarget;
+import com.nhnacademy.book_data_batch.batch.enrichment.embedding.dto.BookEmbeddingTarget;
 import com.nhnacademy.book_data_batch.infrastructure.jdbc.JdbcExecutor;
 import com.nhnacademy.book_data_batch.domain.Batch;
 import com.nhnacademy.book_data_batch.domain.enums.BatchStatus;
@@ -34,6 +36,27 @@ public class BulkBatchRepositoryImpl implements BulkBatchRepository {
     private static final String UPDATE_EMBEDDING_FAILED_SQL = 
             "UPDATE batch SET embedding_status = ?, error_message = ? WHERE batch_id = ?";
 
+    // QueryDSL 조회 (JDBC)
+    private static final String FIND_PENDING_ENRICHMENT_SQL = """
+            SELECT b.book_id, b.isbn_13, batch.batch_id
+            FROM batch
+            INNER JOIN book b ON batch.book_id = b.book_id
+            WHERE batch.enrichment_status = ?
+            ORDER BY b.published_date DESC
+            """;
+
+    // JDBC 배치 분할 조회
+    private static final String FIND_EMBEDDING_TARGETS_SQL = """
+            SELECT
+                b.book_id, batch.batch_id, b.isbn_13, b.title, b.description,
+                p.publisher_name, b.price_sales, b.stock
+            FROM batch
+            INNER JOIN book b ON batch.book_id = b.book_id
+            LEFT JOIN publisher p ON b.publisher_id = p.publisher_id
+            WHERE b.book_id IN (%s)
+            ORDER BY b.book_id ASC
+            """;
+
     // Cleanup
     private static final String DELETE_COMPLETED_SQL = """
             DELETE FROM batch 
@@ -54,6 +77,19 @@ public class BulkBatchRepositoryImpl implements BulkBatchRepository {
                     ps.setInt(2, BatchStatus.PENDING.getCode());
                     ps.setInt(3, BatchStatus.PENDING.getCode());
                 }
+        );
+    }
+
+    @Override
+    public List<BookBatchTarget> findPendingEnrichmentStatusBook() {
+        return bulkExecutor.query(
+                FIND_PENDING_ENRICHMENT_SQL,
+                (rs, rowNum) -> new BookBatchTarget(
+                        rs.getLong("book_id"),
+                        rs.getString("isbn_13"),
+                        rs.getLong("batch_id")
+                ),
+                BatchStatus.PENDING.getCode()
         );
     }
 
@@ -120,6 +156,37 @@ public class BulkBatchRepositoryImpl implements BulkBatchRepository {
                     ps.setString(2, truncateMessage((String) data[1]));
                     ps.setLong(3, (Long) data[0]);
                 }
+        );
+    }
+
+    @Override
+    public List<BookEmbeddingTarget> findEmbeddingTargetsByBookIdsWithBatching(List<Long> bookIds) {
+        if (bookIds == null || bookIds.isEmpty()) {
+            return List.of();
+        }
+
+        // bookId를 String으로 변환 (queryInBatches는 Collection<String> 필요)
+        List<String> bookIdStrings = bookIds.stream()
+                .map(String::valueOf)
+                .toList();
+
+        // JDBC 배치 분할 조회 (1000개씩 분할)
+        return bulkExecutor.queryInBatches(
+                FIND_EMBEDDING_TARGETS_SQL,
+                (rs, rowNum) -> new BookEmbeddingTarget(
+                        rs.getLong("book_id"),
+                        rs.getLong("batch_id"),
+                        rs.getString("isbn_13"),
+                        rs.getString("title"),
+                        rs.getString("description"),
+                        rs.getString("publisher_name"),
+                        rs.getObject("price_sales") != null ? rs.getInt("price_sales") : null,
+                        rs.getObject("stock") != null ? rs.getInt("stock") : null,
+                        "",  // authors는 이후 Aladin 정보로 병합
+                        ""   // tags는 이후 Aladin 정보로 병합
+                ),
+                bookIdStrings,
+                1000  // IN 절 1000개씩 분할
         );
     }
 
