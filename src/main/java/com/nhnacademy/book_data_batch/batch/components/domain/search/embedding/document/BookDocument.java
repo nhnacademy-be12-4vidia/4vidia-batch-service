@@ -11,8 +11,8 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-@Document(indexName = "4vidia-books")
-//@Document(indexName = "4vidia-books-test")
+//@Document(indexName = "4vidia-books")
+@Document(indexName = "4vidia-books-test")
 @Getter
 @Builder(toBuilder = true)
 public class BookDocument implements Serializable {

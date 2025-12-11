@@ -4,7 +4,6 @@ import com.nhnacademy.book_data_batch.batch.components.provider.aladin.client.Al
 import com.nhnacademy.book_data_batch.batch.components.provider.aladin.client.AladinQuotaTracker;
 import com.nhnacademy.book_data_batch.batch.components.provider.aladin.dto.EnrichmentFailureDto;
 import com.nhnacademy.book_data_batch.batch.components.provider.aladin.dto.EnrichmentSuccessDto;
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.*;
 import com.nhnacademy.book_data_batch.batch.components.provider.aladin.dto.api.AladinItemDto;
 import com.nhnacademy.book_data_batch.batch.components.provider.aladin.exception.RateLimitExceededException;
 import com.nhnacademy.book_data_batch.batch.components.provider.aladin.mapper.AladinDataMapper;
