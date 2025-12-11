@@ -1,6 +1,6 @@
 package com.nhnacademy.book_data_batch.infrastructure.repository.bulk;
 
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.BookAuthorDto;
+import com.nhnacademy.book_data_batch.batch.components.provider.aladin.dto.BookAuthorDto;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package com.nhnacademy.book_data_batch.infrastructure.repository.bulk;
 
-import com.nhnacademy.book_data_batch.batch.dto.BookBatchTarget;
-import com.nhnacademy.book_data_batch.batch.enrichment.embedding.dto.BookEmbeddingTarget;
+import com.nhnacademy.book_data_batch.batch.components.core.dto.BookBatchTarget;
+import com.nhnacademy.book_data_batch.batch.components.domain.search.embedding.dto.BookEmbeddingTarget;
 import com.nhnacademy.book_data_batch.domain.Batch;
 import com.nhnacademy.book_data_batch.domain.enums.BatchStatus;
 

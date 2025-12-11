@@ -1,6 +1,6 @@
 package com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl;
 
-import com.nhnacademy.book_data_batch.batch.enrichment.aladin.dto.EnrichmentSuccessDto;
+import com.nhnacademy.book_data_batch.batch.components.provider.aladin.dto.EnrichmentSuccessDto;
 import com.nhnacademy.book_data_batch.infrastructure.jdbc.JdbcExecutor;
 import com.nhnacademy.book_data_batch.domain.Book;
 import com.nhnacademy.book_data_batch.infrastructure.repository.bulk.BulkBookRepository;
