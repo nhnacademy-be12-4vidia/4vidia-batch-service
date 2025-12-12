@@ -15,16 +15,10 @@ public record AladinResponseDto(
         Integer errorCode,
         String errorMessage
 ) {
-    /**
-     * 에러 응답인지 확인
-     */
     public boolean hasError() {
         return errorCode != null;
     }
 
-    /**
-     * 쿼터 초과 에러인지 확인 (errorCode: 10)
-     */
     public boolean isQuotaExceeded() {
         return errorCode != null && errorCode == 10;
     }

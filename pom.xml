@@ -30,7 +30,7 @@
     <url/>
 
     <version>0.0.1-SNAPSHOT</version>
-    <artifactId>DataParser</artifactId>
+    <artifactId>4vidia-batch-service</artifactId>
     <dependencies>
         <dependency>
             <groupId>org.springframework.retry</groupId>
