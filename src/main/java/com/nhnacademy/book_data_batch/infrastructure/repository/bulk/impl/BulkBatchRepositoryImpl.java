@@ -1,7 +1,7 @@
 package com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl;
 
-import com.nhnacademy.book_data_batch.batch.components.core.dto.BookBatchTarget;
-import com.nhnacademy.book_data_batch.batch.components.domain.search.embedding.dto.BookEmbeddingTarget;
+import com.nhnacademy.book_data_batch.batch.core.dto.BookBatchTarget;
+import com.nhnacademy.book_data_batch.batch.domain.embedding.dto.BookEmbeddingTarget;
 import com.nhnacademy.book_data_batch.infrastructure.jdbc.JdbcExecutor;
 import com.nhnacademy.book_data_batch.domain.Batch;
 import com.nhnacademy.book_data_batch.domain.enums.BatchStatus;
@@ -43,6 +43,20 @@ public class BulkBatchRepositoryImpl implements BulkBatchRepository {
             INNER JOIN book b ON batch.book_id = b.book_id
             WHERE batch.enrichment_status = ?
             ORDER BY b.published_date DESC
+            """;
+
+    // Embedding 대상 조회 (Pending 상태)
+    // - Aladin Step을 건너뛰거나 재작업 시 사용
+    // - authors, tags는 별도 조회 필요 (여기선 빈 값)
+    private static final String FIND_PENDING_EMBEDDING_SQL = """
+            SELECT
+                b.book_id, batch.batch_id, b.isbn_13, b.title, b.description,
+                p.publisher_name, b.price_sales, b.stock
+            FROM batch
+            INNER JOIN book b ON batch.book_id = b.book_id
+            LEFT JOIN publisher p ON b.publisher_id = p.publisher_id
+            WHERE batch.embedding_status = ?
+            ORDER BY b.book_id ASC
             """;
 
     // JDBC 배치 분할 조회
@@ -88,6 +102,26 @@ public class BulkBatchRepositoryImpl implements BulkBatchRepository {
                         rs.getLong("book_id"),
                         rs.getString("isbn_13"),
                         rs.getLong("batch_id")
+                ),
+                BatchStatus.PENDING.getCode()
+        );
+    }
+
+    @Override
+    public List<BookEmbeddingTarget> findPendingEmbeddingStatusBook() {
+        return bulkExecutor.query(
+                FIND_PENDING_EMBEDDING_SQL,
+                (rs, rowNum) -> new BookEmbeddingTarget(
+                        rs.getLong("book_id"),
+                        rs.getLong("batch_id"),
+                        rs.getString("isbn_13"),
+                        rs.getString("title"),
+                        rs.getString("description"),
+                        rs.getString("publisher_name"),
+                        rs.getObject("price_sales") != null ? rs.getInt("price_sales") : null,
+                        rs.getObject("stock") != null ? rs.getInt("stock") : null,
+                        "",  // authors (별도 조회 필요)
+                        ""   // tags (별도 조회 필요)
                 ),
                 BatchStatus.PENDING.getCode()
         );

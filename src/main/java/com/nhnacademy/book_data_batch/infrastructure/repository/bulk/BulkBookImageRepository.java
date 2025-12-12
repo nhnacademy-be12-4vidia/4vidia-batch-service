@@ -1,6 +1,6 @@
 package com.nhnacademy.book_data_batch.infrastructure.repository.bulk;
 
-import com.nhnacademy.book_data_batch.batch.components.domain.book.dto.BookImageDto;
+import com.nhnacademy.book_data_batch.batch.domain.book.dto.BookImageDto;
 
 import java.util.List;
 

@@ -1,10 +1,10 @@
 package com.nhnacademy.book_data_batch.batch.jobs;
 
-import com.nhnacademy.book_data_batch.batch.components.domain.category.dto.KdcCategoryCsv;
-import com.nhnacademy.book_data_batch.batch.components.domain.category.mapper.KdcCategoryLineMapper;
-import com.nhnacademy.book_data_batch.batch.components.domain.category.processor.KdcCategoryDepth;
-import com.nhnacademy.book_data_batch.batch.components.domain.category.processor.KdcCategoryItemProcessor;
-import com.nhnacademy.book_data_batch.batch.components.domain.category.tasklet.NonKdcCategoryTasklet;
+import com.nhnacademy.book_data_batch.batch.domain.category.dto.KdcCategoryCsv;
+import com.nhnacademy.book_data_batch.batch.domain.category.mapper.KdcCategoryLineMapper;
+import com.nhnacademy.book_data_batch.batch.domain.category.processor.KdcCategoryDepth;
+import com.nhnacademy.book_data_batch.batch.domain.category.processor.KdcCategoryItemProcessor;
+import com.nhnacademy.book_data_batch.batch.domain.category.tasklet.NonKdcCategoryTasklet;
 import com.nhnacademy.book_data_batch.domain.Category;
 import com.nhnacademy.book_data_batch.infrastructure.repository.CategoryRepository;
 import jakarta.persistence.EntityManagerFactory;

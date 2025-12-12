@@ -1,8 +1,7 @@
 package com.nhnacademy.book_data_batch.service.author.parser;
 
 import com.nhnacademy.book_data_batch.service.author.parser.dto.ParsedAuthor;
-import com.nhnacademy.book_data_batch.service.author.parser.impl.UnifiedAuthorParser;
-import com.nhnacademy.book_data_batch.service.author.parser.impl.strategy.*;
+import com.nhnacademy.book_data_batch.service.author.parser.strategy.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedWriter;

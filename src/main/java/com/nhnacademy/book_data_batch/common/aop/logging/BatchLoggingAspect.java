@@ -1,7 +1,9 @@
 package com.nhnacademy.book_data_batch.common.aop.logging;
 
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.batch.item.Chunk;
@@ -10,7 +12,9 @@ import org.springframework.stereotype.Component;
 /**
  * 배치 로깅 AOP
  * - Tasklet 로깅 (시작/완료/예외)
- * - ItemWriter 로깅
+ * - ItemWriter 로깅 (청크 단위 시작/완료/예외)
+ * - ItemProcessor 예외 로깅
+ * - Service 메소드 실행 시간 로깅
  */
 @Aspect
 @Component
@@ -64,6 +68,37 @@ public class BatchLoggingAspect {
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - startTime;
             log.error("[WRITER - {}/{}] 예외 발생 ({}ms) - {}", className, threadName, duration, e.getMessage());
+            throw e;
+        }
+    }
+
+    /**
+     * ItemProcessor.process() 예외 발생 시 로깅
+     */
+    @AfterThrowing(pointcut = "execution(* org.springframework.batch.item.ItemProcessor.process(..))", throwing = "ex")
+    public void logProcessorException(JoinPoint joinPoint, Exception ex) {
+        String className = joinPoint.getTarget().getClass().getSimpleName();
+        String threadName = Thread.currentThread().getName();
+        log.error("[PROCESSOR - {}/{}] 처리 중 예외 발생 - {}", className, threadName, ex.getMessage());
+    }
+
+    /**
+     * Service 계층 메소드 실행 시간 로깅
+     */
+    @Around("execution(* com.nhnacademy.book_data_batch.batch.components..service.*.*(..))")
+    public Object logService(ProceedingJoinPoint joinPoint) throws Throwable {
+        long startTime = System.currentTimeMillis();
+        String className = joinPoint.getTarget().getClass().getSimpleName();
+        String methodName = joinPoint.getSignature().getName();
+
+        try {
+            Object result = joinPoint.proceed();
+            long duration = System.currentTimeMillis() - startTime;
+            log.debug("[SERVICE - {}] {}.{} 완료 ({}ms)", className, className, methodName, duration);
+            return result;
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("[SERVICE - {}] {}.{} 예외 발생 ({}ms) - {}", className, className, methodName, duration, e.getMessage());
             throw e;
         }
     }

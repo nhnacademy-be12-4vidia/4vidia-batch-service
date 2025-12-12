@@ -12,6 +12,7 @@ import org.hibernate.annotations.OnDeleteAction;
 }, uniqueConstraints = {
     @UniqueConstraint(name = "uk_book_tag", columnNames = {"book_id", "tag_id"})
 })
+@Getter // <<-- Add this line
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class BookTag extends BaseEntity {

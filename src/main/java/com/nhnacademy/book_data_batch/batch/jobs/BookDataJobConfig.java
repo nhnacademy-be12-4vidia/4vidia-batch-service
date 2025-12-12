@@ -1,11 +1,11 @@
 package com.nhnacademy.book_data_batch.batch.jobs;
 
-import com.nhnacademy.book_data_batch.batch.components.domain.book.cache.InMemoryReferenceDataCache;
-import com.nhnacademy.book_data_batch.batch.components.domain.book.processor.FieldNormalizer;
-import com.nhnacademy.book_data_batch.batch.components.domain.book.processor.IsbnResolver;
-import com.nhnacademy.book_data_batch.batch.components.domain.book.tasklet.BookImageTasklet;
-import com.nhnacademy.book_data_batch.batch.components.domain.book.tasklet.BookProcessingTasklet;
-import com.nhnacademy.book_data_batch.batch.components.domain.book.tasklet.ReferenceDataLoadTasklet;
+import com.nhnacademy.book_data_batch.batch.domain.book.cache.InMemoryReferenceDataCache;
+import com.nhnacademy.book_data_batch.batch.domain.book.processor.FieldNormalizer;
+import com.nhnacademy.book_data_batch.batch.domain.book.processor.IsbnResolver;
+import com.nhnacademy.book_data_batch.batch.domain.book.tasklet.BookImageTasklet;
+import com.nhnacademy.book_data_batch.batch.domain.book.tasklet.BookProcessingTasklet;
+import com.nhnacademy.book_data_batch.batch.domain.book.tasklet.ReferenceDataLoadTasklet;
 import com.nhnacademy.book_data_batch.infrastructure.repository.BatchRepository;
 import com.nhnacademy.book_data_batch.infrastructure.repository.BookImageRepository;
 import com.nhnacademy.book_data_batch.infrastructure.repository.BookRepository;
