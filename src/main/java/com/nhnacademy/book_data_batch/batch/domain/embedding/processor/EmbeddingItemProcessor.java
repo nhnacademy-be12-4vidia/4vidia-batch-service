@@ -6,7 +6,7 @@ import com.nhnacademy.book_data_batch.batch.domain.embedding.dto.EmbeddingEnrich
 import com.nhnacademy.book_data_batch.domain.BookAuthor;
 import com.nhnacademy.book_data_batch.domain.BookTag;
 import com.nhnacademy.book_data_batch.domain.enums.BatchStatus;
-import com.nhnacademy.book_data_batch.infrastructure.client.OllamaClient;
+import com.nhnacademy.book_data_batch.batch.domain.embedding.client.OllamaClient;
 import com.nhnacademy.book_data_batch.infrastructure.repository.BatchRepository;
 import com.nhnacademy.book_data_batch.infrastructure.repository.BookAuthorRepository;
 import com.nhnacademy.book_data_batch.infrastructure.repository.BookTagRepository;

@@ -28,6 +28,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequiredArgsConstructor
 public class AladinItemProcessor implements ItemProcessor<BookBatchTarget, AladinEnrichmentResult> {
 
+    private static final String QUOTA_EXHAUSTED_FLAG = "QUOTA_EXHAUSTED";
+
     private final AladinApiClient aladinApiClient;
     private final AladinQuotaTracker aladinQuotaTracker;
 
@@ -41,7 +43,7 @@ public class AladinItemProcessor implements ItemProcessor<BookBatchTarget, Aladi
     public AladinEnrichmentResult process(BookBatchTarget target) throws Exception {
         // 글로벌 쿼터 소진 플래그 확인 -> null(Skip)이 아닌 실패 결과 반환하여 Chunk를 빠르게 채워서 Writer로 보냄
         if (aladinQuotaTracker.isQuotaExhausted()) {
-            return new AladinEnrichmentResult(target, null, false, "QUOTA_EXHAUSTED", true);
+            return new AladinEnrichmentResult(target, null, false, QUOTA_EXHAUSTED_FLAG, true);
         }
         
         String isbn13 = target.isbn13();
@@ -57,7 +59,7 @@ public class AladinItemProcessor implements ItemProcessor<BookBatchTarget, Aladi
             if (!aladinQuotaTracker.tryAcquire(apiKey)) {
                  log.warn("[AladinItemProcessor] API 키 {}의 쿼터가 소진되었습니다. Batch ID: {}. 이후 작업은 스킵됩니다.", apiKey, target.batchId());
                  aladinQuotaTracker.setQuotaExhausted(true); // Global Flag 설정
-                 return new AladinEnrichmentResult(target, null, false, "QUOTA_EXHAUSTED", true);
+                 return new AladinEnrichmentResult(target, null, false, QUOTA_EXHAUSTED_FLAG, true);
             }
 
             Optional<AladinItemDto> aladinItemDto = aladinApiClient.lookupByIsbn(isbn13, apiKey);
@@ -74,7 +76,7 @@ public class AladinItemProcessor implements ItemProcessor<BookBatchTarget, Aladi
             // 알라딘 API 쿼터 초과 예외 (Reactive Check)
             log.warn("[AladinItemProcessor] 알라딘 API 쿼터 초과 - ISBN: {}, 메시지: {}. 이후 작업은 스킵됩니다.", isbn13, e.getMessage());
             aladinQuotaTracker.setQuotaExhausted(true); // Global Flag 설정
-            return new AladinEnrichmentResult(target, null, false, "QUOTA_EXHAUSTED", true);
+            return new AladinEnrichmentResult(target, null, false, QUOTA_EXHAUSTED_FLAG, true);
 
         } catch (RestClientException e) {
             // 네트워크 오류, 타임아웃 등 (재시도 가능) -> AOP 로깅 처리

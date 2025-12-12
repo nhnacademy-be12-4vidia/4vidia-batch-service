@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 import jakarta.persistence.EntityManagerFactory;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -80,7 +81,7 @@ public class EnrichmentJobConfig {
         return new JobBuilder(ALADIN_JOB_NAME, jobRepository)
                 .listener(new JobExecutionListener() {
                     @Override
-                    public void beforeJob(JobExecution jobExecution) {
+                    public void beforeJob(@Nonnull JobExecution jobExecution) {
                         aladinQuotaTracker.reset();
                     }
                 })

@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.infrastructure.client;
+package com.nhnacademy.book_data_batch.batch.domain.embedding.client;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;

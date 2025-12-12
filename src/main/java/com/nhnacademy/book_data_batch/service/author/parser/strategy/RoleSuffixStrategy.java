@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 @Order(5)
 public class RoleSuffixStrategy implements AuthorParsingStrategy {
     // "이름 역할" 또는 "이름, 이름 역할" 패턴 매칭
-    private static final Pattern PATTERN = Pattern.compile("^(.+?)\\s+([^\\s]+)$");
+    private static final Pattern PATTERN = Pattern.compile("^(.+?)\\s+(\\S+)$");
 
     @Override
     public List<ParsedAuthor> parse(String input) {
@@ -27,7 +27,7 @@ public class RoleSuffixStrategy implements AuthorParsingStrategy {
 
             String namesPart = matcher.group(1);
             // 이름 앞뒤에 대괄호가 있으면 제거
-            namesPart = namesPart.replaceAll("^\\[", "").replaceAll("\\]$", "");
+            namesPart = namesPart.replaceAll("^\\[", "").replaceAll("]$", "");
 
             List<String> names = Arrays.stream(namesPart.split(","))
                     .map(String::trim)
