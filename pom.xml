@@ -2,36 +2,57 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <!-- 프로젝트 메타 정보 -->
     <modelVersion>4.0.0</modelVersion>
     <name>DataParser</name>
+
+    <!-- 스프링부트 부모: BOM(의존성 관리)과 플러그인 버전 관리 제공 -->
     <parent>
         <artifactId>spring-boot-starter-parent</artifactId>
         <groupId>org.springframework.boot</groupId>
         <relativePath/>
         <version>3.5.7</version> <!-- lookup parent from repository -->
     </parent>
+
+    <!-- 간단한 설명 -->
     <description>Demo project for Spring Boot</description>
+
+    <!-- 개발자 정보 (필요시 작성) -->
     <developers>
         <developer/>
     </developers>
+
+    <!-- 프로젝트 그룹 식별자 -->
     <groupId>init.data</groupId>
+
+    <!-- 라이선스 정보 (필요시 작성) -->
     <licenses>
         <license/>
     </licenses>
+
+    <!-- 빌드 관련 속성 -->
     <properties>
-        <java.version>21</java.version>
+        <java.version>21</java.version> <!-- 컴파일에 사용할 자바 버전 -->
     </properties>
+
+    <!-- 소스 코드 관리(SCM) 정보 (필요 시 채우세요) -->
     <scm>
         <connection/>
         <developerConnection/>
         <tag/>
         <url/>
     </scm>
+
+    <!-- 프로젝트 URL (필요시 설정) -->
     <url/>
 
+    <!-- 버전과 아티팩트 아이디 -->
     <version>0.0.1-SNAPSHOT</version>
     <artifactId>4vidia-batch-service</artifactId>
+
+    <!-- 의존성: 기능별로 구분해서 주석 추가 -->
     <dependencies>
+        <!-- Spring Boot 스타터: 웹, AOP, JPA 등 주요 기능 -->
         <dependency>
             <groupId>org.springframework.retry</groupId>
             <artifactId>spring-retry</artifactId>
@@ -65,6 +86,22 @@
             <groupId>org.springframework.boot</groupId>
         </dependency>
 
+        <!-- 모니터링 및 로깅 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>8.0</version>
+        </dependency>
+
+        <!-- Spring Batch 관련 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-batch</artifactId>
@@ -74,6 +111,7 @@
             <artifactId>spring-batch-integration</artifactId>
         </dependency>
 
+        <!-- DB 연결 관련 (커넥션 풀, 드라이버 등) -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-dbcp2</artifactId>
@@ -84,6 +122,8 @@
             <groupId>com.mysql</groupId>
             <scope>runtime</scope>
         </dependency>
+
+        <!-- 유틸리티 의존성 (Lombok, CSV, Jackson 등) -->
         <dependency>
             <artifactId>lombok</artifactId>
             <groupId>org.projectlombok</groupId>
@@ -100,6 +140,7 @@
             <version>2.17.1</version>
         </dependency>
 
+        <!-- 테스트용 의존성 -->
         <dependency>
             <artifactId>spring-boot-starter-test</artifactId>
             <groupId>org.springframework.boot</groupId>
@@ -111,7 +152,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- QueryDSL -->
+        <!-- QueryDSL: 타입 세이프 쿼리 및 어노테이션 프로세서 -->
         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-jpa</artifactId>
@@ -127,9 +168,10 @@
         </dependency>
     </dependencies>
 
-
+    <!-- 빌드 설정: 플러그인 및 컴파일러 설정 -->
     <build>
         <plugins>
+            <!-- 컴파일러와 애노테이션 프로세서 설정 (Lombok, QueryDSL) -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
@@ -158,6 +200,8 @@
                 </configuration>
                 <groupId>org.apache.maven.plugins</groupId>
             </plugin>
+
+            <!-- 스프링부트 패키징 및 실행 플러그인 -->
             <plugin>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
