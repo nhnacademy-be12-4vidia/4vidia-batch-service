@@ -37,19 +37,11 @@ public class AladinQuotaTracker {
 
     /**
      * 전체 쿼터 소진 상태 설정
+     *
+     * @param exhausted 소진 여부
      */
     public void setQuotaExhausted(boolean exhausted) {
         this.quotaExhausted.set(exhausted);
-    }
-
-    /**
-     * API 키 사용 가능 여부 확인
-     *
-     * @param apiKey API 키
-     * @return 사용 가능하면 true
-     */
-    public boolean canUse(String apiKey) {
-        return getUsage(apiKey) < quotaPerKey;
     }
 
     /**
@@ -65,55 +57,11 @@ public class AladinQuotaTracker {
     }
 
     /**
-     * 현재 사용량 조회
-     * 
-     * @param apiKey API 키
-     * @return 현재 사용량
-     */
-    public int getUsage(String apiKey) {
-        AtomicInteger usage = usageMap.get(apiKey);
-        return usage != null ? usage.get() : 0;
-    }
-
-    /**
-     * 남은 쿼터 조회
-     * 
-     * @param apiKey API 키
-     * @return 남은 쿼터
-     */
-    public int getRemainingQuota(String apiKey) {
-        return Math.max(0, quotaPerKey - getUsage(apiKey));
-    }
-
-    /**
-     * 전체 사용량 요약 조회
-     * 
-     * @return 전체 사용량 합계
-     */
-    public int getTotalUsage() {
-        return usageMap.values().stream()
-                .mapToInt(AtomicInteger::get)
-                .sum();
-    }
-
-    /**
      * 쿼터 초기화 (Job 시작 시 호출)
      */
     public void reset() {
         usageMap.clear();
         quotaExhausted.set(false); // Reset global flag
         log.info("[AladinQuotaTracker] 쿼터 초기화 완료");
-    }
-
-    /**
-     * 현재 사용량 로그 출력
-     */
-    public void logUsage() {
-        log.info("[AladinQuotaTracker] 사용량 현황:");
-        usageMap.forEach((key, usage) -> {
-            String maskedKey = key.length() > 8 ? key.substring(0, 8) + "***" : key;
-            log.info("  - {}: {}/{}", maskedKey, usage.get(), quotaPerKey);
-        });
-        log.info("  - 총합: {}", getTotalUsage());
     }
 }

@@ -15,10 +15,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Aladin ItemLookUp API 클라이언트
- * - ISBN13으로 도서 상세 정보 조회
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -37,7 +33,13 @@ public class AladinApiClient {
 
     private final RestClient restClient;
 
-    // 신간 채워 넣는 용도
+    /**
+     * 도서 목록 조회 (신간 넣기 용도)
+     *
+     * @param start  조회 시작 위치
+     * @param apiKey 사용할 Aladin API 키
+     * @return 조회된 도서 목록 (없으면 빈 Optional)
+     */
     public Optional<List<AladinItemDto>> listItems(int start, String apiKey) {
         String url = buildListUrl(start, apiKey);
 

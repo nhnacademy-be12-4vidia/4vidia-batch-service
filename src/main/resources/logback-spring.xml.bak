@@ -26,7 +26,7 @@
     </appender>
 
     <!-- 프로파일별 로그 -->
-    <springProfile name="local">
+    <springProfile name="local, dev">
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
         </root>

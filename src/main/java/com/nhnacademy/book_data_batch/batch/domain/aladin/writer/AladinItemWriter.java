@@ -101,7 +101,6 @@ public class AladinItemWriter implements ItemWriter<AladinEnrichmentResult>, Ste
         // 3. 쿼터 소진 시 Step 종료 신호 보내기
         if (quotaExhausted) {
             log.warn("[AladinItemWriter] 쿼터 소진으로 인해 Step을 종료합니다.");
-            // stepExecution.setTerminateOnly(); // Job 강제 중단 대신 ExitStatus만 설정
             stepExecution.setExitStatus(new ExitStatus("QUOTA_EXHAUSTED")); // 다음 Flow로 이동하기 위한 상태값 설정
         }
     }

@@ -45,7 +45,7 @@ public class EnrichmentJobConfig {
     private static final String ALADIN_ENRICHMENT_STEP_NAME = "aladinEnrichmentStep";
     private static final String EMBEDDING_ENRICHMENT_STEP_NAME = "embeddingEnrichmentStep";
     private static final String CLEANUP_STEP_NAME = "cleanupStep";
-    private static final int CHUNK_SIZE = 80; // AsyncItemWriter 버그 회피: 작은 청크로 안정성 확보
+    private static final int CHUNK_SIZE = 80;
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;

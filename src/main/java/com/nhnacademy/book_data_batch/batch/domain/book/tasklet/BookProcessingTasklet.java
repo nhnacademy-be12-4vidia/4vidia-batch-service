@@ -9,7 +9,6 @@ import com.nhnacademy.book_data_batch.domain.Category;
 import com.nhnacademy.book_data_batch.domain.Publisher;
 import com.nhnacademy.book_data_batch.infrastructure.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
@@ -28,7 +27,6 @@ import java.util.Set;
  * 2. Book Bulk INSERT
  * 3. ISBN으로 전체 조회 → Book 캐시 구축
  */
-@Slf4j
 @RequiredArgsConstructor
 public class BookProcessingTasklet implements Tasklet {
 
@@ -41,7 +39,6 @@ public class BookProcessingTasklet implements Tasklet {
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
         List<BookCsvRow> csvRows = cache.getCsvData();
-        log.info("[Step2] Book 처리 시작 - CSV {}건", csvRows.size());
 
         // 1. CSV → Book 변환
         List<Book> books = new ArrayList<>();
@@ -55,13 +52,10 @@ public class BookProcessingTasklet implements Tasklet {
             }
         }
 
-        log.info("[Step2] Book 변환 완료 - {}건 (스킵: {}건)", 
-                books.size(), csvRows.size() - books.size());
 
         // 2. Book Bulk INSERT
         if (!books.isEmpty()) {
             bookRepository.bulkInsert(books);
-            log.info("[Step2] Book Bulk INSERT 완료");
         }
 
         // 3. ISBN으로 Book 캐시 구축

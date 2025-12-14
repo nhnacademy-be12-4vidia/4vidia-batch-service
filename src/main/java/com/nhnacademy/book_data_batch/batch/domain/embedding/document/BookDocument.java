@@ -1,7 +1,5 @@
 package com.nhnacademy.book_data_batch.batch.domain.embedding.document;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.List;
 
 import jakarta.persistence.Id;
@@ -15,9 +13,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 //@Document(indexName = "4vidia-books-test")
 @Getter
 @Builder(toBuilder = true)
-public class BookDocument implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+public class BookDocument {
 
     @Id
     private String id;

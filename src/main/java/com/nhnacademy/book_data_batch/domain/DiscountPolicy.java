@@ -1,6 +1,9 @@
 package com.nhnacademy.book_data_batch.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -27,6 +30,8 @@ public class DiscountPolicy {
     private String discountPolicyName;
 
     @Column(name = "discount_rate", nullable = false, columnDefinition = "TINYINT DEFAULT 10")
+    @Min(0)
+    @Max(100)
     private Integer discountRate = 10;
 
     @Column(name = "start_date", nullable = false)
@@ -46,5 +51,13 @@ public class DiscountPolicy {
         this.discountRate = discountRate;
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    @AssertTrue(message = "시작일은 종료일 이전이어야 합니다.")
+    private boolean isValidDateRange() {
+        if (startDate == null || endDate == null) {
+            return true;
+        }
+        return !startDate.isAfter(endDate);
     }
 }

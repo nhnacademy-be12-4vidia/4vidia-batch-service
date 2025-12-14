@@ -10,7 +10,6 @@ import com.nhnacademy.book_data_batch.domain.enums.ImageType;
 import com.nhnacademy.book_data_batch.infrastructure.repository.BatchRepository;
 import com.nhnacademy.book_data_batch.infrastructure.repository.BookImageRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
@@ -29,7 +28,6 @@ import java.util.List;
  * 3. BookImage Bulk INSERT
  * 4. Batch 기록 Bulk INSERT
  */
-@Slf4j
 @RequiredArgsConstructor
 public class BookImageTasklet implements Tasklet {
 
@@ -45,8 +43,6 @@ public class BookImageTasklet implements Tasklet {
         List<BookCsvRow> csvRows = cache.getCsvData();
         Collection<Book> savedBooks = cache.getAllBooks();
 
-        log.info("[Step3] BookImage 처리 시작 - CSV {}건, Book 캐시 {}건", 
-                csvRows.size(), savedBooks.size());
 
         // 1. BookImage DTO 생성
         List<BookImageDto> bookImages = new ArrayList<>();
@@ -76,12 +72,9 @@ public class BookImageTasklet implements Tasklet {
             ));
         }
 
-        log.info("[Step3] BookImage 변환 완료 - {}건", bookImages.size());
-
         // 2. BookImage Bulk INSERT
         if (!bookImages.isEmpty()) {
             bookImageRepository.bulkInsert(bookImages);
-            log.info("[Step3] BookImage Bulk INSERT 완료");
         }
 
         // 3. Batch 기록 Bulk INSERT
@@ -91,7 +84,6 @@ public class BookImageTasklet implements Tasklet {
         
         if (!batches.isEmpty()) {
             batchRepository.bulkInsert(batches);
-            log.info("[Step3] Batch Bulk INSERT 완료 - {}건", batches.size());
         }
 
         contribution.incrementWriteCount(bookImages.size());

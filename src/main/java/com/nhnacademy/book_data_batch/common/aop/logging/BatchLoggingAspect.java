@@ -6,6 +6,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.item.Chunk;
 import org.springframework.stereotype.Component;
 
@@ -28,13 +29,21 @@ public class BatchLoggingAspect {
     public Object logTasklet(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
         String operation = joinPoint.getTarget().getClass().getSimpleName();
-        
+
+        StepContribution contribution = findContribution(joinPoint.getArgs());
+        long beforeWrite = contribution != null ? contribution.getWriteCount() : 0;
+
         log.info("[TASKLET] {} 시작", operation);
 
         try {
             Object result = joinPoint.proceed();
             long duration = System.currentTimeMillis() - startTime;
-            log.info("[TASKLET] {} 완료 ({}ms)", operation, duration);
+            long afterWrite = contribution != null ? contribution.getWriteCount() : beforeWrite;
+            long written = afterWrite - beforeWrite;
+            if (written < 0) {
+                written = afterWrite;
+            }
+            log.info("[TASKLET] {} 완료 ({}ms, writeCount +{})", operation, duration, written);
             return result;
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - startTime;
@@ -82,24 +91,15 @@ public class BatchLoggingAspect {
         log.error("[PROCESSOR - {}/{}] 처리 중 예외 발생 - {}", className, threadName, ex.getMessage());
     }
 
-    /**
-     * Service 계층 메소드 실행 시간 로깅
-     */
-    @Around("execution(* com.nhnacademy.book_data_batch.batch.components..service.*.*(..))")
-    public Object logService(ProceedingJoinPoint joinPoint) throws Throwable {
-        long startTime = System.currentTimeMillis();
-        String className = joinPoint.getTarget().getClass().getSimpleName();
-        String methodName = joinPoint.getSignature().getName();
-
-        try {
-            Object result = joinPoint.proceed();
-            long duration = System.currentTimeMillis() - startTime;
-            log.debug("[SERVICE - {}] {}.{} 완료 ({}ms)", className, className, methodName, duration);
-            return result;
-        } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
-            log.error("[SERVICE - {}] {}.{} 예외 발생 ({}ms) - {}", className, className, methodName, duration, e.getMessage());
-            throw e;
+    private StepContribution findContribution(Object[] args) {
+        if (args == null) {
+            return null;
         }
+        for (Object arg : args) {
+            if (arg instanceof StepContribution contribution) {
+                return contribution;
+            }
+        }
+        return null;
     }
 }

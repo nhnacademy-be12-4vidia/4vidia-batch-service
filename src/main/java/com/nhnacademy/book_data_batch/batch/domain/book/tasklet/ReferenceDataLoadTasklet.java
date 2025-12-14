@@ -7,8 +7,13 @@ import com.nhnacademy.book_data_batch.infrastructure.repository.PublisherReposit
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
@@ -16,26 +21,18 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 /**
  * <pre>
  * ReferenceDataLoadTasklet
  * - CSV 전체 메모리 로드 + 참조 데이터 사전 로딩
- * 
- * 1. CSV 파일 전체 메모리 로드 → List&lt;BookCsvRow&gt;
+ *
+ * 1. CSV 파일 전체 메모리 로드 → List<BookCsvRow>
  * 2. 출판사 Bulk INSERT (INSERT IGNORE)
  * 3. Publisher 캐시 구축
  * 4. Category 캐시 구축
  * 5. CSV 데이터 캐시 저장
  * </pre>
  */
-@Slf4j
 @RequiredArgsConstructor
 public class ReferenceDataLoadTasklet implements Tasklet {
 
@@ -66,8 +63,8 @@ public class ReferenceDataLoadTasklet implements Tasklet {
 
     /**
      * Tasklet 실행 메서드
-     * 
-     * 1. CSV 전체 메모리 로드 → List&lt;BookCsvRow&gt;
+     *
+     * 1. CSV 전체 메모리 로드 → List<BookCsvRow>
      * 2. 출판사 Bulk INSERT
      * 3. Publisher 캐시 구축
      * 4. Category 캐시 구축
@@ -101,16 +98,8 @@ public class ReferenceDataLoadTasklet implements Tasklet {
                 if (StringUtils.hasText(row.publisher())) {
                     publisherNames.add(row.publisher());
                 }
-
-                // 진행 상황 로그 (5만 행마다)
-                if (csvRows.size() % 50000 == 0) {
-                    log.info("[TASKLET] CSV 로딩 중... {}행 (출판사: {}개)",
-                            csvRows.size(), publisherNames.size());
-                }
             }
         }
-
-        log.info("[TASKLET] CSV 로드 완료: {}행, 출판사 {}개", csvRows.size(), publisherNames.size());
 
         // 2. 출판사 Bulk INSERT
         publisherRepository.bulkInsert(publisherNames);
