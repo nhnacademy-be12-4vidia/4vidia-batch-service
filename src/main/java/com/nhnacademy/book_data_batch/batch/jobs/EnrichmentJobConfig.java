@@ -9,6 +9,7 @@ import com.nhnacademy.book_data_batch.batch.domain.aladin.processor.AladinItemPr
 import com.nhnacademy.book_data_batch.batch.domain.aladin.writer.AladinItemWriter;
 import com.nhnacademy.book_data_batch.batch.domain.aladin.client.AladinQuotaTracker;
 import com.nhnacademy.book_data_batch.batch.domain.aladin.dto.AladinEnrichmentResult;
+import com.nhnacademy.book_data_batch.domain.Batch;
 import com.nhnacademy.book_data_batch.domain.enums.BatchStatus;
 import com.nhnacademy.book_data_batch.infrastructure.repository.BatchRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +21,11 @@ import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.item.database.JdbcPagingItemReader;
 import org.springframework.batch.item.database.JpaPagingItemReader;
+import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuilder;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
+import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -129,13 +133,11 @@ public class EnrichmentJobConfig {
                 .build();
     }
 
-
-
     @Bean
     public Step embeddingEnrichmentStep(
-            @Qualifier("embeddingBatchReader") JpaPagingItemReader<BookEmbeddingTarget> embeddingBatchReader) {
+            @Qualifier("embeddingBatchReader") JpaPagingItemReader<com.nhnacademy.book_data_batch.domain.Batch> embeddingBatchReader) {
         return new StepBuilder(EMBEDDING_ENRICHMENT_STEP_NAME, jobRepository)
-                .<BookEmbeddingTarget, EmbeddingEnrichmentResult>chunk(CHUNK_SIZE, transactionManager)
+                .<com.nhnacademy.book_data_batch.domain.Batch, EmbeddingEnrichmentResult>chunk(CHUNK_SIZE, transactionManager)
                 .reader(embeddingBatchReader)
                 .processor(embeddingItemProcessor)
                 .writer(embeddingItemWriter)
@@ -144,18 +146,16 @@ public class EnrichmentJobConfig {
     }
 
     @Bean(name = "embeddingBatchReader")
-    public JpaPagingItemReader<BookEmbeddingTarget> embeddingBatchReader() {
+    public JpaPagingItemReader<com.nhnacademy.book_data_batch.domain.Batch> embeddingBatchReader() {
         Map<String, Object> parameterValues = new HashMap<>();
         parameterValues.put("enrichmentStatus", BatchStatus.COMPLETED);
         
-        return new JpaPagingItemReaderBuilder<BookEmbeddingTarget>()
+        return new JpaPagingItemReaderBuilder<com.nhnacademy.book_data_batch.domain.Batch>()
                 .name("embeddingBatchReader")
                 .entityManagerFactory(entityManagerFactory)
-                .queryString("SELECT new com.nhnacademy.book_data_batch.batch.domain.embedding.dto.BookEmbeddingTarget(" +
-                        "bk.id, b.id, bk.isbn, bk.title, bk.description, " +
-                        "p.name, bk.priceSales, bk.stock, " +
-                        "'', '') " +
-                        "FROM Batch b JOIN b.book bk JOIN bk.publisher p " +
+                .queryString("SELECT b FROM Batch b " +
+                        "JOIN FETCH b.book bk " +
+                        "LEFT JOIN FETCH bk.publisher p " +
                         "WHERE b.enrichmentStatus = :enrichmentStatus " +
                         "ORDER BY b.id ASC")
                 .parameterValues(parameterValues)

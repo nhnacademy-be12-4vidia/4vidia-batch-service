@@ -5,6 +5,8 @@ import com.nhnacademy.book_data_batch.domain.enums.StockStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.*;
 
@@ -80,6 +82,12 @@ public class Book extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
+    private List<BookAuthor> bookAuthors = new ArrayList<>();
+
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
+    private List<BookTag> bookTags = new ArrayList<>();
 
     @Builder
     public Book(String isbn,
