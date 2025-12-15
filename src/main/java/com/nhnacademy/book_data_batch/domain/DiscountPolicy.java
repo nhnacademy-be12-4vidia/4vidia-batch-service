@@ -29,7 +29,7 @@ public class DiscountPolicy {
     @Column(name = "discount_policy_name", nullable = false, length = 255)
     private String discountPolicyName;
 
-    @Column(name = "discount_rate", nullable = false, columnDefinition = "TINYINT DEFAULT 10")
+    @Column(name = "discount_rate", nullable = false, columnDefinition = "TINYINT")
     @Min(0)
     @Max(100)
     private Integer discountRate = 10;

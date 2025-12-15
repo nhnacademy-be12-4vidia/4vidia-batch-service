@@ -33,11 +33,11 @@ public class Batch extends BaseEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Book book;
 
-    @Column(name = "enrichment_status", nullable = false, columnDefinition = "TINYINT DEFAULT 0")
+    @Column(name = "enrichment_status", nullable = false, columnDefinition = "TINYINT")
     @Convert(converter = BatchStatusConverter.class)
     private BatchStatus enrichmentStatus = BatchStatus.PENDING;
 
-    @Column(name = "embedding_status", nullable = false, columnDefinition = "TINYINT DEFAULT 0")
+    @Column(name = "embedding_status", nullable = false, columnDefinition = "TINYINT")
     @Convert(converter = BatchStatusConverter.class)
     private BatchStatus embeddingStatus = BatchStatus.PENDING;
 

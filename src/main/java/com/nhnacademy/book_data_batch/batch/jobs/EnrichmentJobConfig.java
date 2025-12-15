@@ -153,9 +153,9 @@ public class EnrichmentJobConfig {
                 .entityManagerFactory(entityManagerFactory)
                 .queryString("SELECT new com.nhnacademy.book_data_batch.batch.domain.embedding.dto.BookEmbeddingTarget(" +
                         "bk.id, b.id, bk.isbn, bk.title, bk.description, " +
-                        "'', bk.priceSales, bk.stock, " +  // publisher, authors, tags는 Processor에서 별도 조회
+                        "p.name, bk.priceSales, bk.stock, " +
                         "'', '') " +
-                        "FROM Batch b JOIN b.book bk " +
+                        "FROM Batch b JOIN b.book bk JOIN bk.publisher p " +
                         "WHERE b.enrichmentStatus = :enrichmentStatus " +
                         "ORDER BY b.id ASC")
                 .parameterValues(parameterValues)

@@ -67,7 +67,7 @@ public class Book extends BaseEntity {
     @Column(name = "stock", columnDefinition = "INT DEFAULT 10")
     private Integer stock = 10;
 
-    @Column(name = "stock_status", nullable = false, columnDefinition = "TINYINT DEFAULT 1")
+    @Column(name = "stock_status", nullable = false, columnDefinition = "TINYINT")
     @Convert(converter = StockStatusConverter.class)
     private StockStatus stockStatus = StockStatus.IN_STOCK;
 

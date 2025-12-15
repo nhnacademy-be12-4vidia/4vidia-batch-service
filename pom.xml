@@ -151,6 +151,11 @@
             <artifactId>spring-batch-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!-- QueryDSL: 타입 세이프 쿼리 및 어노테이션 프로세서 -->
         <dependency>
