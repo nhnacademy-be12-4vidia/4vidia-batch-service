@@ -135,9 +135,9 @@ public class EnrichmentJobConfig {
 
     @Bean
     public Step embeddingEnrichmentStep(
-            @Qualifier("embeddingBatchReader") JpaPagingItemReader<com.nhnacademy.book_data_batch.domain.Batch> embeddingBatchReader) {
+            @Qualifier("embeddingBatchReader") JpaPagingItemReader<Batch> embeddingBatchReader) {
         return new StepBuilder(EMBEDDING_ENRICHMENT_STEP_NAME, jobRepository)
-                .<com.nhnacademy.book_data_batch.domain.Batch, EmbeddingEnrichmentResult>chunk(CHUNK_SIZE, transactionManager)
+                .<Batch, EmbeddingEnrichmentResult>chunk(CHUNK_SIZE, transactionManager)
                 .reader(embeddingBatchReader)
                 .processor(embeddingItemProcessor)
                 .writer(embeddingItemWriter)
@@ -146,11 +146,11 @@ public class EnrichmentJobConfig {
     }
 
     @Bean(name = "embeddingBatchReader")
-    public JpaPagingItemReader<com.nhnacademy.book_data_batch.domain.Batch> embeddingBatchReader() {
+    public JpaPagingItemReader<Batch> embeddingBatchReader() {
         Map<String, Object> parameterValues = new HashMap<>();
         parameterValues.put("enrichmentStatus", BatchStatus.COMPLETED);
         
-        return new JpaPagingItemReaderBuilder<com.nhnacademy.book_data_batch.domain.Batch>()
+        return new JpaPagingItemReaderBuilder<Batch>()
                 .name("embeddingBatchReader")
                 .entityManagerFactory(entityManagerFactory)
                 .queryString("SELECT b FROM Batch b " +
