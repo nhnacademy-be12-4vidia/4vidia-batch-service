@@ -21,9 +21,14 @@ import java.util.Optional;
 public class AladinApiClient {
 
     private static final String LIST_URL = "http://www.aladin.co.kr/ttb/api/ItemList.aspx";
-    private static final String QUERY_TYPE = "Title";
+    private static final String QUERY_TYPE = "ItemNewAll";
     private static final String SEARCH_TARGET = "Book";
     private static final String MAX_RESULTS = "100";
+    private static final String CATEGORY_ID =
+            "437"; // 프로그래밍 언어
+            // "2719"; // 컴퓨터 공학
+            // "7396"; // 프로그래밍 개발/방법론
+
     private static final String LOOK_UP_URL = "http://www.aladin.co.kr/ttb/api/ItemLookUp.aspx";
     private static final String ITEM_ID_TYPE = "ISBN13";
     private static final String COVER_SIZE = "Big";
@@ -118,6 +123,7 @@ public class AladinApiClient {
                 .queryParam("Start", start)
                 .queryParam("MaxResults", MAX_RESULTS)
                 .queryParam("Cover", COVER_SIZE)
+                .queryParam("CategoryId", CATEGORY_ID)
                 .queryParam("Output", OUTPUT_FORMAT)
                 .queryParam("Version", VERSION)
                 .queryParam("OutOfStock", OUT_OF_STOCK_FILTER)

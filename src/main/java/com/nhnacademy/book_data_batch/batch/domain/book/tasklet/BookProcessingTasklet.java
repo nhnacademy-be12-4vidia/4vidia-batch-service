@@ -52,7 +52,6 @@ public class BookProcessingTasklet implements Tasklet {
             }
         }
 
-
         // 2. Book Bulk INSERT
         if (!books.isEmpty()) {
             bookRepository.bulkInsert(books);

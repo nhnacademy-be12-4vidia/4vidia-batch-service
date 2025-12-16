@@ -25,13 +25,6 @@ public class FieldNormalizer {
 
     /**
      * 지원하는 날짜 포맷 목록
-     * 
-     * [포맷 우선순위]
-     * 1. "yyyy-MM-dd" : ISO 표준 (2014-05-12)
-     * 2. "yyyyMMdd"   : 한국 국립중앙도서관 표준 (20140512)
-     * 3. BASIC_ISO_DATE : ISO 기본 형식 (20140512)
-     * 
-     * CSV 데이터에서 가장 흔한 형식은 "yyyyMMdd"
      */
     private static final List<DateTimeFormatter> DATE_PATTERNS = List.of(
             DateTimeFormatter.ofPattern("yyyy-MM-dd"),  // 2014-05-12
@@ -41,15 +34,8 @@ public class FieldNormalizer {
 
     /**
      * 문자열을 trim하고, 빈 문자열이면 null 반환
-     * 
-     * [예시]
-     * - "  hello  " → "hello"
-     * - "   "       → null
-     * - ""          → null
-     * - null        → null
-     * 
      * @param text 원본 문자열
-     * @return trim된 문자열, 빈 문자열이면 null
+     * @return trim된 문자열 또는 null
      */
     public String trimOrNull(String text) {
         if (text == null) {
@@ -60,16 +46,9 @@ public class FieldNormalizer {
     }
 
     /**
-     * 빈 문자열을 null로 변환
-     * 
-     * [예시]
-     * - "hello"     → "hello"
-     * - "   "       → null (hasText가 false)
-     * - ""          → null
-     * - null        → null
-     * 
+     * 빈 문자열이면 null 반환
      * @param text 원본 문자열
-     * @return 내용이 있으면 trim된 문자열, 없으면 null
+     * @return 원본 문자열 또는 null
      */
     public String blankToNull(String text) {
         return StringUtils.hasText(text) ? text.trim() : null;
@@ -77,12 +56,6 @@ public class FieldNormalizer {
 
     /**
      * 빈 문자열이면 기본값 반환
-     * 
-     * [예시]
-     * - defaultIfBlank("창비", "출판사 미상")   → "창비"
-     * - defaultIfBlank("", "출판사 미상")      → "출판사 미상"
-     * - defaultIfBlank(null, "출판사 미상")   → "출판사 미상"
-     * 
      * @param text 원본 문자열
      * @param defaultValue 빈 문자열일 때 반환할 기본값
      * @return 원본 문자열 또는 기본값
@@ -94,21 +67,6 @@ public class FieldNormalizer {
 
     /**
      * 가격 문자열을 Integer로 변환
-     * 
-     * [처리 규칙]
-     * - 빈 값: null 반환
-     * - 파싱 실패: 0 반환 (로그만 남김)
-     * 
-     * [예시]
-     * - "12000"     → 12000
-     * - "12,000"    → NumberFormatException → 0
-     * - ""          → null
-     * - null        → null
-     * 
-     * [주의사항]
-     * CSV 데이터에 쉼표(,)가 포함된 경우 파싱 실패
-     * → 필요시 쉼표 제거 로직 추가 고려
-     * 
      * @param priceText 가격 문자열
      * @return 파싱된 가격, 빈 값이면 null, 파싱 실패면 0
      */
@@ -128,19 +86,8 @@ public class FieldNormalizer {
 
     /**
      * 출판일 문자열을 LocalDate로 변환
-     * 
-     * [처리 규칙]
      * - primary가 있으면 primary 사용
      * - primary가 없으면 secondary 사용 (보조 출판일)
-     * - 여러 날짜 포맷 순차 시도
-     * - 모든 포맷 실패 시 null 반환
-     * 
-     * [예시]
-     * - parseDate("20140512", null)       → LocalDate(2014-05-12)
-     * - parseDate("", "20140512")         → LocalDate(2014-05-12)
-     * - parseDate("2014-05-12", null)     → LocalDate(2014-05-12)
-     * - parseDate("invalid", "invalid")   → null
-     * 
      * @param primary 주 출판일 문자열
      * @param secondary 보조 출판일 문자열 (primary가 없을 때 사용)
      * @return 파싱된 LocalDate, 파싱 실패 시 null
@@ -170,17 +117,6 @@ public class FieldNormalizer {
 
     /**
      * 권수 문자열을 Integer로 변환
-     * 
-     * [처리 규칙]
-     * - 빈 값: 1 반환 (기본 권수)
-     * - 파싱 실패: 1 반환 (기본 권수)
-     * 
-     * [예시]
-     * - "3"         → 3
-     * - ""          → 1
-     * - "삼"        → 1 (숫자 아님)
-     * - null        → 1
-     * 
      * @param volumeText 권수 문자열
      * @return 파싱된 권수, 실패 시 1
      */
@@ -202,19 +138,11 @@ public class FieldNormalizer {
      * - 도서관에서 도서를 분류하는 데 사용하는 코드
      * - 000: 총류, 100: 철학, 200: 종교, 300: 사회과학, ...
      * - 813.7: 문학(800) > 한국문학(810) > 소설(813) > 장편소설(.7)
-     * 
+     *
      * [정규화 규칙]
      * - 소수점(.) 이전의 숫자만 추출
      * - 숫자가 아닌 문자 제거
      * - 빈 결과는 null 반환
-     * 
-     * [예시]
-     * - "813.7"     → "813"
-     * - "400.123"   → "400"
-     * - "8a1b3"     → "813" (비숫자 제거)
-     * - ""          → null
-     * - "abc"       → null (숫자 없음)
-     * 
      * @param rawKdc 원본 KDC 코드
      * @return 정규화된 KDC 코드, 유효하지 않으면 null
      */

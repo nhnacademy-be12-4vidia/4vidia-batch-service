@@ -16,7 +16,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 참조 데이터 캐시 구현체 (In-Memory)
- * 
  * Step 1: CSV 로드 + Publisher/Category 캐시
  * Step 2: Book 변환 + Bulk INSERT + Book 캐시
  * Step 3: BookImage/Batch 저장 (Book 캐시 사용)
