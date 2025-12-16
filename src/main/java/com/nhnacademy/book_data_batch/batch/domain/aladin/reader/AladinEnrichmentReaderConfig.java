@@ -42,7 +42,7 @@ public class AladinEnrichmentReaderConfig {
                 .queryString("SELECT new com.nhnacademy.book_data_batch.batch.core.dto.BookBatchTarget(" +
                         "b.book.id, b.book.isbn, b.id) " +
                         "FROM Batch b JOIN b.book WHERE b.enrichmentStatus = :status " +
-                        "ORDER BY b.id ASC")
+                        "ORDER BY b.id DESC")
                 .parameterValues(Collections.singletonMap("status", BatchStatus.PENDING))
                 .pageSize(chunkSize)
                 .maxItemCount(totalQuota)

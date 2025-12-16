@@ -11,6 +11,9 @@ import java.util.List;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AladinResponseDto(
+        Integer totalResults,
+        Integer startIndex,
+        Integer itemsPerPage,
         List<AladinItemDto> item,
         Integer errorCode,
         String errorMessage
