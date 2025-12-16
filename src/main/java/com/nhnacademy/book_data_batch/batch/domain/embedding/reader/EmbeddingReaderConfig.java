@@ -24,7 +24,7 @@ public class EmbeddingReaderConfig {
     @Value("${app.batch.chunk-size}")
     private int chunkSize;
 
-    @Bean(name = "embeddingBatchReader")
+    @Bean
     public JpaPagingItemReader<Batch> embeddingBatchReader() {
         Map<String, Object> parameterValues = new HashMap<>();
         parameterValues.put("enrichmentStatus", BatchStatus.COMPLETED);

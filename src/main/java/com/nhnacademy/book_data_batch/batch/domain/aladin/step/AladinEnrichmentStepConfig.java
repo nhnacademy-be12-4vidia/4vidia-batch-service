@@ -33,7 +33,7 @@ public class AladinEnrichmentStepConfig {
 
     @Bean
     public Step aladinEnrichmentStep(
-            @Qualifier("aladinBatchReader") JpaPagingItemReader<BookBatchTarget> aladinBatchReader
+            @Qualifier("aladinEnrichmentReader") JpaPagingItemReader<BookBatchTarget> aladinBatchReader
     ) {
         return new StepBuilder(ALADIN_ENRICHMENT_STEP_NAME, jobRepository)
                 .<BookBatchTarget, AladinEnrichmentResult>chunk(chunkSize, transactionManager)

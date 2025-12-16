@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-public class AladinReaderConfig {
+public class AladinEnrichmentReaderConfig {
 
     private final EntityManagerFactory entityManagerFactory;
 
@@ -30,14 +30,14 @@ public class AladinReaderConfig {
     @Value("${app.batch.chunk-size}")
     private int chunkSize;
 
-    @Bean(name = "aladinBatchReader")
-    public JpaPagingItemReader<BookBatchTarget> aladinBatchReader() {
+    @Bean
+    public JpaPagingItemReader<BookBatchTarget> aladinEnrichmentReader() {
         // 전체 쿼터 계산 (키 개수 * 키당 쿼터)
         int totalQuota = aladinApiKeys.size() * quotaPerKey;
         log.info("[AladinBatchReader] 총 가용 쿼터: {}건 (키 {}개 * {})", totalQuota, aladinApiKeys.size(), quotaPerKey);
 
         return new JpaPagingItemReaderBuilder<BookBatchTarget>()
-                .name("aladinBatchReader")
+                .name("aladinEnrichmentReader")
                 .entityManagerFactory(entityManagerFactory)
                 .queryString("SELECT new com.nhnacademy.book_data_batch.batch.core.dto.BookBatchTarget(" +
                         "b.book.id, b.book.isbn, b.id) " +
