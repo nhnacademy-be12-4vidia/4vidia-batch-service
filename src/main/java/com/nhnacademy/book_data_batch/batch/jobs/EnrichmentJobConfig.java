@@ -154,8 +154,6 @@ public class EnrichmentJobConfig {
                 .build();
     }
 
-
-
     @Bean
     public Step cleanupStep() {
         return new StepBuilder(CLEANUP_STEP_NAME, jobRepository)
