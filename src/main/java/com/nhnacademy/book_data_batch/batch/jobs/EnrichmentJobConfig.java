@@ -15,10 +15,7 @@ import com.nhnacademy.book_data_batch.infrastructure.repository.BatchRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.*;
-import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.job.flow.Flow;
-import org.springframework.batch.core.job.flow.support.SimpleFlow;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
@@ -78,10 +75,6 @@ public class EnrichmentJobConfig {
             @Qualifier("embeddingEnrichmentStep") Step embeddingEnrichmentStep,
             @Qualifier("cleanupStep") Step cleanupStep) {
         
-        Flow aladinFlow = new FlowBuilder<SimpleFlow>("aladinFlow")
-                .start(aladinEnrichmentStep)
-                .build();
-
         return new JobBuilder(ALADIN_JOB_NAME, jobRepository)
                 .listener(new JobExecutionListener() {
                     @Override
@@ -89,12 +82,9 @@ public class EnrichmentJobConfig {
                         aladinQuotaTracker.reset();
                     }
                 })
-                .start(aladinFlow)
-                    .on("QUOTA_EXHAUSTED").to(embeddingEnrichmentStep) // 쿼터 소진 시 임베딩 스탭으로
-                    .from(aladinFlow).on("*").to(embeddingEnrichmentStep) // 나머지 모든 경우에도 임베딩 스탭으로
-                .from(embeddingEnrichmentStep)
-                    .on("*").to(cleanupStep)
-                .end()
+                .start(aladinEnrichmentStep)
+                .next(embeddingEnrichmentStep)
+                .next(cleanupStep)
                 .build();
     }
 
