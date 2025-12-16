@@ -23,7 +23,7 @@ public class AladinApiClient {
     private static final String LIST_URL = "http://www.aladin.co.kr/ttb/api/ItemList.aspx";
     private static final String QUERY_TYPE = "ItemNewAll";
     private static final String SEARCH_TARGET = "Book";
-    private static final String MAX_RESULTS = "100";
+    private static final String MAX_RESULTS = "50"; // 아니 최대값은 100이라면서 왜 50만 줌??
     private static final String CATEGORY_ID =
             "437"; // 프로그래밍 언어
             // "2719"; // 컴퓨터 공학
