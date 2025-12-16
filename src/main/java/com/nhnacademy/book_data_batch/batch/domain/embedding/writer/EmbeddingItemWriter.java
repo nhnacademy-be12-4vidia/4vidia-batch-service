@@ -2,6 +2,7 @@ package com.nhnacademy.book_data_batch.batch.domain.embedding.writer;
 
 import com.nhnacademy.book_data_batch.batch.domain.embedding.dto.EmbeddingEnrichmentResult;
 import com.nhnacademy.book_data_batch.batch.domain.embedding.document.BookDocument;
+import com.nhnacademy.book_data_batch.batch.domain.embedding.dto.EmbeddingFailureDto;
 import com.nhnacademy.book_data_batch.domain.enums.BatchStatus;
 import com.nhnacademy.book_data_batch.infrastructure.repository.BatchRepository;
 import com.nhnacademy.book_data_batch.infrastructure.repository.search.BookSearchRepository;
@@ -29,16 +30,16 @@ public class EmbeddingItemWriter implements ItemWriter<EmbeddingEnrichmentResult
     public void write(Chunk<? extends EmbeddingEnrichmentResult> chunk) throws Exception {
         List<BookDocument> documentsToIndex = new ArrayList<>();
         List<Long> successBatchIds = new ArrayList<>();
-        List<Object[]> failedBatches = new ArrayList<>();
+        List<EmbeddingFailureDto> failedBatches = new ArrayList<>();
 
         for (EmbeddingEnrichmentResult result : chunk) {
             if (result.isSuccess()) {
                 if (result.document() != null) {
                     documentsToIndex.add(result.document());
                 }
-                successBatchIds.add(result.target().batchId()); // result.target()에서 batchId 가져옴
+                successBatchIds.add(result.target().batchId());
             } else {
-                failedBatches.add(new Object[]{result.target().batchId(), result.errorMessage()}); // result.target()에서 batchId 가져옴
+                failedBatches.add(new EmbeddingFailureDto(result.target().batchId(), result.errorMessage()));
             }
         }
 
@@ -54,6 +55,7 @@ public class EmbeddingItemWriter implements ItemWriter<EmbeddingEnrichmentResult
             log.info("[EmbeddingItemWriter] {}건 처리 완료 (COMPLETED)", successBatchIds.size());
         }
 
+        // 3. 실패한 Batch 상태 업데이트
         if (!failedBatches.isEmpty()) {
             batchRepository.bulkUpdateEmbeddingFailed(failedBatches);
             log.info("[EmbeddingItemWriter] {}건 처리 실패 (FAILED)", failedBatches.size());

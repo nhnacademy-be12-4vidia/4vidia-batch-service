@@ -1,7 +1,9 @@
 package com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl;
 
 import com.nhnacademy.book_data_batch.batch.core.dto.BookBatchTarget;
+import com.nhnacademy.book_data_batch.batch.domain.aladin.dto.EnrichmentFailureDto;
 import com.nhnacademy.book_data_batch.batch.domain.embedding.dto.BookEmbeddingTarget;
+import com.nhnacademy.book_data_batch.batch.domain.embedding.dto.EmbeddingFailureDto;
 import com.nhnacademy.book_data_batch.infrastructure.jdbc.JdbcExecutor;
 import com.nhnacademy.book_data_batch.domain.Batch;
 import com.nhnacademy.book_data_batch.domain.enums.BatchStatus;
@@ -144,7 +146,7 @@ public class BulkBatchRepositoryImpl implements BulkBatchRepository {
     }
 
     @Override
-    public void bulkUpdateEnrichmentFailed(List<Object[]> failedBatches) {
+    public void bulkUpdateEnrichmentFailed(List<EnrichmentFailureDto> failedBatches) {
         if (failedBatches.isEmpty()) {
             return;
         }
@@ -154,8 +156,8 @@ public class BulkBatchRepositoryImpl implements BulkBatchRepository {
                 failedBatches,
                 (ps, data) -> {
                     ps.setInt(1, BatchStatus.PENDING.getCode());  // PENDING 유지 (재시도 가능)
-                    ps.setString(2, truncateMessage((String) data[1]));
-                    ps.setLong(3, (Long) data[0]);
+                    ps.setString(2, truncateMessage(data.errorMessage()));
+                    ps.setLong(3, data.batchId());
                 }
         );
     }
@@ -177,7 +179,7 @@ public class BulkBatchRepositoryImpl implements BulkBatchRepository {
     }
 
     @Override
-    public void bulkUpdateEmbeddingFailed(List<Object[]> failedBatches) {
+    public void bulkUpdateEmbeddingFailed(List<EmbeddingFailureDto> failedBatches) {
         if (failedBatches.isEmpty()) {
             return;
         }
@@ -187,8 +189,8 @@ public class BulkBatchRepositoryImpl implements BulkBatchRepository {
                 failedBatches,
                 (ps, data) -> {
                     ps.setInt(1, BatchStatus.PENDING.getCode());  // PENDING 유지 (재시도 가능)
-                    ps.setString(2, truncateMessage((String) data[1]));
-                    ps.setLong(3, (Long) data[0]);
+                    ps.setString(2, truncateMessage(data.errorMessage()));
+                    ps.setLong(3, data.batchId());
                 }
         );
     }
