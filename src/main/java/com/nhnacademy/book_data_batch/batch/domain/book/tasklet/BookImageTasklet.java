@@ -35,7 +35,6 @@ public class BookImageTasklet implements Tasklet {
     private final BookImageRepository bookImageRepository;
     private final BatchRepository batchRepository;
     private final IsbnResolver isbnResolver;
-    private final String defaultThumbnailUrl;
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
@@ -50,7 +49,7 @@ public class BookImageTasklet implements Tasklet {
         for (BookCsvRow row : csvRows) {
             String imageUrl = row.imageUrl();
             if (!StringUtils.hasText(imageUrl)) {
-                imageUrl = defaultThumbnailUrl;
+                continue; // 이미지 URL이 없으면 건너뜀
             }
 
             // ISBN으로 Book 찾기
