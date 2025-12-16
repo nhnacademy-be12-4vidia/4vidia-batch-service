@@ -45,7 +45,9 @@ public record EnrichmentSuccessDto(
 
     // cover 이미지 URL 존재 여부
     public boolean hasCoverUrl() {
-        return coverUrl != null && !coverUrl.isBlank();
+        return coverUrl != null
+                && !coverUrl.isBlank()
+                && !coverUrl.equals("https://image.aladin.co.kr/img/noimg_b.gif");
     }
 
     // authors 존재 여부
