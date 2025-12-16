@@ -8,6 +8,8 @@ public record AladinItemDto(
         String author,
         String pubDate,         // yyyy-MM-dd 형식
         String description,
+        String isbn,
+        String isbn13,
         Integer priceStandard,
         String cover,           // 썸네일 이미지 URL
         String categoryName,    // "국내도서>건강/취미>건강정보" 형식

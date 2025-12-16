@@ -12,7 +12,6 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -44,9 +43,9 @@ public class AladinApiClient {
      *
      * @param start  조회 시작 위치
      * @param apiKey 사용할 Aladin API 키
-     * @return 조회된 도서 목록 (없으면 빈 Optional)
+     * @return 조회된 도서 목록 응답 (없으면 빈 Optional)
      */
-    public Optional<List<AladinItemDto>> listItems(int start, String apiKey) {
+    public Optional<AladinResponseDto> listItems(int start, String apiKey) {
         String url = buildListUrl(start, apiKey);
 
         try {
@@ -61,7 +60,7 @@ public class AladinApiClient {
                 return Optional.empty();
             }
 
-            return Optional.of(response.item());
+            return Optional.of(response);
 
         } catch (RestClientException e) {
             log.warn("[Aladin API] 목록 조회 중 오류 발생: start={}, error={}", start, e.getMessage());

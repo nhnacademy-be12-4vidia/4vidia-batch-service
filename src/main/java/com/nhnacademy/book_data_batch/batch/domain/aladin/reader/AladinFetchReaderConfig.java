@@ -1,6 +1,6 @@
 package com.nhnacademy.book_data_batch.batch.domain.aladin.reader;
 
-import jakarta.persistence.EntityManagerFactory;
+import com.nhnacademy.book_data_batch.batch.domain.aladin.client.AladinApiClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -12,16 +12,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AladinFetchReaderConfig {
 
-    private final EntityManagerFactory entityManagerFactory;
+    private final AladinApiClient aladinApiClient;
+    private final com.nhnacademy.book_data_batch.batch.domain.aladin.client.AladinQuotaTracker aladinQuotaTracker;
 
     @Value("${aladin.api.keys}")
     private List<String> aladinApiKeys;
 
-    @Value("${aladin.api.quota-per-key}")
-    private int quotaPerKey;
-
-    @Value("${app.batch.chunk-size}")
-    private int chunkSize;
-
-
+    @Bean
+    public AladinFetchReader aladinFetchReader() {
+        return new AladinFetchReader(aladinApiClient, aladinQuotaTracker, aladinApiKeys);
+    }
 }
