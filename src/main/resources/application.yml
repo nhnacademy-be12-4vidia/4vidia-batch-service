@@ -61,6 +61,9 @@ spring:
           initial-interval: 1000ms
           multiplier: 2.0 # 바로하면 실패할 확률 높으니 실패시 2배 시간 대기
           max-interval: 10000ms
+        concurrency: 1
+        max-concurrency: 1
+        prefetch: 1
 
 
 # Actuator 설정
@@ -79,14 +82,14 @@ management:
 
 
 # 로깅 설정
-logging:
-  level:
-    root: INFO
-    init.data: DEBUG
-    org.springframework.batch: DEBUG
-    org.springframework.amqp: INFO  # RabbitMQ 로그
-  pattern:
-    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
+#logging:
+#  level:
+#    root: INFO
+#    init.data: DEBUG
+#    org.springframework.batch: DEBUG
+#    org.springframework.amqp: INFO  # RabbitMQ 로그
+#  pattern:
+#    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
 
 
 # Embedding Model Configuration
