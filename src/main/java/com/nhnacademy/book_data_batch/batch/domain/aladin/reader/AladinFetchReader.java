@@ -1,6 +1,7 @@
 package com.nhnacademy.book_data_batch.batch.domain.aladin.reader;
 
 import com.nhnacademy.book_data_batch.batch.domain.aladin.client.AladinApiClient;
+import com.nhnacademy.book_data_batch.batch.domain.aladin.client.AladinQuotaTracker;
 import com.nhnacademy.book_data_batch.batch.domain.aladin.dto.api.AladinItemDto;
 import com.nhnacademy.book_data_batch.batch.domain.aladin.dto.api.AladinResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class AladinFetchReader implements ItemReader<AladinItemDto> {
 
     private final AladinApiClient aladinApiClient;
-    private final com.nhnacademy.book_data_batch.batch.domain.aladin.client.AladinQuotaTracker aladinQuotaTracker;
+    private final AladinQuotaTracker aladinQuotaTracker;
     private final List<String> apiKeys;
 
     private int currentPage = 1;
