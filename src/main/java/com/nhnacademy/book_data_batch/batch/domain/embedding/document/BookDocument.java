@@ -5,9 +5,7 @@ import java.util.List;
 import jakarta.persistence.Id;
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.*;
 
 @Document(indexName = "4vidia-books")
 //@Document(indexName = "4vidia-books-test")
@@ -39,7 +37,10 @@ public class BookDocument {
     @Field(type = FieldType.Integer)
     private Integer priceSales;
 
-    @Field(type = FieldType.Text, analyzer = "nori")
+    @MultiField(
+            mainField = @Field(type = FieldType.Text, analyzer = "nori"),
+            otherFields = @InnerField(suffix = "keyword", type = FieldType.Keyword)
+    )
     private List<String> tags;
 
     @Field(type = FieldType.Dense_Vector, dims = 1024)

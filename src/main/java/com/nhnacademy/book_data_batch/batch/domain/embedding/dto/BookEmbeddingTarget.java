@@ -3,6 +3,7 @@ package com.nhnacademy.book_data_batch.batch.domain.embedding.dto;
 import com.nhnacademy.book_data_batch.batch.domain.embedding.document.BookDocument;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 임베딩 처리 대상 정보
@@ -30,7 +31,8 @@ public record BookEmbeddingTarget(
         Integer priceSales,
         Integer stock,
         String authors, // 저자 목록 (쉼표 구분 문자열)
-        String tags     // 태그 목록 (쉼표 구분 문자열)
+        String tags,     // 태그 목록 (쉼표 구분 문자열)
+        String categoryName
 ) {
     /**
      * 임베딩 생성을 위한 텍스트 조합
@@ -39,18 +41,26 @@ public record BookEmbeddingTarget(
     public String buildEmbeddingText() {
         StringBuilder sb = new StringBuilder();
 
+        // 제목
         sb.append("제목: ").append(title).append(" ");
-        
-        if (description != null && !description.isBlank()) {
-            sb.append("설명: ").append(description).append(" ");
-        }
-        
+        // 작가
         if (authors != null && !authors.isBlank()) {
-            sb.append("저자: ").append(authors).append(" ");
+            sb.append("작가: ").append(authors).append(" ");
         }
-        
+        // 카테고리
+        if (categoryName != null && !categoryName.isBlank()) {
+            sb.append("카테고리: ").append(categoryName).append(" ");
+        }
+        // 태그
         if (tags != null && !tags.isBlank()) {
             sb.append("태그: ").append(tags).append(" ");
+        }
+        // 설명
+        if (description != null && !description.isBlank()) {
+            String desc = description.length() > 1000
+                    ? description.substring(0, 1000)
+                    : description;
+            sb.append("설명: ").append(desc).append(" ");
         }
         
         return sb.toString().trim();

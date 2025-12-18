@@ -35,6 +35,7 @@ public class EmbeddingReaderConfig {
                 .queryString("SELECT b FROM Batch b " +
                         "JOIN FETCH b.book bk " +
                         "LEFT JOIN FETCH bk.publisher p " +
+                        "LEFT JOIN FETCH bk.category c " +
                         "WHERE b.enrichmentStatus = :enrichmentStatus " +
                         "ORDER BY b.id ASC")
                 .parameterValues(parameterValues)

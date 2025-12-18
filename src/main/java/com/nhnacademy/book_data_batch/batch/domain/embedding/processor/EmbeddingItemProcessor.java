@@ -10,7 +10,6 @@ import com.nhnacademy.book_data_batch.domain.enums.BatchStatus;
 import com.nhnacademy.book_data_batch.infrastructure.repository.BatchRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.item.ItemProcessor;
@@ -18,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors; // Reintroduce
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -45,13 +44,8 @@ public class EmbeddingItemProcessor implements ItemProcessor<Batch, EmbeddingEnr
     }
 
     @Override
-    public ExitStatus afterStep(StepExecution stepExecution) {
-        return null;
-    }
-
-    @Override
     public EmbeddingEnrichmentResult process(Batch batch) throws Exception {
-        BookEmbeddingTarget target = null; // Declare outside try-block to be accessible in catch
+        BookEmbeddingTarget target = null;
         try {
             OLLAMA_SEMAPHORE.acquire(); // 세마포어 획득
             
@@ -68,16 +62,17 @@ public class EmbeddingItemProcessor implements ItemProcessor<Batch, EmbeddingEnr
 
             // 2. Embedding Target DTO 생성
             target = new BookEmbeddingTarget(
-                book.getId(),
-                batch.getId(),
-                book.getIsbn(),
-                book.getTitle(),
-                book.getDescription(),
-                book.getPublisher() != null ? book.getPublisher().getName() : "",
-                book.getPriceSales(),
-                book.getStock(),
-                authorNames, 
-                tagNames     
+                    book.getId(),
+                    batch.getId(),
+                    book.getIsbn(),
+                    book.getTitle(),
+                    book.getDescription(),
+                    book.getPublisher() != null ? book.getPublisher().getName() : "",
+                    book.getPriceSales(),
+                    book.getStock(),
+                    authorNames,
+                    tagNames,
+                    book.getCategory() != null ? book.getCategory().getName() : ""
             );
 
             // 3. 임베딩 텍스트 생성
@@ -110,10 +105,10 @@ public class EmbeddingItemProcessor implements ItemProcessor<Batch, EmbeddingEnr
         } catch (Exception e) {
             // target이 null이면 최소한의 정보로 생성 (에러 처리를 위해)
             if (target == null) {
-                 Book book = batch.getBook(); // Need book to get bookId and isbn
+                 Book book = batch.getBook();
                  target = new BookEmbeddingTarget(
                     book.getId(), batch.getId(), book.getIsbn(), book.getTitle(), 
-                    null, null, null, null, null, null
+                    null, null, null, null, null, null, null
                  );
             }
             return new EmbeddingEnrichmentResult(target, null, false, e.getMessage());
