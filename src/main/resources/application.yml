@@ -1,0 +1,121 @@
+spring:
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://s4.java21.net:13306/project_be12_team4?rewriteBatchedStatements=true
+
+    username: project_be12_team4
+    password: ${BOOK_DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 3
+      max-lifetime: 600000
+      idle-timeout: 300000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: false
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+        batch_size: 500
+        order_inserts: true
+        order_updates: true
+
+        dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+
+  elasticsearch:
+    uris: s4.java21.net:9200
+    username: elastic
+    password: ${ELASTIC_PASSWORD}
+    socket-timeout: 30s
+    connection-timeout: 5s
+
+  data:
+    redis:
+      host: s4.java21.net
+      port: 6379
+      password: ${REDIS_PASSWORD}
+      database: 388
+
+  rabbitmq:
+    host: s4.java21.net
+    port: 5672
+    username: admin
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: /4vidia
+    listener:
+      simple:
+        retry: # 재시도
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1000ms
+          multiplier: 2.0 # 바로하면 실패할 확률 높으니 실패시 2배 시간 대기
+          max-interval: 10000ms
+        concurrency: 1
+        max-concurrency: 1
+        prefetch: 1
+
+
+# Actuator 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,batch
+  endpoint:
+    health:
+      show-details: always
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+
+# 로깅 설정
+#logging:
+#  level:
+#    root: INFO
+#    init.data: DEBUG
+#    org.springframework.batch: DEBUG
+#    org.springframework.amqp: INFO  # RabbitMQ 로그
+#  pattern:
+#    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
+
+
+# Embedding Model Configuration
+ollama:
+  api:
+    url: http://ollama.java21.net/api/embeddings
+  model: bge-m3
+
+
+# Book Open API Keys
+aladin:
+  api:
+    keys: ${ALADIN_API_KEY1},${ALADIN_API_KEY2},${ALADIN_API_KEY3},${ALADIN_API_KEY4},${ALADIN_API_KEY5},${ALADIN_API_KEY6},${ALADIN_API_KEY7},${ALADIN_API_KEY8}
+    quota-per-key: 20
+nl: #국립중앙도서관
+  api:
+    key: ${NATIONAL_LIBRARY_API_KEY}
+
+
+# 배치 청크 사이즈 설정
+app:
+  batch:
+    chunk-size: 80
+
+
+# 기본 도서 이미지
+image:
+  default:
+    thumbnail: http://storage.java21.net:8000/4vidia/default-book-cover.png
