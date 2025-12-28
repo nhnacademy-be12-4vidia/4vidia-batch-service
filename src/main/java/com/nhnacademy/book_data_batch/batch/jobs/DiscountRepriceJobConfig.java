@@ -5,7 +5,6 @@ import com.nhnacademy.book_data_batch.batch.domain.discount_policy.processor.Dis
 import com.nhnacademy.book_data_batch.batch.domain.discount_policy.reader.DiscountRepriceItemReader;
 import com.nhnacademy.book_data_batch.batch.domain.discount_policy.service.DiscountPolicyHierarchyResolver;
 import com.nhnacademy.book_data_batch.batch.domain.discount_policy.service.DiscountPriceCalculator;
-import com.nhnacademy.book_data_batch.batch.domain.discount_policy.listener.DiscountRepriceJobListener;
 import com.nhnacademy.book_data_batch.batch.domain.discount_policy.writer.DiscountRepriceItemWriter;
 import com.nhnacademy.book_data_batch.domain.Category;
 import com.nhnacademy.book_data_batch.domain.DiscountPolicy;
@@ -19,7 +18,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -48,13 +46,10 @@ public class DiscountRepriceJobConfig {
     private final CategoryRepository categoryRepository;
     private final DiscountPolicyRepository discountPolicyRepository;
     private final JdbcExecutor jdbcExecutor;
-    private final AmqpTemplate amqpTemplate;
 
     @Bean
-    public Job discountRepriceJob(Step discountRepriceStep,
-                                  DiscountRepriceJobListener discountRepriceJobListener) {
+    public Job discountRepriceJob(Step discountRepriceStep) {
         return new JobBuilder(JOB_NAME, jobRepository)
-                .listener(discountRepriceJobListener)
                 .start(discountRepriceStep)
                 .build();
     }
@@ -63,7 +58,8 @@ public class DiscountRepriceJobConfig {
     public Step discountRepriceStep(
             ItemReader<DiscountRepriceTarget> discountRepriceReader,
             ItemProcessor<DiscountRepriceTarget, DiscountRepriceTarget> discountRepriceProcessor,
-            ItemWriter<DiscountRepriceTarget> discountRepriceWriter) {
+            ItemWriter<DiscountRepriceTarget> discountRepriceWriter
+    ) {
         return new StepBuilder(STEP_NAME, jobRepository)
                 .<DiscountRepriceTarget, DiscountRepriceTarget>chunk(CHUNK_SIZE, transactionManager)
                 .reader(discountRepriceReader)
@@ -74,43 +70,57 @@ public class DiscountRepriceJobConfig {
 
     @Bean
     @StepScope
-    public ItemReader<DiscountRepriceTarget> discountRepriceReader(
-            @Value("#{jobParameters['policyCategoryPath']}") String policyCategoryPath,
-            @Value("#{jobParameters['policyCategoryId']}") Long policyCategoryId,
-            @Value("#{jobParameters['asOfDate']}") String asOfDateStr) {
-        LocalDate asOfDate = asOfDateStr != null ? LocalDate.parse(asOfDateStr) : LocalDate.now();
-        List<Long> descendantIds = categoryRepository.findDescendantIdsByPathPrefix(policyCategoryPath);
-        List<Long> activePolicyCategoryIds = discountPolicyRepository.findActivePolicies(descendantIds, asOfDate)
-                .stream()
-                .map(dp -> dp.getCategory().getId())
-                .filter(id -> !id.equals(policyCategoryId))
-                .toList();
+    public DiscountRepriceItemReader discountRepriceReader(
+            @Value("#{jobParameters['targetScope']}") String targetScope,
+            @Value("#{jobParameters['categoryPath']}") String categoryPath
+    ) {
+        String query;
+        Map<String, Object> params;
 
-        String query = "SELECT new com.nhnacademy.book_data_batch.batch.domain.discount_policy.dto.DiscountRepriceTarget(" +
-                " b.id, b.priceStandard, b.priceSales, c.id " +
-                ") FROM Book b JOIN b.category c " +
-                "WHERE c.path LIKE :pathPrefix " +
-                "AND b.category.id NOT IN :excludedCategoryIds";
-        Map<String, Object> params = Map.of(
-                "pathPrefix", policyCategoryPath + "%",
-                "excludedCategoryIds", activePolicyCategoryIds
-        );
+        if ("ALL".equals(targetScope)) {
+            query = "SELECT new com.nhnacademy.book_data_batch.batch.domain.discount_policy.dto.DiscountRepriceTarget(" +
+                    " b.id, b.priceStandard, b.priceSales, c.id " +
+                    ") FROM Book b JOIN b.category c " +
+                    "ORDER BY b.id";
+            params = Map.of();
+        } else {
+            query = "SELECT new com.nhnacademy.book_data_batch.batch.domain.discount_policy.dto.DiscountRepriceTarget(" +
+                    " b.id, b.priceStandard, b.priceSales, c.id " +
+                    ") FROM Book b JOIN b.category c " +
+                    "WHERE c.path LIKE :pathPrefix " +
+                    "ORDER BY b.id";
+            params = Map.of("pathPrefix", categoryPath + "%");
+        }
+
         return new DiscountRepriceItemReader(entityManagerFactory, query, params, CHUNK_SIZE);
     }
 
     @Bean
     @StepScope
     public ItemProcessor<DiscountRepriceTarget, DiscountRepriceTarget> discountRepriceProcessor(
-            @Value("#{jobParameters['policyCategoryPath']}") String policyCategoryPath,
-            @Value("#{jobParameters['asOfDate']}") String asOfDateStr) {
-        List<Long> descendantIds = categoryRepository.findDescendantIdsByPathPrefix(policyCategoryPath);
+            @Value("#{jobParameters['targetScope']}") String targetScope,
+            @Value("#{jobParameters['categoryPath']}") String categoryPath,
+            @Value("#{jobParameters['asOfDate']}") String asOfDateStr
+    ) {
         LocalDate asOfDate = asOfDateStr != null ? LocalDate.parse(asOfDateStr) : LocalDate.now();
+
+        List<Long> descendantIds;
+        List<Category> categories;
+
+        if ("ALL".equals(targetScope)) {
+            descendantIds = categoryRepository.findAll().stream()
+                    .map(Category::getId)
+                    .collect(Collectors.toList());
+            categories = categoryRepository.findAll();
+        } else {
+            descendantIds = categoryRepository.findDescendantIdsByPathPrefix(categoryPath);
+            categories = categoryRepository.findDescendantsByPathPrefix(categoryPath);
+        }
 
         Map<Long, DiscountPolicy> policyMap = discountPolicyRepository.findActivePolicies(descendantIds, asOfDate)
                 .stream()
                 .collect(Collectors.toMap(dp -> dp.getCategory().getId(), Function.identity()));
 
-        List<Category> categories = categoryRepository.findDescendantsByPathPrefix(policyCategoryPath);
         Map<Long, Category> categoriesById = categories.stream()
                 .collect(Collectors.toMap(Category::getId, Function.identity()));
 
@@ -125,13 +135,5 @@ public class DiscountRepriceJobConfig {
     @Bean
     public ItemWriter<DiscountRepriceTarget> discountRepriceWriter() {
         return new DiscountRepriceItemWriter(jdbcExecutor);
-    }
-
-    @Bean
-    public DiscountRepriceJobListener discountRepriceJobListener(
-            @Value("${discount.reprice.event.started:discount.reprice.started}") String startedRoutingKey,
-            @Value("${discount.reprice.event.completed:discount.reprice.completed}") String completedRoutingKey,
-            @Value("${discount.reprice.event.failed:discount.reprice.failed}") String failedRoutingKey) {
-        return new DiscountRepriceJobListener(amqpTemplate, startedRoutingKey, completedRoutingKey, failedRoutingKey);
     }
 }
