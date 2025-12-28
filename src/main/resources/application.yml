@@ -61,9 +61,6 @@ spring:
           initial-interval: 1000ms
           multiplier: 2.0 # 바로하면 실패할 확률 높으니 실패시 2배 시간 대기
           max-interval: 10000ms
-        concurrency: 1
-        max-concurrency: 1
-        prefetch: 1
 
 
 # Actuator 설정
@@ -81,17 +78,6 @@ management:
         enabled: true
 
 
-# 로깅 설정
-#logging:
-#  level:
-#    root: INFO
-#    init.data: DEBUG
-#    org.springframework.batch: DEBUG
-#    org.springframework.amqp: INFO  # RabbitMQ 로그
-#  pattern:
-#    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
-
-
 # Embedding Model Configuration
 ollama:
   api:
@@ -104,9 +90,6 @@ aladin:
   api:
     keys: ${ALADIN_API_KEY1},${ALADIN_API_KEY2},${ALADIN_API_KEY3},${ALADIN_API_KEY4},${ALADIN_API_KEY5},${ALADIN_API_KEY6},${ALADIN_API_KEY7},${ALADIN_API_KEY8}
     quota-per-key: 20
-nl: #국립중앙도서관
-  api:
-    key: ${NATIONAL_LIBRARY_API_KEY}
 
 
 # 배치 청크 사이즈 설정
