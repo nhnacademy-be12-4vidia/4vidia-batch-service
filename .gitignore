@@ -30,4 +30,13 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### serena ###
+.serena
+
+### large book data ###
 src/main/resources/data/BOOK_DB_202112.csv
+
+### application.yml ###
+src/main/resources/application-local.yml
+src/main/resources/application-dev.yml
