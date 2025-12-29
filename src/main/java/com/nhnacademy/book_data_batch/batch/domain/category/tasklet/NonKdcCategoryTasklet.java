@@ -32,7 +32,7 @@ public class NonKdcCategoryTasklet implements Tasklet {
         return Category.builder()
                 .parentCategory(null)
                 .kdcCode("UNC")
-                .name("미분류")
+                .categoryName("미분류")
                 .path("/UNC")
                 .depth(1)
                 .build();

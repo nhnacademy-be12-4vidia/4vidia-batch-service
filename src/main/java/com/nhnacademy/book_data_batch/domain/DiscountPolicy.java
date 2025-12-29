@@ -23,7 +23,7 @@ public class DiscountPolicy {
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", unique = true)
     private Category category;
 
     @Column(name = "discount_policy_name", nullable = false, length = 255)
