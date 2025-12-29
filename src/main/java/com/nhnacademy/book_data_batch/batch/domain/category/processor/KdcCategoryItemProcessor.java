@@ -54,7 +54,7 @@ public class KdcCategoryItemProcessor implements ItemProcessor<KdcCategoryCsv, C
         return Category.builder()
             .parentCategory(parent)
             .kdcCode(rawCode)
-            .name(name)
+            .categoryName(name)
             .path(path)
             .depth(depth.getLevel())
             .build();

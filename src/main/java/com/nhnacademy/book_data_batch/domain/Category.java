@@ -28,7 +28,7 @@ public class Category extends BaseEntity {
     private String kdcCode;
 
     @Column(name = "category_name", length = 70)
-    private String name;
+    private String categoryName;
 
     // e.g. "/8/81/811"
     @Column(name = "path", nullable = false, length = 20)
@@ -38,10 +38,10 @@ public class Category extends BaseEntity {
     private Integer depth;
 
     @Builder
-    public Category(Category parentCategory, String kdcCode, String name, String path, Integer depth) {
+    public Category(Category parentCategory, String kdcCode, String categoryName, String path, Integer depth) {
         this.parentCategory = parentCategory;
         this.kdcCode = kdcCode;
-        this.name = name;
+        this.categoryName = categoryName;
         this.path = path;
         this.depth = depth;
     }

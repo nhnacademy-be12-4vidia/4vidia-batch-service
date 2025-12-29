@@ -72,7 +72,7 @@ public class EmbeddingItemProcessor implements ItemProcessor<Batch, EmbeddingEnr
                     book.getStock(),
                     authorNames,
                     tagNames,
-                    book.getCategory() != null ? book.getCategory().getName() : ""
+                    book.getCategory() != null ? book.getCategory().getCategoryName() : ""
             );
 
             // 3. 임베딩 텍스트 생성

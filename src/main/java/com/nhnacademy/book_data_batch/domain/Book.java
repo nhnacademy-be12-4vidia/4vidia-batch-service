@@ -74,7 +74,7 @@ public class Book extends BaseEntity {
     private StockStatus stockStatus = StockStatus.IN_STOCK;
 
     @Column(name = "packaging_available", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
-    private Boolean packagingAvailable = true;
+    private boolean packagingAvailable = true;
 
     @Column(name = "volume_number", columnDefinition = "INT DEFAULT 1")
     private Integer volumeNumber = 1;
@@ -83,11 +83,14 @@ public class Book extends BaseEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookAuthor> bookAuthors = new ArrayList<>();
 
-    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookTag> bookTags = new ArrayList<>();
+
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookImage> bookImageList = new ArrayList<>();
 
     @Builder
     public Book(String isbn,
