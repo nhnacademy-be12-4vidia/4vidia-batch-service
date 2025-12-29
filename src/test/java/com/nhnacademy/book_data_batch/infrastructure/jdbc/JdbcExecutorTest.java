@@ -257,6 +257,32 @@ class JdbcExecutorTest {
         verify(jdbcTemplate, never()).query(anyString(), any(RowMapper.class), any());
     }
 
+    @Test
+    @DisplayName("queryInBatches: 배치를 초과하는 항목은 분할 조회")
+    void queryInBatches_itemsExceedBatchSize_splitIntoBatches() {
+        String sqlTemplate = "SELECT * FROM test WHERE name IN (%s)";
+        List<String> names = Arrays.asList("A", "B", "C");
+        int batchSize = 2;
+
+        // Mock for first batch (A, B)
+        String sql1 = String.format(sqlTemplate, "?,?");
+        when(jdbcTemplate.query(eq(sql1), any(RowMapper.class), eq("A"), eq("B")))
+                .thenReturn(Arrays.asList("ResultA", "ResultB"));
+
+        // Mock for second batch (C)
+        String sql2 = String.format(sqlTemplate, "?");
+        when(jdbcTemplate.query(eq(sql2), any(RowMapper.class), eq("C")))
+                .thenReturn(Arrays.asList("ResultC"));
+
+        List<String> result = jdbcExecutor.queryInBatches(sqlTemplate, (rs, rowNum) -> "ignored", names, batchSize);
+
+        assertEquals(3, result.size());
+        assertEquals(Arrays.asList("ResultA", "ResultB", "ResultC"), result);
+
+        verify(jdbcTemplate).query(eq(sql1), any(RowMapper.class), eq("A"), eq("B"));
+        verify(jdbcTemplate).query(eq(sql2), any(RowMapper.class), eq("C"));
+    }
+
 
 
     // ========== 함수형 인터페이스 테스트 ==========

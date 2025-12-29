@@ -39,7 +39,11 @@ class BulkBatchRepositoryImplTest {
     private BatchRepository batchRepository;
 
     private Book createBook(String isbn, String title, int volumeNumber) {
-        Book book = new Book(isbn, title, null, null, null, null, null, null, null, null, null, volumeNumber, null, null);
+        Book book = Book.builder()
+                .isbn(isbn)
+                .title(title)
+                .volumeNumber(volumeNumber)
+                .build();
         return bookRepository.save(book);
     }
 
