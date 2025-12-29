@@ -10,7 +10,7 @@ spring:
     url: jdbc:mysql://s4.java21.net:13306/project_be12_team4?rewriteBatchedStatements=true
 
     username: project_be12_team4
-    password: ${BOOK_DB_PASSWORD}
+    password: ${MYSQL_PASSWORD}
     hikari:
       maximum-pool-size: 5
       minimum-idle: 3
@@ -36,7 +36,7 @@ spring:
   elasticsearch:
     uris: s4.java21.net:9200
     username: elastic
-    password: ${ELASTIC_PASSWORD}
+    password: ${NHN_PASSWORD}
     socket-timeout: 30s
     connection-timeout: 5s
 
@@ -51,7 +51,7 @@ spring:
     host: s4.java21.net
     port: 5672
     username: admin
-    password: ${RABBITMQ_PASSWORD}
+    password: ${NHN_PASSWORD}
     virtual-host: /4vidia
     listener:
       simple:
@@ -102,3 +102,6 @@ app:
 image:
   default:
     thumbnail: http://storage.java21.net:8000/4vidia/default-book-cover.png
+
+server:
+  port: 8080
