@@ -148,7 +148,7 @@ public class FieldNormalizer {
      */
     public String normalizeKdc(String rawKdc) {
         if (!StringUtils.hasText(rawKdc)) {
-            return null;
+            return "UNC";
         }
 
         String trimmed = rawKdc.trim();

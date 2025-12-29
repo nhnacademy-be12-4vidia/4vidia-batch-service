@@ -1,0 +1,73 @@
+spring:
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb;MODE=MySQL;TRACE_LEVEL_SYSTEM_OUT=0
+    username: sa
+    password:
+    hikari:
+      maximum-pool-size: 5
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        default_batch_fetch_size: 100
+        batch_size: 500
+        order_inserts: true
+        order_updates: true
+    open-in-view: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+
+  elasticsearch:
+    uris: localhost:9200
+
+# Actuator 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+# Embedding Model Configuration
+ollama:
+  api:
+    url: http://localhost/api/embeddings
+  model: bge-m3
+
+# Book Open API Keys
+aladin:
+  api:
+    keys: test-key
+    quota-per-key: 20
+
+# 배치 청크 사이즈 설정
+app:
+  batch:
+    chunk-size: 80
+
+# 기본 도서 이미지
+image:
+  default:
+    thumbnail: http://localhost/default-book-cover.png
+
+server:
+  port: 8888
