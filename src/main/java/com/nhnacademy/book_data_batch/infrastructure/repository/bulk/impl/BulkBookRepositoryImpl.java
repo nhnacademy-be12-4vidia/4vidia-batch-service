@@ -53,9 +53,9 @@ public class BulkBookRepositoryImpl implements BulkBookRepository {
                     ps.setObject(4, book.getPublisher() != null ? book.getPublisher().getId() : null);
                     ps.setObject(5, book.getPublishedDate() != null 
                             ? Date.valueOf(book.getPublishedDate()) : null);
-                    ps.setObject(6, book.getPriceStandard() != null
-                            ? (int)(book.getPriceStandard() * 0.9) : null); // 10% 할인 판매가
-                    ps.setObject(7, book.getPriceSales());
+                    ps.setObject(6, book.getPriceStandard());
+                    ps.setObject(7, book.getPriceSales() != null ? book.getPriceSales() :
+                            (book.getPriceStandard() != null ? (int) (book.getPriceStandard() * 0.9) : null));
                     ps.setObject(8, book.getCategory() != null ? book.getCategory().getId() : null);
                     ps.setObject(9, book.getVolumeNumber() != null ? book.getVolumeNumber() : 1);
                     ps.setInt(10, 0);  // stock 기본값

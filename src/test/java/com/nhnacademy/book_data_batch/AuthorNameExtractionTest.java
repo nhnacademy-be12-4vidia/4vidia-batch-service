@@ -4,6 +4,7 @@ import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StringUtils;
@@ -19,6 +20,7 @@ import java.util.Set;
 
 class AuthorNameExtractionTest {
 
+    @Disabled("원본 CSV 파일이 너무 커서 Git에 포함되지 않음")
     @Test
     void extractUniqueAuthorsToTestResources() throws Exception {
         ClassPathResource resource = new ClassPathResource("data/BOOK_DB_202112.csv");

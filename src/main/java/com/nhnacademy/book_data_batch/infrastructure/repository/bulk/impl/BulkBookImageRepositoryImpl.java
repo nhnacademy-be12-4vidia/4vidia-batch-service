@@ -13,7 +13,7 @@ public class BulkBookImageRepositoryImpl implements BulkBookImageRepository {
     private final JdbcExecutor bulkExecutor;
 
     private static final String INSERT_SQL =
-            "INSERT IGNORE INTO book_image (book_id, image_url, image_type) VALUES (?, ?, ?)";
+            "INSERT IGNORE INTO book_image (book_id, image_url, image_type, display_order) VALUES (?, ?, ?, ?)";
 
     @Override
     public void bulkInsert(List<BookImageDto> bookImages) {
@@ -24,6 +24,7 @@ public class BulkBookImageRepositoryImpl implements BulkBookImageRepository {
                     ps.setLong(1, dto.bookId());
                     ps.setString(2, dto.imageUrl());
                     ps.setInt(3, dto.imageType());
+                    ps.setInt(4, dto.displayOrder());
                 }
         );
     }
