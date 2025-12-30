@@ -7,5 +7,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface BookTagRepository extends JpaRepository<BookTag, Long>, BookTagRepositoryCustom {
-    List<BookTag> findByBookId(Long bookId);
 }

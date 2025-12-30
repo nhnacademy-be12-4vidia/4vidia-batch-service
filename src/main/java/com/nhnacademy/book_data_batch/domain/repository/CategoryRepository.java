@@ -22,8 +22,5 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     @Query("SELECT c.path FROM Category c WHERE c.id = :categoryId")
     String findPathByCategoryId(@Param("categoryId") Long categoryId);
-
-    @Query("SELECT c FROM Category c WHERE c.id IN :ids")
-    List<Category> findAllByIdIn(@Param("ids") Collection<Long> ids);
 }
 

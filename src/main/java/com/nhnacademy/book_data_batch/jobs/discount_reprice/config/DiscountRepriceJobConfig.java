@@ -78,13 +78,13 @@ public class DiscountRepriceJobConfig {
         Map<String, Object> params;
 
         if ("ALL".equals(targetScope)) {
-            query = "SELECT new com.nhnacademy.book_data_batch.batch.domain.discount_policy.dto.DiscountRepriceTarget(" +
+            query = "SELECT new com.nhnacademy.book_data_batch.jobs.discount_reprice.dto.DiscountRepriceTarget(" +
                     " b.id, b.priceStandard, b.priceSales, c.id " +
                     ") FROM Book b JOIN b.category c " +
                     "ORDER BY b.id";
             params = Map.of();
         } else {
-            query = "SELECT new com.nhnacademy.book_data_batch.batch.domain.discount_policy.dto.DiscountRepriceTarget(" +
+            query = "SELECT new com.nhnacademy.book_data_batch.jobs.discount_reprice.dto.DiscountRepriceTarget(" +
                     " b.id, b.priceStandard, b.priceSales, c.id " +
                     ") FROM Book b JOIN b.category c " +
                     "WHERE c.path LIKE :pathPrefix " +
