@@ -32,8 +32,9 @@ public class AladinFetchProcessor implements ItemProcessor<AladinItemDto, Aladin
         }
 
         // 2. 카테고리 매핑 (KDC Code '005'인 카테고리 조회)
+        // TODO: 카테고리 설정 필요 (테스트도 같이 수정해야 함)
         Category category = categoryRepository.findByKdcCode("005")
-                .orElseThrow(() -> new IllegalStateException("카테고리 '005'가 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalStateException("카테고리가 존재하지 않습니다."));
 
         // 4. 출판일 파싱
         LocalDate pubDate = parsePubDate(item.pubDate());
