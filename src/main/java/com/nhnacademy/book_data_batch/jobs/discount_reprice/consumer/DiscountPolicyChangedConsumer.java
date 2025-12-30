@@ -23,7 +23,6 @@ public class DiscountPolicyChangedConsumer {
     
     @RabbitListener(queues = "discount.policy.reprice.queue", containerFactory = "rabbitListenerContainerFactory")
     public void handleDiscountPolicyChanged(DiscountPolicyChangedEvent event) throws
-            JobParametersInvalidException,
             JobExecutionAlreadyRunningException,
             JobRestartException,
             JobInstanceAlreadyCompleteException,
