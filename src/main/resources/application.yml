@@ -31,7 +31,6 @@ spring:
         order_updates: true
 
         dialect: org.hibernate.dialect.MySQLDialect
-    open-in-view: false
 
   elasticsearch:
     uris: s4.java21.net:9200
@@ -117,6 +116,7 @@ app:
 image:
   default:
     thumbnail: http://storage.java21.net:8000/4vidia/default-book-cover.png
+
 
 server:
   port: 8080

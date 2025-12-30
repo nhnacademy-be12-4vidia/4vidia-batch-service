@@ -1,9 +1,11 @@
 package com.nhnacademy.book_data_batch.batch.jobs;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.nhnacademy.book_data_batch.domain.BookDescriptionImage;
 import com.nhnacademy.book_data_batch.infrastructure.repository.BookDescriptionImageRepository;
 import com.nhnacademy.book_data_batch.infrastructure.repository.BookRepository;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -29,13 +31,11 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.stream.Collectors;
 
 import org.springframework.batch.core.configuration.annotation.StepScope;
 
@@ -56,6 +56,15 @@ public class ContentImageCleanupJobConfig {
 
     private static final int CHUNK_SIZE = 100;
 
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class BookDescriptionImageDto {
+        private Long id;
+        private String imageUrl;
+        private LocalDateTime createdAt;
+    }
+
     @Bean
     public Job contentImageCleanupJob() throws Exception {
         return new JobBuilder("contentImageCleanupJob", jobRepository)
@@ -66,7 +75,7 @@ public class ContentImageCleanupJobConfig {
     @Bean
     public Step contentImageCleanupStep() throws Exception {
         return new StepBuilder("contentImageCleanupStep", jobRepository)
-                .<BookDescriptionImage, BookDescriptionImage>chunk(CHUNK_SIZE, transactionManager)
+                .<BookDescriptionImageDto, BookDescriptionImageDto>chunk(CHUNK_SIZE, transactionManager)
                 .reader(cleanupReader())
                 .processor(cleanupProcessor())
                 .writer(cleanupWriter())
@@ -74,18 +83,18 @@ public class ContentImageCleanupJobConfig {
     }
 
     @Bean
-    public JdbcPagingItemReader<BookDescriptionImage> cleanupReader() throws Exception {
+    public JdbcPagingItemReader<BookDescriptionImageDto> cleanupReader() throws Exception {
         Map<String, Order> sortKeys = new HashMap<>();
         sortKeys.put("id", Order.ASCENDING);
 
         // 24시간 지난 이미지 조회
         LocalDateTime oneDayAgo = LocalDateTime.now().minusDays(1);
 
-        return new JdbcPagingItemReaderBuilder<BookDescriptionImage>()
+        return new JdbcPagingItemReaderBuilder<BookDescriptionImageDto>()
                 .name("cleanupReader")
                 .dataSource(dataSource)
                 .fetchSize(CHUNK_SIZE)
-                .rowMapper(new BeanPropertyRowMapper<>(BookDescriptionImage.class))
+                .rowMapper(new BeanPropertyRowMapper<>(BookDescriptionImageDto.class))
                 .queryProvider(cleanupQueryProvider())
                 .parameterValues(Map.of("oneDayAgo", oneDayAgo))
                 .build();
@@ -104,11 +113,11 @@ public class ContentImageCleanupJobConfig {
 
     @Bean
     @StepScope // Step 실행 시마다 새로 생성되어야 함 (상태 저장)
-    public ItemProcessor<BookDescriptionImage, BookDescriptionImage> cleanupProcessor() {
+    public ItemProcessor<BookDescriptionImageDto, BookDescriptionImageDto> cleanupProcessor() {
         // 1. 메모리 최적화: 최근 수정된 도서의 Description을 미리 로딩
         // (배치 시작 기준 24시간 이내 수정된 책들에는, 24시간 전 업로드된 이미지가 있을 수 있음)
         // 안전하게 48시간(2일) 전 수정본까지 로딩
-        LocalDateTime twoDaysAgo = LocalDateTime.now().minusDays(2);
+        LocalDate twoDaysAgo = LocalDate.now().minusDays(2);
         List<String> recentDescriptions = bookRepository.findDescriptionsByUpdatedAtAfter(twoDaysAgo);
         
         log.info("Pre-loaded {} book descriptions for optimization.", recentDescriptions.size());
@@ -116,7 +125,7 @@ public class ContentImageCleanupJobConfig {
         return item -> {
             String imageUrl = item.getImageUrl();
             
-            // 2. 메모리 상에서 매칭 (DB 쿼리 X)
+            // 2. 메모리 상에서 매칭
             // Description 리스트를 순회하며 해당 URL이 포함되어 있는지 확인
             boolean matchRaw = recentDescriptions.stream()
                     .anyMatch(desc -> desc.contains(imageUrl));
@@ -144,9 +153,9 @@ public class ContentImageCleanupJobConfig {
     }
 
     @Bean
-    public ItemWriter<BookDescriptionImage> cleanupWriter() {
+    public ItemWriter<BookDescriptionImageDto> cleanupWriter() {
         return items -> {
-            for (BookDescriptionImage item : items) {
+            for (BookDescriptionImageDto item : items) {
                 try {
                     // 1. MinIO(S3)에서 파일 삭제
                     String objectKey = extractObjectKey(item.getImageUrl());

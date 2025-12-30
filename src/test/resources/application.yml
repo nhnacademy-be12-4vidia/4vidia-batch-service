@@ -28,17 +28,6 @@ spring:
         order_updates: true
     open-in-view: false
 
-  data:
-    redis:
-      host: localhost
-      port: 6379
-
-  rabbitmq:
-    host: localhost
-    port: 5672
-
-  elasticsearch:
-    uris: localhost:9200
 
 # Actuator 설정
 management:
@@ -47,11 +36,20 @@ management:
       exposure:
         include: health,info
 
+
+# Minio 설정
+cloud:
+  aws:
+    s3:
+      bucket: test-bucket
+
+
 # Embedding Model Configuration
 ollama:
   api:
     url: http://localhost/api/embeddings
   model: bge-m3
+
 
 # Book Open API Keys
 aladin:
@@ -59,15 +57,18 @@ aladin:
     keys: test-key
     quota-per-key: 20
 
+
 # 배치 청크 사이즈 설정
 app:
   batch:
     chunk-size: 80
 
+
 # 기본 도서 이미지
 image:
   default:
     thumbnail: http://localhost/default-book-cover.png
+
 
 server:
   port: 8888
