@@ -31,10 +31,10 @@ public class JdbcExecutor {
 
     private final JdbcTemplate jdbcTemplate;
 
-    private static final int DEFAULT_BATCH_SIZE = 10000;
+    private static final int DEFAULT_BATCH_SIZE = 1000;  // 백엔드 경합 감소 (10,000 → 1,000)
 
     /**
-     * Bulk INSERT/UPDATE (기본 배치 사이즈 10000)
+     * Bulk INSERT/UPDATE (기본 배치 사이즈 1000)
      */
     public <T> void execute(
             String sql,

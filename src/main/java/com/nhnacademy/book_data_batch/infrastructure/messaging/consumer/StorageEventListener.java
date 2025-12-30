@@ -1,8 +1,8 @@
 package com.nhnacademy.book_data_batch.infrastructure.messaging.consumer;
 
-import com.nhnacademy.book_data_batch.batch.domain.book_image.dto.event.DescriptionImageUploadedEvent;
-import com.nhnacademy.book_data_batch.domain.BookDescriptionImage;
-import com.nhnacademy.book_data_batch.infrastructure.repository.BookDescriptionImageRepository;
+import com.nhnacademy.book_data_batch.jobs.image_cleanup.dto.event.DescriptionImageUploadedEvent;
+import com.nhnacademy.book_data_batch.domain.entity.BookDescriptionImage;
+import com.nhnacademy.book_data_batch.domain.repository.BookDescriptionImageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.Exchange;
