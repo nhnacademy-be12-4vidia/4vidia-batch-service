@@ -1,0 +1,11 @@
+package com.nhnacademy.book_data_batch.domain.repository;
+
+import com.nhnacademy.book_data_batch.domain.entity.BookTag;
+import com.nhnacademy.book_data_batch.domain.repository.custom.BookTagRepositoryCustom;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface BookTagRepository extends JpaRepository<BookTag, Long>, BookTagRepositoryCustom {
+    List<BookTag> findByBookId(Long bookId);
+}

@@ -1,0 +1,31 @@
+package com.nhnacademy.book_data_batch.domain.repository.impl;
+
+import com.nhnacademy.book_data_batch.jobs.book_import.dto.BookImageDto;
+import com.nhnacademy.book_data_batch.infrastructure.jdbc.JdbcExecutor;
+import com.nhnacademy.book_data_batch.domain.repository.custom.BookImageRepositoryCustom;
+import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
+@RequiredArgsConstructor
+public class BookImageRepositoryImpl implements BookImageRepositoryCustom {
+
+    private final JdbcExecutor bulkExecutor;
+
+    private static final String INSERT_SQL =
+            "INSERT IGNORE INTO book_image (book_id, image_url, image_type, display_order) VALUES (?, ?, ?, ?)";
+
+    @Override
+    public void bulkInsert(List<BookImageDto> bookImages) {
+        bulkExecutor.execute(
+                INSERT_SQL,
+                bookImages,
+                (ps, dto) -> {
+                    ps.setLong(1, dto.bookId());
+                    ps.setString(2, dto.imageUrl());
+                    ps.setInt(3, dto.imageType());
+                    ps.setInt(4, dto.displayOrder());
+                }
+        );
+    }
+}
