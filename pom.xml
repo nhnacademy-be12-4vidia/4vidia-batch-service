@@ -161,7 +161,7 @@
     <!-- 빌드 설정: 플러그인 및 컴파일러 설정 -->
     <build>
         <plugins>
-            <!-- 컴파일러와 애노테이션 프로세서 설정 (Lombok, QueryDSL) -->
+            <!-- 컴파일러와 애노테이션 프로세서 설정 (Lombok) -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
@@ -169,22 +169,6 @@
                         <path>
                             <artifactId>lombok</artifactId>
                             <groupId>org.projectlombok</groupId>
-                        </path>
-                        <path>
-                            <groupId>com.querydsl</groupId>
-                            <artifactId>querydsl-apt</artifactId>
-                            <version>5.1.0</version>
-                            <classifier>jakarta</classifier>
-                        </path>
-                        <path>
-                            <groupId>jakarta.persistence</groupId>
-                            <artifactId>jakarta.persistence-api</artifactId>
-                            <version>3.1.0</version>
-                        </path>
-                        <path>
-                            <groupId>jakarta.annotation</groupId>
-                            <artifactId>jakarta.annotation-api</artifactId>
-                            <version>2.1.1</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
