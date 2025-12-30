@@ -3,9 +3,6 @@ package com.nhnacademy.book_data_batch.jobs.category_import.config;
 import com.nhnacademy.book_data_batch.domain.entity.Category;
 import com.nhnacademy.book_data_batch.domain.repository.CategoryRepository;
 import com.nhnacademy.book_data_batch.infrastructure.jdbc.JdbcExecutor;
-import com.nhnacademy.book_data_batch.jobs.category_import.mapper.KdcCategoryLineMapper;
-import com.nhnacademy.book_data_batch.jobs.category_import.processor.KdcCategoryItemProcessor;
-import com.nhnacademy.book_data_batch.jobs.category_import.tasklet.NonKdcCategoryTasklet;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -75,7 +72,7 @@ class KdcCategoryJobConfigTest {
         // 내용은 다음과 같다고 가정:
         // 000,총류
         // 010,도서학
-        // 011,저작권
+        // 011,저작
 
         // When
         jobLauncherTestUtils.setJob(kdcCategoryJob);
