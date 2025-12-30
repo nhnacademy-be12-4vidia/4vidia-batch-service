@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.batch.domain.book.processor;
+package com.nhnacademy.book_data_batch.batch.domain.book_data.processor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

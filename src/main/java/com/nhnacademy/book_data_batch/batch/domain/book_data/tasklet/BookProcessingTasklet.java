@@ -1,9 +1,9 @@
-package com.nhnacademy.book_data_batch.batch.domain.book.tasklet;
+package com.nhnacademy.book_data_batch.batch.domain.book_data.tasklet;
 
-import com.nhnacademy.book_data_batch.batch.domain.book.cache.InMemoryReferenceDataCache;
-import com.nhnacademy.book_data_batch.batch.domain.book.dto.BookCsvRow;
-import com.nhnacademy.book_data_batch.batch.domain.book.processor.FieldNormalizer;
-import com.nhnacademy.book_data_batch.batch.domain.book.processor.IsbnResolver;
+import com.nhnacademy.book_data_batch.batch.domain.book_data.cache.InMemoryReferenceDataCache;
+import com.nhnacademy.book_data_batch.batch.domain.book_data.dto.BookCsvRow;
+import com.nhnacademy.book_data_batch.batch.domain.book_data.processor.FieldNormalizer;
+import com.nhnacademy.book_data_batch.batch.domain.book_data.processor.IsbnResolver;
 import com.nhnacademy.book_data_batch.domain.Book;
 import com.nhnacademy.book_data_batch.domain.Category;
 import com.nhnacademy.book_data_batch.domain.Publisher;

@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.batch.domain.book.processor;
+package com.nhnacademy.book_data_batch.batch.domain.book_data.processor;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

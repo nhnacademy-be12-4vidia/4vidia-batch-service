@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.batch.domain.book.dto;
+package com.nhnacademy.book_data_batch.batch.domain.book_data.dto;
 
 /**
  * 도서 이미지 DTO

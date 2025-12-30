@@ -1,6 +1,6 @@
 package com.nhnacademy.book_data_batch.batch.domain.aladin.writer.persistence;
 
-import com.nhnacademy.book_data_batch.batch.domain.book.dto.BookImageDto;
+import com.nhnacademy.book_data_batch.batch.domain.book_data.dto.BookImageDto;
 import com.nhnacademy.book_data_batch.batch.domain.aladin.dto.BookAuthorDto;
 import com.nhnacademy.book_data_batch.batch.domain.aladin.dto.EnrichmentSuccessDto;
 import com.nhnacademy.book_data_batch.domain.enums.ImageType;

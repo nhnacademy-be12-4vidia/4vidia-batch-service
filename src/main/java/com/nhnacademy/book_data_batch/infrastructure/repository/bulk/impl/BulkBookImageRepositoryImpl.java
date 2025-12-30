@@ -1,6 +1,6 @@
 package com.nhnacademy.book_data_batch.infrastructure.repository.bulk.impl;
 
-import com.nhnacademy.book_data_batch.batch.domain.book.dto.BookImageDto;
+import com.nhnacademy.book_data_batch.batch.domain.book_data.dto.BookImageDto;
 import com.nhnacademy.book_data_batch.infrastructure.jdbc.JdbcExecutor;
 import com.nhnacademy.book_data_batch.infrastructure.repository.bulk.BulkBookImageRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.batch.domain.book.dto;
+package com.nhnacademy.book_data_batch.batch.domain.book_data.dto;
 
 // 주어진 도서 csv의 한 행 그대로 매핑되는 DTO
 public record BookCsvRow(

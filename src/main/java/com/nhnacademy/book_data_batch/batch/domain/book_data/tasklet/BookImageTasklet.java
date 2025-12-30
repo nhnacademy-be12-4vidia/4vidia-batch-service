@@ -1,9 +1,9 @@
-package com.nhnacademy.book_data_batch.batch.domain.book.tasklet;
+package com.nhnacademy.book_data_batch.batch.domain.book_data.tasklet;
 
-import com.nhnacademy.book_data_batch.batch.domain.book.cache.InMemoryReferenceDataCache;
-import com.nhnacademy.book_data_batch.batch.domain.book.dto.BookCsvRow;
-import com.nhnacademy.book_data_batch.batch.domain.book.dto.BookImageDto;
-import com.nhnacademy.book_data_batch.batch.domain.book.processor.IsbnResolver;
+import com.nhnacademy.book_data_batch.batch.domain.book_data.cache.InMemoryReferenceDataCache;
+import com.nhnacademy.book_data_batch.batch.domain.book_data.dto.BookCsvRow;
+import com.nhnacademy.book_data_batch.batch.domain.book_data.dto.BookImageDto;
+import com.nhnacademy.book_data_batch.batch.domain.book_data.processor.IsbnResolver;
 import com.nhnacademy.book_data_batch.domain.Batch;
 import com.nhnacademy.book_data_batch.domain.Book;
 import com.nhnacademy.book_data_batch.domain.enums.ImageType;
