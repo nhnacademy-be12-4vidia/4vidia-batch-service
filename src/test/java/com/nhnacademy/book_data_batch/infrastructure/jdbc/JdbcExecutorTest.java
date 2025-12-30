@@ -113,8 +113,8 @@ class JdbcExecutorTest {
 
         jdbcExecutor.execute(sql, items, setter);
 
-        // 15000 items with default batch size 10000 = 2 batches
-        verify(jdbcTemplate, times(2)).batchUpdate(eq(sql), any(BatchPreparedStatementSetter.class));
+        // 15000 items with default batch size 1000 = 15 batches
+        verify(jdbcTemplate, times(15)).batchUpdate(eq(sql), any(BatchPreparedStatementSetter.class));
     }
 
     @Test
