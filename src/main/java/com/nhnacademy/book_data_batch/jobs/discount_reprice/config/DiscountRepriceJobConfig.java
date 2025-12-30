@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.jobs.discount_reprice;
+package com.nhnacademy.book_data_batch.jobs.discount_reprice.config;
 
 import com.nhnacademy.book_data_batch.jobs.discount_reprice.dto.DiscountRepriceTarget;
 import com.nhnacademy.book_data_batch.jobs.discount_reprice.processor.DiscountRepriceItemProcessor;

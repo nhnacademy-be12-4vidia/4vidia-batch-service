@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.jobs.book_import;
+package com.nhnacademy.book_data_batch.jobs.book_import.config;
 
 import com.nhnacademy.book_data_batch.jobs.book_import.cache.InMemoryReferenceDataCache;
 import com.nhnacademy.book_data_batch.global.util.FieldNormalizer;

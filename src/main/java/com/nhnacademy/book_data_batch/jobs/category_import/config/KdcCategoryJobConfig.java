@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.jobs.category_import;
+package com.nhnacademy.book_data_batch.jobs.category_import.config;
 
 import com.nhnacademy.book_data_batch.jobs.category_import.dto.KdcCategoryCsv;
 import com.nhnacademy.book_data_batch.jobs.category_import.mapper.KdcCategoryLineMapper;

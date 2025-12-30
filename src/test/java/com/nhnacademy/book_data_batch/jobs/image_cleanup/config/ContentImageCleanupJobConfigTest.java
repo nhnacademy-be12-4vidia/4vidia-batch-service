@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.jobs.image_cleanup;
+package com.nhnacademy.book_data_batch.jobs.image_cleanup.config;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.nhnacademy.book_data_batch.domain.entity.Book;
@@ -70,7 +70,7 @@ class ContentImageCleanupJobConfigTest {
     @TestConfiguration
     @EnableJpaRepositories(basePackages = "com.nhnacademy.book_data_batch.domain.repository")
     @EntityScan(basePackages = "com.nhnacademy.book_data_batch.domain")
-    @ComponentScan(basePackages = "com.nhnacademy.book_data_batch.infrastructure.impl")
+    @ComponentScan(basePackages = "com.nhnacademy.book_data_batch.domain.repository.impl")
     @EnableTransactionManagement
     @EnableJpaAuditing
     static class TestConfig {

@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.jobs.aladin;
+package com.nhnacademy.book_data_batch.jobs.aladin.config;
 
 import com.nhnacademy.book_data_batch.infrastructure.client.aladin.AladinQuotaTracker;
 import lombok.RequiredArgsConstructor;

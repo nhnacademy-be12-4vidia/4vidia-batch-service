@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.jobs.image_cleanup;
+package com.nhnacademy.book_data_batch.jobs.image_cleanup.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
