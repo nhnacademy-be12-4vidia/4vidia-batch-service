@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.batch.domain.book.processor;
+package com.nhnacademy.book_data_batch.batch.domain.book_data.processor;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;

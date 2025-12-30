@@ -2,7 +2,7 @@ package com.nhnacademy.book_data_batch.batch.domain.aladin.processor;
 
 import com.nhnacademy.book_data_batch.batch.domain.aladin.dto.AladinFetchWrapper;
 import com.nhnacademy.book_data_batch.batch.domain.aladin.dto.api.AladinItemDto;
-import com.nhnacademy.book_data_batch.batch.domain.book.processor.IsbnResolver;
+import com.nhnacademy.book_data_batch.batch.domain.book_data.processor.IsbnResolver;
 import com.nhnacademy.book_data_batch.domain.Book;
 import com.nhnacademy.book_data_batch.domain.Category;
 import com.nhnacademy.book_data_batch.infrastructure.repository.CategoryRepository;

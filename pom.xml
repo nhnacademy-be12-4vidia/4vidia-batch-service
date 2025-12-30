@@ -2,55 +2,34 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <!-- 프로젝트 메타 정보 -->
     <modelVersion>4.0.0</modelVersion>
     <name>DataParser</name>
-
-    <!-- 스프링부트 부모: BOM(의존성 관리)과 플러그인 버전 관리 제공 -->
     <parent>
         <artifactId>spring-boot-starter-parent</artifactId>
         <groupId>org.springframework.boot</groupId>
         <relativePath/>
-        <version>3.5.7</version> <!-- lookup parent from repository -->
+        <version>3.5.7</version>
     </parent>
-
-    <!-- 간단한 설명 -->
     <description>Demo project for Spring Boot</description>
-
-    <!-- 개발자 정보 (필요시 작성) -->
     <developers>
         <developer/>
     </developers>
-
-    <!-- 프로젝트 그룹 식별자 -->
     <groupId>init.data</groupId>
-
-    <!-- 라이선스 정보 (필요시 작성) -->
     <licenses>
         <license/>
     </licenses>
-
-    <!-- 빌드 관련 속성 -->
     <properties>
-        <java.version>21</java.version> <!-- 컴파일에 사용할 자바 버전 -->
+        <java.version>21</java.version>
     </properties>
-
-    <!-- 소스 코드 관리(SCM) 정보 (필요 시 채우세요) -->
     <scm>
         <connection/>
         <developerConnection/>
         <tag/>
         <url/>
     </scm>
-
-    <!-- 프로젝트 URL (필요시 설정) -->
     <url/>
-
-    <!-- 버전과 아티팩트 아이디 -->
     <version>0.0.1-SNAPSHOT</version>
     <artifactId>4vidia-batch-service</artifactId>
-
-    <!-- 의존성: 기능별로 구분해서 주석 추가 -->
     <dependencies>
         <!-- Spring Boot 스타터: 웹, AOP, JPA 등 주요 기능 -->
         <dependency>
@@ -123,6 +102,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- MinIO 관련 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-aws</artifactId>
+            <version>2.2.6.RELEASE</version>
+        </dependency>
+
         <!-- 유틸리티 의존성 (Lombok, CSV, Jackson 등) -->
         <dependency>
             <artifactId>lombok</artifactId>
@@ -132,7 +118,7 @@
         <dependency>
             <artifactId>opencsv</artifactId>
             <groupId>com.opencsv</groupId>
-            <version>5.9</version>
+            <version>5.12.0</version>
         </dependency>
         <dependency>
             <artifactId>jackson-databind</artifactId>

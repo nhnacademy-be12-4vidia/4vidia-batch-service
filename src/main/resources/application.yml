@@ -78,6 +78,21 @@ management:
         enabled: true
 
 
+# MinIO 설정
+cloud:
+  aws:
+    s3:
+      endpoint: http://storage.java21.net:8000
+      bucket: 4vidia
+    credentials:
+      access-key: gaNAQg19pCH82fuMbsU2
+      secret-key: ${MINIO_SECRET_KEY}
+    region:
+      static: us-east-1
+    stack:
+      auto: false
+
+
 # Embedding Model Configuration
 ollama:
   api:

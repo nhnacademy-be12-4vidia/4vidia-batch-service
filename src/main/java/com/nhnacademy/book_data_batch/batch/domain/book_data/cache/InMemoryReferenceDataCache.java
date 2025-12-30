@@ -1,6 +1,6 @@
-package com.nhnacademy.book_data_batch.batch.domain.book.cache;
+package com.nhnacademy.book_data_batch.batch.domain.book_data.cache;
 
-import com.nhnacademy.book_data_batch.batch.domain.book.dto.BookCsvRow;
+import com.nhnacademy.book_data_batch.batch.domain.book_data.dto.BookCsvRow;
 import com.nhnacademy.book_data_batch.domain.Book;
 import com.nhnacademy.book_data_batch.domain.Category;
 import com.nhnacademy.book_data_batch.domain.Publisher;
