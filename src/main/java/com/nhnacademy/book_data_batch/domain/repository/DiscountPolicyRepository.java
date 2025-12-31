@@ -16,4 +16,13 @@ public interface DiscountPolicyRepository extends JpaRepository<DiscountPolicy, 
            "AND dp.endDate >= :asOfDate")
     List<DiscountPolicy> findActivePolicies(@Param("categoryIds") Collection<Long> categoryIds,
                                             @Param("asOfDate") LocalDate asOfDate);
+
+    List<DiscountPolicy> findByEndDate(LocalDate endDate);
+
+    List<DiscountPolicy> findByStartDate(LocalDate startDate);
+
+    @Query("SELECT dp FROM DiscountPolicy dp " +
+           "WHERE dp.startDate <= :asOfDate " +
+           "AND dp.endDate >= :asOfDate")
+    List<DiscountPolicy> findAllActivePolicies(@Param("asOfDate") LocalDate asOfDate);
 }

@@ -1,22 +1,16 @@
 package com.nhnacademy.book_data_batch.jobs.discount_reprice.config;
 
+import com.nhnacademy.book_data_batch.domain.service.discount.DiscountPolicyHierarchyResolver;
+import com.nhnacademy.book_data_batch.domain.service.discount.DiscountPriceCalculator;
 import com.nhnacademy.book_data_batch.jobs.discount_reprice.dto.DiscountRepriceTarget;
 import com.nhnacademy.book_data_batch.jobs.discount_reprice.processor.DiscountRepriceItemProcessor;
 import com.nhnacademy.book_data_batch.jobs.discount_reprice.reader.DiscountRepriceItemReader;
-import com.nhnacademy.book_data_batch.domain.service.discount.DiscountPolicyHierarchyResolver;
-import com.nhnacademy.book_data_batch.domain.service.discount.DiscountPriceCalculator;
 import com.nhnacademy.book_data_batch.jobs.discount_reprice.writer.DiscountRepriceItemWriter;
-import com.nhnacademy.book_data_batch.domain.entity.Category;
-import com.nhnacademy.book_data_batch.domain.entity.DiscountPolicy;
-import com.nhnacademy.book_data_batch.infrastructure.jdbc.JdbcExecutor;
 import com.nhnacademy.book_data_batch.domain.repository.CategoryRepository;
 import com.nhnacademy.book_data_batch.domain.repository.DiscountPolicyRepository;
+import com.nhnacademy.book_data_batch.infrastructure.jdbc.JdbcExecutor;
 import jakarta.persistence.EntityManagerFactory;
-import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -24,7 +18,6 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,8 +36,6 @@ public class DiscountRepriceJobConfig {
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
     private final EntityManagerFactory entityManagerFactory;
-    private final CategoryRepository categoryRepository;
-    private final DiscountPolicyRepository discountPolicyRepository;
     private final JdbcExecutor jdbcExecutor;
 
     @Bean
@@ -57,11 +48,12 @@ public class DiscountRepriceJobConfig {
     @Bean
     public Step discountRepriceStep(
             ItemReader<DiscountRepriceTarget> discountRepriceReader,
-            ItemProcessor<DiscountRepriceTarget, DiscountRepriceTarget> discountRepriceProcessor,
+            DiscountRepriceItemProcessor discountRepriceProcessor,
             ItemWriter<DiscountRepriceTarget> discountRepriceWriter
     ) {
         return new StepBuilder(STEP_NAME, jobRepository)
                 .<DiscountRepriceTarget, DiscountRepriceTarget>chunk(CHUNK_SIZE, transactionManager)
+                .listener(discountRepriceProcessor) // Processor가 Listener 역할도 수행
                 .reader(discountRepriceReader)
                 .processor(discountRepriceProcessor)
                 .writer(discountRepriceWriter)
@@ -97,43 +89,26 @@ public class DiscountRepriceJobConfig {
 
     @Bean
     @StepScope
-    public ItemProcessor<DiscountRepriceTarget, DiscountRepriceTarget> discountRepriceProcessor(
-            @Value("#{jobParameters['targetScope']}") String targetScope,
-            @Value("#{jobParameters['categoryPath']}") String categoryPath,
-            @Value("#{jobParameters['asOfDate']}") String asOfDateStr
+    public DiscountRepriceItemProcessor discountRepriceProcessor(
+            CategoryRepository categoryRepository,
+            DiscountPolicyRepository discountPolicyRepository,
+            DiscountPolicyHierarchyResolver hierarchyResolver
     ) {
-        LocalDate asOfDate = asOfDateStr != null ? LocalDate.parse(asOfDateStr) : LocalDate.now();
-
-        List<Long> descendantIds;
-        List<Category> categories;
-
-        if ("ALL".equals(targetScope)) {
-            descendantIds = categoryRepository.findAll().stream()
-                    .map(Category::getId)
-                    .collect(Collectors.toList());
-            categories = categoryRepository.findAll();
-        } else {
-            descendantIds = categoryRepository.findDescendantIdsByPathPrefix(categoryPath);
-            categories = categoryRepository.findDescendantsByPathPrefix(categoryPath);
-        }
-
-        Map<Long, DiscountPolicy> policyMap = discountPolicyRepository.findActivePolicies(descendantIds, asOfDate)
-                .stream()
-                .collect(Collectors.toMap(dp -> dp.getCategory().getId(), Function.identity()));
-
-        Map<Long, Category> categoriesById = categories.stream()
-                .collect(Collectors.toMap(Category::getId, Function.identity()));
-
         return new DiscountRepriceItemProcessor(
-                policyMap,
-                new DiscountPolicyHierarchyResolver(),
-                new DiscountPriceCalculator(),
-                categoriesById
+                categoryRepository,
+                discountPolicyRepository,
+                hierarchyResolver,
+                new DiscountPriceCalculator()
         );
     }
 
     @Bean
     public ItemWriter<DiscountRepriceTarget> discountRepriceWriter() {
         return new DiscountRepriceItemWriter(jdbcExecutor);
+    }
+    
+    @Bean
+    public DiscountPolicyHierarchyResolver discountPolicyHierarchyResolver() {
+        return new DiscountPolicyHierarchyResolver();
     }
 }

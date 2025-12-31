@@ -11,11 +11,15 @@ spring:
 
     username: project_be12_team4
     password: ${MYSQL_PASSWORD}
-    hikari:
-      maximum-pool-size: 5
-      minimum-idle: 3
-      max-lifetime: 600000
-      idle-timeout: 300000
+    type: org.apache.commons.dbcp2.BasicDataSource
+    dbcp2:
+      initial-size: 3
+      max-total: 10
+      max-idle: 5
+      min-idle: 3
+      test-on-borrow: true
+      validation-query: SELECT 1
+      max-wait-millis: 3000
 
   jpa:
     hibernate:

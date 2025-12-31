@@ -1,7 +1,6 @@
 package com.nhnacademy.book_data_batch.domain.repository;
 
 import com.nhnacademy.book_data_batch.domain.entity.Category;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,5 +21,8 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     @Query("SELECT c.path FROM Category c WHERE c.id = :categoryId")
     String findPathByCategoryId(@Param("categoryId") Long categoryId);
+
+    @Query("SELECT c FROM Category c LEFT JOIN FETCH c.parentCategory")
+    List<Category> findAllWithParent();
 }
 
