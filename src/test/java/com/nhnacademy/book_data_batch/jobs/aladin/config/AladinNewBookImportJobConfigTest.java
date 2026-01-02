@@ -136,7 +136,7 @@ class AladinNewBookImportJobConfigTest {
 
         AladinItemDto item = new AladinItemDto(
                 "Test Title", "Author", "2023-01-01",
-                "Description", "1234567890", "9781234567890", 
+                "Description", "0134685997", "9780134685991", 
                 10000, "http://cover", "Category", "Publisher", null
         );
 

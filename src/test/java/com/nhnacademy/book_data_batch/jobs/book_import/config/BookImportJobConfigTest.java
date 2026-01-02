@@ -119,7 +119,7 @@ class BookImportJobConfigTest {
             List<Book> books = bookRepository.findAll();
             assertThat(books).hasSize(2);
             
-            Book book1 = bookRepository.findAllByIsbnIn(List.of("9781234567890")).stream().findFirst().orElseThrow();
+            Book book1 = bookRepository.findAllByIsbnIn(List.of("9780134685991")).stream().findFirst().orElseThrow();
             assertThat(book1.getTitle()).isEqualTo("Test Book");
             assertThat(book1.getPublisher().getName()).isEqualTo("Test Publisher");
             assertThat(book1.getPriceStandard()).isEqualTo(10000);

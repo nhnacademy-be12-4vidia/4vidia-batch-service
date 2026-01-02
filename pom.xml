@@ -126,6 +126,13 @@
             <version>2.17.1</version>
         </dependency>
 
+        <!-- isbn용 validator -->
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>1.10.1</version>
+        </dependency>
+
         <!-- 테스트용 의존성 -->
         <dependency>
             <artifactId>spring-boot-starter-test</artifactId>
