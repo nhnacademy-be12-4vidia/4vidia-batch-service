@@ -3,7 +3,6 @@ package com.nhnacademy.book_data_batch.domain.repository.impl;
 import com.nhnacademy.book_data_batch.domain.entity.Book;
 import com.nhnacademy.book_data_batch.domain.entity.BookTag;
 import com.nhnacademy.book_data_batch.domain.entity.Tag;
-import com.nhnacademy.book_data_batch.domain.repository.impl.BookTagRepositoryImpl;
 import com.nhnacademy.book_data_batch.infrastructure.jdbc.JdbcExecutor;
 import com.nhnacademy.book_data_batch.domain.repository.BookRepository;
 import com.nhnacademy.book_data_batch.domain.repository.BookTagRepository;
@@ -71,7 +70,7 @@ class BookTagRepositoryImplTest {
         bookTagRepository.bulkInsert(bookTagPairs);
 
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM book_tag", Integer.class);
-        assertThat(count).isEqualTo(0);
+        assertThat(count).isZero();
     }
 
     @Test

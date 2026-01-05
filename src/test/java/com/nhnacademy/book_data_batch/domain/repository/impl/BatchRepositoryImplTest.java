@@ -1,6 +1,5 @@
 package com.nhnacademy.book_data_batch.domain.repository.impl;
 
-import com.nhnacademy.book_data_batch.domain.repository.impl.BatchRepositoryImpl;
 import com.nhnacademy.book_data_batch.jobs.aladin.dto.EnrichmentFailureDto;
 import com.nhnacademy.book_data_batch.jobs.embedding.dto.EmbeddingFailureDto;
 import com.nhnacademy.book_data_batch.domain.entity.Batch;
@@ -62,7 +61,7 @@ class BatchRepositoryImplTest {
         batchRepository.bulkInsert(batches);
 
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM batch", Integer.class);
-        assertThat(count).isEqualTo(0);
+        assertThat(count).isZero();
     }
 
     @Test
@@ -109,7 +108,7 @@ class BatchRepositoryImplTest {
         batchRepository.bulkUpdateEnrichmentStatus(batchIds, BatchStatus.COMPLETED);
 
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM batch", Integer.class);
-        assertThat(count).isEqualTo(0);
+        assertThat(count).isZero();
     }
 
     @Test
@@ -139,7 +138,7 @@ class BatchRepositoryImplTest {
         batchRepository.bulkUpdateEnrichmentFailed(failedBatches);
 
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM batch", Integer.class);
-        assertThat(count).isEqualTo(0);
+        assertThat(count).isZero();
     }
 
     @Test
@@ -217,7 +216,7 @@ class BatchRepositoryImplTest {
         batchRepository.bulkUpdateEmbeddingStatus(batchIds, BatchStatus.COMPLETED);
 
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM batch", Integer.class);
-        assertThat(count).isEqualTo(0);
+        assertThat(count).isZero();
     }
 
     @Test
@@ -250,7 +249,7 @@ class BatchRepositoryImplTest {
         batchRepository.bulkUpdateEmbeddingFailed(failedBatches);
 
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM batch", Integer.class);
-        assertThat(count).isEqualTo(0);
+        assertThat(count).isZero();
     }
 
     @Test

@@ -35,9 +35,8 @@ public class AladinItemProcessor implements ItemProcessor<BookBatchTarget, Aladi
 
     @Override
     public AladinEnrichmentResult process(BookBatchTarget target) throws Exception {
-        // 글로벌 쿼터 소진 플래그 확인 -> null(Skip)이 아닌 실패 결과 반환하여 Chunk를 빠르게 채워서 Writer로 보냄
-        if (aladinQuotaTracker.isQuotaExhausted()) {
-            return new AladinEnrichmentResult(target, null, false, QUOTA_EXHAUSTED_FLAG, true);
+        if (aladinQuotaTracker.isAllKeysExhausted(aladinApiKeys)) {
+            return new AladinEnrichmentResult(target, null, false, "모든 API 키 할당량 소진", true);
         }
         
         String isbn13 = target.isbn13();
@@ -48,14 +47,11 @@ public class AladinItemProcessor implements ItemProcessor<BookBatchTarget, Aladi
 
         String apiKey = getNextApiKey();
 
-        try {
-            // 쿼터 확인 및 사용 시도 (Proactive Check)
-            if (!aladinQuotaTracker.tryAcquire(apiKey)) {
-                 log.warn("[AladinItemProcessor] API 키 {}의 쿼터가 소진되었습니다. Batch ID: {}. 이후 작업은 스킵됩니다.", apiKey, target.batchId());
-                 aladinQuotaTracker.setQuotaExhausted(true); // Global Flag 설정
-                 return new AladinEnrichmentResult(target, null, false, QUOTA_EXHAUSTED_FLAG, true);
-            }
+        if (!aladinQuotaTracker.tryAcquire(apiKey)) {
+            return null;
+        }
 
+        try {
             Optional<AladinItemDto> aladinItemDto = aladinApiClient.lookupByIsbn(isbn13, apiKey);
 
             if (aladinItemDto.isPresent()) {
@@ -67,17 +63,18 @@ public class AladinItemProcessor implements ItemProcessor<BookBatchTarget, Aladi
             }
 
         } catch (RateLimitExceededException e) {
-            // 알라딘 API 쿼터 초과 예외 (Reactive Check)
-            log.warn("[AladinItemProcessor] 알라딘 API 쿼터 초과 - ISBN: {}, 메시지: {}. 이후 작업은 스킵됩니다.", isbn13, e.getMessage());
-            aladinQuotaTracker.setQuotaExhausted(true); // Global Flag 설정
-            return new AladinEnrichmentResult(target, null, false, QUOTA_EXHAUSTED_FLAG, true);
+            aladinQuotaTracker.releaseQuota(apiKey);
+            log.warn("[AladinItemProcessor] 알라딘 API 쿼터 초과 - ISBN: {}, 메시지: {}", isbn13, e.getMessage());
+            return new AladinEnrichmentResult(target, null, false, "쿼터 초과", true);
 
         } catch (RestClientException e) {
-            // 네트워크 오류, 타임아웃 등 (재시도 가능) -> AOP 로깅 처리
+            aladinQuotaTracker.releaseQuota(apiKey);
+            log.warn("[AladinItemProcessor] 네트워크/API 호출 오류 - ISBN: {}, 메시지: {}", isbn13, e.getMessage());
             return new AladinEnrichmentResult(target, null, false, "네트워크/API 호출 오류: " + e.getMessage(), true);
 
         } catch (Exception e) {
-            // 예측 불가능한 기타 오류 (코드 버그, 데이터 이상 등 -> 영구 실패) -> AOP 로깅 처리
+            aladinQuotaTracker.releaseQuota(apiKey);
+            log.error("[AladinItemProcessor] 알 수 없는 오류 - ISBN: {}", isbn13, e);
             return new AladinEnrichmentResult(target, null, false, "알 수 없는 오류: " + e.getMessage(), false);
         }
     }

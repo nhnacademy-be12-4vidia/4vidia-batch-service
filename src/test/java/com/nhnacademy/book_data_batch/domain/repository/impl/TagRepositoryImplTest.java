@@ -1,7 +1,6 @@
 package com.nhnacademy.book_data_batch.domain.repository.impl;
 
 import com.nhnacademy.book_data_batch.domain.entity.Tag;
-import com.nhnacademy.book_data_batch.domain.repository.impl.TagRepositoryImpl;
 import com.nhnacademy.book_data_batch.infrastructure.jdbc.JdbcExecutor;
 import com.nhnacademy.book_data_batch.domain.repository.TagRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +44,7 @@ class TagRepositoryImplTest {
         tagRepository.bulkInsert(tagNames);
 
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM tag", Integer.class);
-        assertThat(count).isEqualTo(0);
+        assertThat(count).isZero();
     }
 
     @Test

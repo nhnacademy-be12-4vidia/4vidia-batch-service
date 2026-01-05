@@ -32,9 +32,7 @@ public class AladinEnrichmentReaderConfig {
 
     @Bean
     public JpaPagingItemReader<BookBatchTarget> aladinEnrichmentReader() {
-        // 전체 쿼터 계산 (키 개수 * 키당 쿼터)
-        int totalQuota = aladinApiKeys.size() * quotaPerKey;
-        log.info("[AladinBatchReader] 총 가용 쿼터: {}건 (키 {}개 * {})", totalQuota, aladinApiKeys.size(), quotaPerKey);
+        log.info("[AladinBatchReader] PENDING 상태의 모든 배치 항목을 읽습니다.");
 
         return new JpaPagingItemReaderBuilder<BookBatchTarget>()
                 .name("aladinEnrichmentReader")
@@ -46,8 +44,7 @@ public class AladinEnrichmentReaderConfig {
                         "ORDER BY b.id DESC")
                 .parameterValues(Collections.singletonMap("status", BatchStatus.PENDING))
                 .pageSize(chunkSize)
-                .maxItemCount(totalQuota)
-                .saveState(false)  // 상태 저장 비활성화
+                .saveState(false)
                 .build();
     }
 }

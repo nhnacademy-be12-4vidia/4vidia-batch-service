@@ -1,7 +1,6 @@
 package com.nhnacademy.book_data_batch.domain.repository.impl;
 
 import com.nhnacademy.book_data_batch.domain.entity.Author;
-import com.nhnacademy.book_data_batch.domain.repository.impl.AuthorRepositoryImpl;
 import com.nhnacademy.book_data_batch.infrastructure.jdbc.JdbcExecutor;
 import com.nhnacademy.book_data_batch.domain.repository.AuthorRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,7 +45,7 @@ class AuthorRepositoryImplTest {
         authorRepository.bulkInsert(authorNames);
 
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM author", Integer.class);
-        assertThat(count).isEqualTo(0);
+        assertThat(count).isZero();
     }
 
     @Test

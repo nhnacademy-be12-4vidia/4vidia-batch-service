@@ -34,11 +34,6 @@ public class AladinFetchReader implements ItemReader<AladinItemDto> {
             return buffer.poll();
         }
 
-        if (aladinQuotaTracker.isQuotaExhausted()) {
-            log.warn("[AladinFetchReader] 쿼터 소진으로 작업을 중단합니다.");
-            return null;
-        }
-
         if (currentPage > maxPage) {
             log.info("[AladinFetchReader] 데이터 종료. Current: {}, Max: {}", currentPage, maxPage);
             return null;
@@ -47,8 +42,7 @@ public class AladinFetchReader implements ItemReader<AladinItemDto> {
         String apiKey = getNextApiKey();
 
         if (!aladinQuotaTracker.tryAcquire(apiKey)) {
-            log.warn("[AladinFetchReader] API 키 {}의 쿼터가 소진되었습니다. 작업을 중단합니다.", apiKey);
-            aladinQuotaTracker.setQuotaExhausted(true);
+            log.warn("[AladinFetchReader] API 키 {}의 쿼터가 소진되었습니다.", apiKey);
             return null;
         }
         
@@ -56,11 +50,19 @@ public class AladinFetchReader implements ItemReader<AladinItemDto> {
         Optional<AladinResponseDto> responseOpt = aladinApiClient.listItems(currentPage, apiKey);
 
         if (responseOpt.isEmpty()) {
+            aladinQuotaTracker.releaseQuota(apiKey);
             log.warn("[AladinFetchReader] API 응답이 없습니다. Page: {}", currentPage);
             return null;
         }
 
         AladinResponseDto response = responseOpt.get();
+
+        if (response.hasError()) {
+            log.warn("[AladinFetchReader] API 에러 응답 - Page: {}, Code: {}, Msg: {}", 
+                currentPage, response.errorCode(), response.errorMessage());
+            return null;
+        }
+
         List<AladinItemDto> items = response.item();
 
         if (items == null || items.isEmpty()) {

@@ -14,7 +14,7 @@ public class DiscountPriceCalculator {
         if (priceStandard == null) {
             return null;
         }
-        int rate = Math.min(Math.max(discountRate, 0), 100);
+        int rate = Math.clamp(discountRate, 0, 100);
         return (int) Math.floor(priceStandard * (100 - rate) / 100.0);
     }
 

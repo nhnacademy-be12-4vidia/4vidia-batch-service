@@ -6,7 +6,6 @@ import com.nhnacademy.book_data_batch.infrastructure.client.aladin.AladinQuotaTr
 import com.nhnacademy.book_data_batch.jobs.aladin.dto.api.AladinItemDto;
 import com.nhnacademy.book_data_batch.jobs.aladin.dto.api.AladinResponseDto;
 import com.nhnacademy.book_data_batch.jobs.aladin.processor.AladinFetchProcessor;
-import com.nhnacademy.book_data_batch.jobs.aladin.reader.AladinFetchReader;
 import com.nhnacademy.book_data_batch.jobs.aladin.reader.AladinFetchReaderConfig;
 import com.nhnacademy.book_data_batch.jobs.aladin.step.AladinFetchStepConfig;
 import com.nhnacademy.book_data_batch.jobs.aladin.writer.AladinFetchWriter;
@@ -43,8 +42,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @SpringBatchTest
@@ -144,7 +142,7 @@ class AladinNewBookImportJobConfigTest {
                 1, 1, 1, List.of(item), null, null
         );
 
-        when(aladinQuotaTracker.isQuotaExhausted()).thenReturn(false);
+        when(aladinQuotaTracker.isAllKeysExhausted(any())).thenReturn(false);
         when(aladinQuotaTracker.tryAcquire(anyString())).thenReturn(true);
         when(aladinApiClient.listItems(anyInt(), anyString())).thenReturn(Optional.of(response));
 

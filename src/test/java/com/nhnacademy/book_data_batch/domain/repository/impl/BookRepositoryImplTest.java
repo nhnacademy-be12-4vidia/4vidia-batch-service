@@ -1,6 +1,5 @@
 package com.nhnacademy.book_data_batch.domain.repository.impl;
 
-import com.nhnacademy.book_data_batch.domain.repository.impl.BookRepositoryImpl;
 import com.nhnacademy.book_data_batch.jobs.aladin.dto.EnrichmentSuccessDto;
 import com.nhnacademy.book_data_batch.domain.entity.Book;
 import com.nhnacademy.book_data_batch.domain.entity.Category;
@@ -74,7 +73,7 @@ class BookRepositoryImplTest {
         bookRepository.bulkInsert(books);
 
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM book", Integer.class);
-        assertThat(count).isEqualTo(0);
+        assertThat(count).isZero();
     }
 
     @Test
@@ -175,7 +174,7 @@ class BookRepositoryImplTest {
         bookRepository.bulkUpdateFromEnrichment(enrichmentData);
 
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM book", Integer.class);
-        assertThat(count).isEqualTo(0);
+        assertThat(count).isZero();
     }
 
     @Test

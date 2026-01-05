@@ -1,6 +1,5 @@
 package com.nhnacademy.book_data_batch.domain.repository.impl;
 
-import com.nhnacademy.book_data_batch.domain.repository.impl.BookImageRepositoryImpl;
 import com.nhnacademy.book_data_batch.jobs.book_import.dto.BookImageDto;
 import com.nhnacademy.book_data_batch.domain.entity.Book;
 import com.nhnacademy.book_data_batch.domain.enums.ImageType;
@@ -52,7 +51,7 @@ class BookImageRepositoryImplTest {
         bookImageRepository.bulkInsert(bookImages);
 
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM book_image", Integer.class);
-        assertThat(count).isEqualTo(0);
+        assertThat(count).isZero();
     }
 
     @Test
