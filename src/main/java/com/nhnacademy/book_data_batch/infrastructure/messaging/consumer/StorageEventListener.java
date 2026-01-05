@@ -1,5 +1,6 @@
 package com.nhnacademy.book_data_batch.infrastructure.messaging.consumer;
 
+import com.nhnacademy.book_data_batch.global.config.RabbitMQConfig;
 import com.nhnacademy.book_data_batch.jobs.image_cleanup.dto.event.DescriptionImageUploadedEvent;
 import com.nhnacademy.book_data_batch.domain.entity.BookDescriptionImage;
 import com.nhnacademy.book_data_batch.domain.repository.BookDescriptionImageRepository;
@@ -21,9 +22,9 @@ public class StorageEventListener {
 
     @Transactional
     @RabbitListener(bindings = @QueueBinding(
-        value = @Queue(value = "storage.image.uploaded.description.queue", durable = "true"),
-        exchange = @Exchange(value = "storage.exchange", type = "topic"),
-        key = "storage.image.uploaded.description"
+        value = @Queue(value = RabbitMQConfig.STORAGE_DESCRIPTION_QUEUE, durable = "true"),
+        exchange = @Exchange(value = RabbitMQConfig.STORAGE_EXCHANGE, type = "topic"),
+        key = RabbitMQConfig.STORAGE_DESCRIPTION_ROUTING_KEY
     ))
     public void handleDescriptionImageUploaded(DescriptionImageUploadedEvent event) {
         log.info("Received DescriptionImageUploadedEvent: {}", event.imageUrl());
