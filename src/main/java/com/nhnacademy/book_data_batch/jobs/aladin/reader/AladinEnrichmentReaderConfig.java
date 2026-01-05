@@ -39,7 +39,8 @@ public class AladinEnrichmentReaderConfig {
         return new JpaPagingItemReaderBuilder<BookBatchTarget>()
                 .name("aladinEnrichmentReader")
                 .entityManagerFactory(entityManagerFactory)
-                .queryString("SELECT new com.nhnacademy.book_data_batch.batch.core.dto.BookBatchTarget(" +
+                .queryString(
+                        "SELECT new com.nhnacademy.book_data_batch.jobs.aladin.dto.BookBatchTarget(" +
                         "b.book.id, b.book.isbn, b.id) " +
                         "FROM Batch b JOIN b.book WHERE b.enrichmentStatus = :status " +
                         "ORDER BY b.id DESC")

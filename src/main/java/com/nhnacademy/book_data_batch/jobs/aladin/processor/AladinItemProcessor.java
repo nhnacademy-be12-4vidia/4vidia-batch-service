@@ -17,12 +17,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * BookBatchTarget DTO를 입력받아 Aladin API를 호출하고, 그 결과를 AladinEnrichmentResult로 반환하는 ItemProcessor.
- * API 호출 성공/실패 여부, 재시도 가능 여부 등을 AladinEnrichmentResult에 담아 다음 Step으로 전달한다.
- * AsyncItemProcessor가 이 Processor를 감싸서 비동기로 실행한다.
- * 쿼터 소진 시 Global Flag를 설정하고 이후 아이템들을 조용히 스킵한다.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -88,10 +82,6 @@ public class AladinItemProcessor implements ItemProcessor<BookBatchTarget, Aladi
         }
     }
 
-    /**
-     * Round Robin 방식으로 다음 API 키를 가져옵니다.
-     * 여러 스레드에서 동시에 호출될 수 있으므로 AtomicInteger를 사용합니다.
-     */
     private String getNextApiKey() {
         if (aladinApiKeys == null || aladinApiKeys.isEmpty()) {
             throw new IllegalStateException("Aladin API 키 목록이 비어 있습니다.");

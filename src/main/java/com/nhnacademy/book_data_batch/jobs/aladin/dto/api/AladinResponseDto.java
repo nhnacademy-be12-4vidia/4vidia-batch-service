@@ -25,4 +25,8 @@ public record AladinResponseDto(
     public boolean isQuotaExceeded() {
         return errorCode != null && errorCode == 10;
     }
+
+    public boolean isNotExist() {
+        return errorCode != null && errorCode == 8;
+    }
 }

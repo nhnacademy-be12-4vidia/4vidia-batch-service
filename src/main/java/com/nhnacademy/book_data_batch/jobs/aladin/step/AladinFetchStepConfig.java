@@ -22,12 +22,11 @@ public class AladinFetchStepConfig {
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
 
-    // Components (Injected from AladinFetchReaderConfig and @Component)
     private final AladinFetchReader aladinFetchReader;
     private final AladinFetchProcessor aladinFetchProcessor;
     private final AladinFetchWriter aladinFetchWriter;
 
-    // Fetch 전용 Chunk Size (API 50개 단위이므로 50 권장)
+    // Fetch 전용 Chunk Size (알라딘 리스트 조회 시 한번에 오는 데이터 개수)
     private static final int FETCH_CHUNK_SIZE = 50;
 
     @Bean
