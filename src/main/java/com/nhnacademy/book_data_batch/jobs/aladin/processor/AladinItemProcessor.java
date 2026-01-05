@@ -22,8 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequiredArgsConstructor
 public class AladinItemProcessor implements ItemProcessor<BookBatchTarget, AladinEnrichmentResult> {
 
-    private static final String QUOTA_EXHAUSTED_FLAG = "QUOTA_EXHAUSTED";
-
     private final AladinApiClient aladinApiClient;
     private final AladinQuotaTracker aladinQuotaTracker;
 
