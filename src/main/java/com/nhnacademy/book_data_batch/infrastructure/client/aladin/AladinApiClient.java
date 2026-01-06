@@ -5,6 +5,7 @@ import com.nhnacademy.book_data_batch.jobs.aladin.dto.api.AladinResponseDto;
 import com.nhnacademy.book_data_batch.jobs.aladin.exception.RateLimitExceededException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
@@ -23,11 +24,9 @@ public class AladinApiClient {
     private static final String QUERY_TYPE = "ItemNewAll";
     private static final String SEARCH_TARGET = "Book";
     private static final String MAX_RESULTS = "50"; // 아니 최대값은 100이라면서 왜 50만 줌??
-    private static final String CATEGORY_ID =
-            // "437"; // 프로그래밍 언어
-            // "2719"; // 컴퓨터 공학
-            // "7396"; // 프로그래밍 개발/방법론
-            "351"; // 컴퓨터/모바일
+
+    @Value("${aladin.api.category-id}")
+    private String categoryId;
 
     private static final String LOOK_UP_URL = "http://www.aladin.co.kr/ttb/api/ItemLookUp.aspx";
     private static final String ITEM_ID_TYPE = "ISBN13";
@@ -123,7 +122,7 @@ public class AladinApiClient {
                 .queryParam("Start", start)
                 .queryParam("MaxResults", MAX_RESULTS)
                 .queryParam("Cover", COVER_SIZE)
-                .queryParam("CategoryId", CATEGORY_ID)
+                .queryParam("CategoryId", categoryId)
                 .queryParam("Output", OUTPUT_FORMAT)
                 .queryParam("Version", VERSION)
                 .queryParam("OutOfStock", OUT_OF_STOCK_FILTER)

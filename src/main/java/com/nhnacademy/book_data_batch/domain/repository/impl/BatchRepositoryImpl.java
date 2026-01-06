@@ -85,7 +85,7 @@ public class BatchRepositoryImpl implements BatchRepositoryCustom {
                 UPDATE_ENRICHMENT_FAILED_SQL,
                 failedBatches,
                 (ps, data) -> {
-                    ps.setInt(1, BatchStatus.PENDING.getCode());  // PENDING 유지 (재시도 가능)
+                    ps.setInt(1, BatchStatus.FAILED.getCode());  // FAILED 처리 (재시도 불가)
                     ps.setString(2, truncateMessage(data.errorMessage()));
                     ps.setLong(3, data.batchId());
                 }
@@ -118,7 +118,7 @@ public class BatchRepositoryImpl implements BatchRepositoryCustom {
                 UPDATE_EMBEDDING_FAILED_SQL,
                 failedBatches,
                 (ps, data) -> {
-                    ps.setInt(1, BatchStatus.PENDING.getCode());  // PENDING 유지 (재시도 가능)
+                    ps.setInt(1, BatchStatus.FAILED.getCode());  // FAILED 처리 (재시도 불가)
                     ps.setString(2, truncateMessage(data.errorMessage()));
                     ps.setLong(3, data.batchId());
                 }
@@ -134,7 +134,6 @@ public class BatchRepositoryImpl implements BatchRepositoryCustom {
                     ps.setInt(2, BatchStatus.COMPLETED.getCode());
                 }
         );
-        log.info("[BATCH] 완료된 Batch 레코드 삭제 완료");
     }
 
     private String truncateMessage(String message) {

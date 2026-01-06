@@ -3,6 +3,8 @@ package com.nhnacademy.book_data_batch.jobs.image_cleanup.step;
 import com.nhnacademy.book_data_batch.jobs.image_cleanup.dto.BookDescriptionImageDto;
 import com.nhnacademy.book_data_batch.jobs.image_cleanup.processor.ContentImageCleanupProcessor;
 import com.nhnacademy.book_data_batch.jobs.image_cleanup.writer.ContentImageCleanupWriter;
+import com.nhnacademy.book_data_batch.global.listener.SkipLoggingListener;
+import com.amazonaws.AmazonClientException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.repository.JobRepository;
@@ -33,6 +35,12 @@ public class ContentImageCleanupStepConfig {
                 .reader(cleanupReader)
                 .processor(cleanupProcessor)
                 .writer(cleanupWriter)
+                .faultTolerant()
+                .retryLimit(2)
+                .retry(AmazonClientException.class)
+                .skipLimit(50)
+                .skip(IllegalArgumentException.class)
+                .listener(new SkipLoggingListener())
                 .build();
     }
 }

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean; // Import AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -18,7 +17,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class AladinQuotaTracker {
 
     private final Map<String, AtomicInteger> usageMap = new ConcurrentHashMap<>();
-    private final AtomicBoolean quotaExhausted = new AtomicBoolean(false); // Global flag
 
     @Getter
     private final int quotaPerKey;
@@ -29,19 +27,25 @@ public class AladinQuotaTracker {
     }
 
     /**
-     * 전체 쿼터 소진 여부 확인
+     * 모든 API 키의 쿼터 소진 여부 확인
+     *
+     * @param apiKeys API 키 목록
+     * @return 모든 키가 소진되었으면 true
      */
-    public boolean isQuotaExhausted() {
-        return quotaExhausted.get();
+    public boolean isAllKeysExhausted(java.util.List<String> apiKeys) {
+        return apiKeys.stream()
+                .allMatch(this::isKeyExhausted);
     }
 
     /**
-     * 전체 쿼터 소진 상태 설정
+     * 특정 API 키의 쿼터 소진 여부 확인
      *
-     * @param exhausted 소진 여부
+     * @param apiKey API 키
+     * @return 키가 소진되었으면 true
      */
-    public void setQuotaExhausted(boolean exhausted) {
-        this.quotaExhausted.set(exhausted);
+    public boolean isKeyExhausted(String apiKey) {
+        AtomicInteger counter = usageMap.get(apiKey);
+        return counter != null && counter.get() >= quotaPerKey;
     }
 
     /**
@@ -57,11 +61,25 @@ public class AladinQuotaTracker {
     }
 
     /**
+     * 쿼터 복구
+     * - API 호출 실패 시 사용량 감소
+     *
+     * @param apiKey API 키
+     */
+    public void releaseQuota(String apiKey) {
+        AtomicInteger counter = usageMap.get(apiKey);
+        if (counter != null && counter.get() > 0) {
+            int before = counter.getAndDecrement();
+            log.debug("[AladinQuotaTracker] 쿼터 복구 - Key: {}, 전: {}, 후: {}", 
+                apiKey, before, counter.get());
+        }
+    }
+
+    /**
      * 쿼터 초기화 (Job 시작 시 호출)
      */
     public void reset() {
         usageMap.clear();
-        quotaExhausted.set(false); // Reset global flag
         log.info("[AladinQuotaTracker] 쿼터 초기화 완료");
     }
 }

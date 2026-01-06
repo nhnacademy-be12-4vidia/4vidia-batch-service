@@ -19,6 +19,17 @@ public class RabbitMQConfig {
     public static final String QUEUE = "discount.policy.reprice.queue";
     public static final String ROUTING_KEY = "discount.policy.changed";
 
+    public static final String STORAGE_EXCHANGE = "storage.exchange";
+    public static final String STORAGE_DESCRIPTION_QUEUE = "storage.image.uploaded.description.queue";
+    public static final String STORAGE_DESCRIPTION_ROUTING_KEY = "storage.image.uploaded.description";
+    public static final String STORAGE_DLX = "storage.dlx";
+    public static final String STORAGE_DESCRIPTION_DLQ = "storage.description.dlq";
+    public static final String STORAGE_DESCRIPTION_FAILED_ROUTING_KEY = "storage.description.failed";
+
+    public static final String DISCOUNT_DLQ = "discount.policy.reprice.dlq";
+    public static final String DISCOUNT_DLX = "discount.dlx";
+    public static final String DISCOUNT_FAILED_ROUTING_KEY = "discount.failed";
+
     @Bean
     public TopicExchange discountExchange() {
         return new TopicExchange(EXCHANGE);
@@ -26,7 +37,11 @@ public class RabbitMQConfig {
 
     @Bean
     public Queue discountPolicyQueue() {
-        return QueueBuilder.durable(QUEUE).build();
+        return QueueBuilder.durable(QUEUE)
+                .withArgument("x-dead-letter-exchange", DISCOUNT_DLX)
+                .withArgument("x-dead-letter-routing-key", DISCOUNT_FAILED_ROUTING_KEY)
+                .withArgument("x-message-ttl", 86400000)
+                .build();
     }
 
     @Bean
@@ -35,6 +50,64 @@ public class RabbitMQConfig {
                 .bind(discountPolicyQueue())
                 .to(discountExchange())
                 .with(ROUTING_KEY);
+    }
+
+    @Bean
+    public TopicExchange storageExchange() {
+        return new TopicExchange(STORAGE_EXCHANGE);
+    }
+
+    @Bean
+    public Queue storageDescriptionQueue() {
+        return QueueBuilder.durable(STORAGE_DESCRIPTION_QUEUE)
+                .withArgument("x-dead-letter-exchange", STORAGE_DLX)
+                .withArgument("x-dead-letter-routing-key", STORAGE_DESCRIPTION_FAILED_ROUTING_KEY)
+                .withArgument("x-message-ttl", 86400000)
+                .build();
+    }
+
+    @Bean
+    public Binding storageDescriptionBinding() {
+        return BindingBuilder
+                .bind(storageDescriptionQueue())
+                .to(storageExchange())
+                .with(STORAGE_DESCRIPTION_ROUTING_KEY);
+    }
+
+    @Bean
+    public DirectExchange storageDlx() {
+        return new DirectExchange(STORAGE_DLX);
+    }
+
+    @Bean
+    public Queue storageDescriptionDlq() {
+        return QueueBuilder.durable(STORAGE_DESCRIPTION_DLQ).build();
+    }
+
+    @Bean
+    public Binding storageDlqBinding() {
+        return BindingBuilder
+                .bind(storageDescriptionDlq())
+                .to(storageDlx())
+                .with(STORAGE_DESCRIPTION_FAILED_ROUTING_KEY);
+    }
+
+    @Bean
+    public DirectExchange discountDlx() {
+        return new DirectExchange(DISCOUNT_DLX);
+    }
+
+    @Bean
+    public Queue discountDlq() {
+        return QueueBuilder.durable(DISCOUNT_DLQ).build();
+    }
+
+    @Bean
+    public Binding discountDlqBinding() {
+        return BindingBuilder
+                .bind(discountDlq())
+                .to(discountDlx())
+                .with(DISCOUNT_FAILED_ROUTING_KEY);
     }
 
     @Bean

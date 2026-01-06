@@ -4,6 +4,7 @@ import com.nhnacademy.book_data_batch.jobs.aladin.dto.BookBatchTarget;
 import com.nhnacademy.book_data_batch.jobs.aladin.dto.AladinEnrichmentResult;
 import com.nhnacademy.book_data_batch.jobs.aladin.processor.AladinItemProcessor;
 import com.nhnacademy.book_data_batch.jobs.aladin.writer.AladinItemWriter;
+import com.nhnacademy.book_data_batch.global.listener.SkipLoggingListener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.repository.JobRepository;
@@ -14,6 +15,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
+
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.sql.SQLException;
 
 @Configuration
 @RequiredArgsConstructor
@@ -42,8 +47,14 @@ public class AladinEnrichmentStepConfig {
                 .writer(aladinItemWriter)
                 .listener(aladinItemWriter)
                 .faultTolerant()
-                .skipLimit(1000)
-                .skip(Exception.class)
+                .retryLimit(3)
+                .retry(SocketTimeoutException.class)
+                .retry(ConnectException.class)
+                .retry(SQLException.class)
+                .skipLimit(100)
+                .skip(IllegalArgumentException.class)
+                .noSkip(RuntimeException.class)
+                .listener(new SkipLoggingListener())
                 .build();
     }
 }

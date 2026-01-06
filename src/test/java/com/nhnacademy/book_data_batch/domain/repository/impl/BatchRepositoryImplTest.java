@@ -1,6 +1,5 @@
 package com.nhnacademy.book_data_batch.domain.repository.impl;
 
-import com.nhnacademy.book_data_batch.domain.repository.impl.BatchRepositoryImpl;
 import com.nhnacademy.book_data_batch.jobs.aladin.dto.EnrichmentFailureDto;
 import com.nhnacademy.book_data_batch.jobs.embedding.dto.EmbeddingFailureDto;
 import com.nhnacademy.book_data_batch.domain.entity.Batch;
@@ -62,7 +61,7 @@ class BatchRepositoryImplTest {
         batchRepository.bulkInsert(batches);
 
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM batch", Integer.class);
-        assertThat(count).isEqualTo(0);
+        assertThat(count).isZero();
     }
 
     @Test
@@ -109,7 +108,7 @@ class BatchRepositoryImplTest {
         batchRepository.bulkUpdateEnrichmentStatus(batchIds, BatchStatus.COMPLETED);
 
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM batch", Integer.class);
-        assertThat(count).isEqualTo(0);
+        assertThat(count).isZero();
     }
 
     @Test
@@ -139,12 +138,12 @@ class BatchRepositoryImplTest {
         batchRepository.bulkUpdateEnrichmentFailed(failedBatches);
 
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM batch", Integer.class);
-        assertThat(count).isEqualTo(0);
+        assertThat(count).isZero();
     }
 
     @Test
-    @DisplayName("bulkUpdateEnrichmentFailed: 에러 메시지 저장 및 상태 PENDING 유지")
-    void bulkUpdateEnrichmentFailed_savesErrorMessageAndKeepsPendingStatus() {
+    @DisplayName("bulkUpdateEnrichmentFailed: 에러 메시지 저장 및 상태 FAILED로 변경")
+    void bulkUpdateEnrichmentFailed_savesErrorMessageAndSetsFailedStatus() {
         Book book = createBook("1234567890123", "Test Book", 1);
 
         Batch batch = new Batch(book);
@@ -161,7 +160,7 @@ class BatchRepositoryImplTest {
         Integer enrichmentStatus = jdbcTemplate.queryForObject("SELECT enrichment_status FROM batch WHERE batch_id = ?", Integer.class, batch.getId());
         String errorMessage = jdbcTemplate.queryForObject("SELECT error_message FROM batch WHERE batch_id = ?", String.class, batch.getId());
 
-        assertThat(enrichmentStatus).isEqualTo(BatchStatus.PENDING.getCode());
+        assertThat(enrichmentStatus).isEqualTo(BatchStatus.FAILED.getCode());
         assertThat(errorMessage).isEqualTo("Enrichment failed: timeout error");
     }
 
@@ -217,7 +216,7 @@ class BatchRepositoryImplTest {
         batchRepository.bulkUpdateEmbeddingStatus(batchIds, BatchStatus.COMPLETED);
 
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM batch", Integer.class);
-        assertThat(count).isEqualTo(0);
+        assertThat(count).isZero();
     }
 
     @Test
@@ -250,12 +249,12 @@ class BatchRepositoryImplTest {
         batchRepository.bulkUpdateEmbeddingFailed(failedBatches);
 
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM batch", Integer.class);
-        assertThat(count).isEqualTo(0);
+        assertThat(count).isZero();
     }
 
     @Test
-    @DisplayName("bulkUpdateEmbeddingFailed: 에러 메시지 저장 및 상태 PENDING 유지")
-    void bulkUpdateEmbeddingFailed_savesErrorMessageAndKeepsPendingStatus() {
+    @DisplayName("bulkUpdateEmbeddingFailed: 에러 메시지 저장 및 상태 FAILED로 변경")
+    void bulkUpdateEmbeddingFailed_savesErrorMessageAndSetsFailedStatus() {
         Book book = createBook("1234567890123", "Test Book", 1);
 
         Batch batch = new Batch(book);
@@ -273,7 +272,7 @@ class BatchRepositoryImplTest {
         Integer embeddingStatus = jdbcTemplate.queryForObject("SELECT embedding_status FROM batch WHERE batch_id = ?", Integer.class, batch.getId());
         String errorMessage = jdbcTemplate.queryForObject("SELECT error_message FROM batch WHERE batch_id = ?", String.class, batch.getId());
 
-        assertThat(embeddingStatus).isEqualTo(BatchStatus.PENDING.getCode());
+        assertThat(embeddingStatus).isEqualTo(BatchStatus.FAILED.getCode());
         assertThat(errorMessage).isEqualTo("Embedding failed: API error");
     }
 

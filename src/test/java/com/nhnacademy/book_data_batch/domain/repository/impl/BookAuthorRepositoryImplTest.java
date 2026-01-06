@@ -1,7 +1,6 @@
 package com.nhnacademy.book_data_batch.domain.repository.impl;
 
 import com.nhnacademy.book_data_batch.domain.repository.AuthorRepository;
-import com.nhnacademy.book_data_batch.domain.repository.impl.BookAuthorRepositoryImpl;
 import com.nhnacademy.book_data_batch.jobs.aladin.dto.BookAuthorDto;
 import com.nhnacademy.book_data_batch.domain.entity.Author;
 import com.nhnacademy.book_data_batch.domain.entity.Book;
@@ -71,7 +70,7 @@ class BookAuthorRepositoryImplTest {
         bookAuthorRepository.bulkInsert(bookAuthors);
 
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM book_author", Integer.class);
-        assertThat(count).isEqualTo(0);
+        assertThat(count).isZero();
     }
 
     @Test

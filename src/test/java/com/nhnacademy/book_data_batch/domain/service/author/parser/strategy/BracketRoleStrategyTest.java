@@ -26,8 +26,8 @@ class BracketRoleStrategyTest {
         List<ParsedAuthor> result = strategy.parse("[지은이: 김철수]");
 
         assertEquals(1, result.size());
-        assertEquals("김철수", result.get(0).name());
-        assertEquals("지은이", result.get(0).role());
+        assertEquals("김철수", result.getFirst().name());
+        assertEquals("지은이", result.getFirst().role());
     }
 
     @Test

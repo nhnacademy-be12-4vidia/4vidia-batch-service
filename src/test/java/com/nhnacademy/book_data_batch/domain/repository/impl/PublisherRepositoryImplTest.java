@@ -1,7 +1,6 @@
 package com.nhnacademy.book_data_batch.domain.repository.impl;
 
 import com.nhnacademy.book_data_batch.domain.entity.Publisher;
-import com.nhnacademy.book_data_batch.domain.repository.impl.PublisherRepositoryImpl;
 import com.nhnacademy.book_data_batch.infrastructure.jdbc.JdbcExecutor;
 import com.nhnacademy.book_data_batch.domain.repository.PublisherRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +44,7 @@ class PublisherRepositoryImplTest {
         publisherRepository.bulkInsert(publisherNames);
 
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM publisher", Integer.class);
-        assertThat(count).isEqualTo(0);
+        assertThat(count).isZero();
     }
 
     @Test

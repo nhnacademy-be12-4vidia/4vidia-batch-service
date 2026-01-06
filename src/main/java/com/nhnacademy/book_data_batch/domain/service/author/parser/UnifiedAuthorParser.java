@@ -26,7 +26,7 @@ public class UnifiedAuthorParser implements AuthorParser {
         // 0. 세미콜론(;)으로 구분된 경우 분리하여 처리
         if (input.contains(";")) {
             List<ParsedAuthor> result = new ArrayList<>();
-            String[] parts = input.split("\\s*;\\s*");
+            String[] parts = input.split(";");
             for (String part : parts) {
                 result.addAll(parse(part.trim()));
             }

@@ -56,6 +56,8 @@ aladin:
   api:
     keys: test-key
     quota-per-key: 20
+    category-id: "351" # 컴퓨터/모바일
+    kdc-code: "005" # 프로그래밍, 프로그램, 데이터
 
 
 # 배치 청크 사이즈 설정

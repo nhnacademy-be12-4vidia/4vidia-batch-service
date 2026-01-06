@@ -32,7 +32,7 @@ build/
 .vscode/
 
 ### serena ###
-.serena
+.serena/
 
 ### large book data ###
 src/main/resources/data/BOOK_DB_202112.csv

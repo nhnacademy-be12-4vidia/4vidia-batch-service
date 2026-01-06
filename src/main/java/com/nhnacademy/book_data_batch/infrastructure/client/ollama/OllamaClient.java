@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.*;
 
+import java.net.ConnectException;
 import java.util.Map;
 
 /**
@@ -40,7 +40,13 @@ public class OllamaClient {
      * @return 임베딩 벡터 (실패 시 예외 발생 -> Tasklet에서 처리)
      */
     @Retryable(
-            retryFor = {RestClientException.class, IllegalStateException.class},
+            retryFor = {
+                HttpServerErrorException.class, // 5xx
+                ResourceAccessException.class, // Timeout
+                ConnectException.class, // Connection Refused
+                HttpClientErrorException.TooManyRequests.class, // 429
+                IllegalStateException.class // null 응답
+            },
             maxAttempts = 3,
             backoff = @Backoff(delay = 1000)
     )
