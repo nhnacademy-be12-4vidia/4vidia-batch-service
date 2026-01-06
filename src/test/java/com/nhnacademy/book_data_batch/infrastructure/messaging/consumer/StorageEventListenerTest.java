@@ -2,6 +2,7 @@ package com.nhnacademy.book_data_batch.infrastructure.messaging.consumer;
 
 import com.nhnacademy.book_data_batch.domain.entity.BookDescriptionImage;
 import com.nhnacademy.book_data_batch.domain.repository.BookDescriptionImageRepository;
+import com.nhnacademy.book_data_batch.jobs.image_cleanup.consumer.StorageEventListener;
 import com.nhnacademy.book_data_batch.jobs.image_cleanup.dto.event.DescriptionImageUploadedEvent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

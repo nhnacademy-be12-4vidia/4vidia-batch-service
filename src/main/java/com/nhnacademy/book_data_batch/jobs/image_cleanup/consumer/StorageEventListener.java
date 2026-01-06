@@ -1,4 +1,4 @@
-package com.nhnacademy.book_data_batch.infrastructure.messaging.consumer;
+package com.nhnacademy.book_data_batch.jobs.image_cleanup.consumer;
 
 import com.nhnacademy.book_data_batch.global.config.RabbitMQConfig;
 import com.nhnacademy.book_data_batch.jobs.image_cleanup.dto.event.DescriptionImageUploadedEvent;
