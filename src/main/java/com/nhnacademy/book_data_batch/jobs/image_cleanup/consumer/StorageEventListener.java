@@ -23,11 +23,7 @@ public class StorageEventListener {
     private final BookDescriptionImageRepository repository;
 
     @Transactional
-    @RabbitListener(bindings = @QueueBinding(
-        value = @Queue(value = RabbitMQConfig.STORAGE_DESCRIPTION_QUEUE, durable = "true"),
-        exchange = @Exchange(value = RabbitMQConfig.STORAGE_EXCHANGE, type = "topic"),
-        key = RabbitMQConfig.STORAGE_DESCRIPTION_ROUTING_KEY
-    ))
+    @RabbitListener(queues = RabbitMQConfig.STORAGE_DESCRIPTION_QUEUE)
     public void handleDescriptionImageUploaded(DescriptionImageUploadedEvent event) {
         log.info("Received DescriptionImageUploadedEvent: {}", event.imageUrl());
         
