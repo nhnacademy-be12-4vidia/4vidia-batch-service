@@ -34,11 +34,12 @@ public class DiscountRepriceItemProcessor implements ItemProcessor<DiscountRepri
     private final DiscountPolicyHierarchyResolver hierarchyResolver;
     private final DiscountPriceCalculator calculator;
 
-    private Map<Long, Integer> discountRateMap;
+    private StepExecution stepExecution;
     private static final int DEFAULT_DISCOUNT_RATE = 10;
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
+        this.stepExecution = stepExecution;
         log.info("Step 시작 전: 모든 카테고리에 대한 할인율 미리 계산 중...");
 
         // JobParameter에서 날짜 가져오기 (없으면 오늘)
@@ -66,7 +67,7 @@ public class DiscountRepriceItemProcessor implements ItemProcessor<DiscountRepri
         }
 
         // 4. 각 카테고리별 최종 할인율 계산
-        this.discountRateMap = new HashMap<>();
+        Map<Long, Integer> discountRateMap = new HashMap<>();
         for (Category category : allCategories) {
             Optional<DiscountPolicy> appliedPolicy = hierarchyResolver.resolve(category, policyMap, allCategoriesMap);
 
@@ -78,14 +79,17 @@ public class DiscountRepriceItemProcessor implements ItemProcessor<DiscountRepri
             } else {
                 rate = DEFAULT_DISCOUNT_RATE;
             }
-            this.discountRateMap.put(category.getId(), rate);
+            discountRateMap.put(category.getId(), rate);
         }
 
+        stepExecution.getExecutionContext().put("discountRateMap", discountRateMap);
         log.info("할인율 맵 생성 완료. 대상 카테고리 수: {}, 적용 기준일: {}", discountRateMap.size(), asOfDate);
     }
 
     @Override
     public DiscountRepriceTarget process(DiscountRepriceTarget item) {
+        Map<Long, Integer> discountRateMap = (Map<Long, Integer>) stepExecution.getExecutionContext().get("discountRateMap");
+
         if (discountRateMap == null || !discountRateMap.containsKey(item.categoryId())) {
             return null;
         }

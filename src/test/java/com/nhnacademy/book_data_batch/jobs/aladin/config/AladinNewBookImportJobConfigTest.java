@@ -3,6 +3,7 @@ package com.nhnacademy.book_data_batch.jobs.aladin.config;
 import com.nhnacademy.book_data_batch.domain.entity.Category;
 import com.nhnacademy.book_data_batch.infrastructure.client.aladin.AladinApiClient;
 import com.nhnacademy.book_data_batch.infrastructure.client.aladin.AladinQuotaTracker;
+import com.nhnacademy.book_data_batch.jobs.category_import.processor.KdcCategoryDepth;
 import com.nhnacademy.book_data_batch.jobs.aladin.dto.api.AladinItemDto;
 import com.nhnacademy.book_data_batch.jobs.aladin.dto.api.AladinResponseDto;
 import com.nhnacademy.book_data_batch.jobs.aladin.processor.AladinFetchProcessor;
@@ -25,6 +26,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -58,7 +60,9 @@ import static org.mockito.Mockito.when;
     FieldNormalizer.class
 }, properties = {
     "aladin.api.keys=test-key",
-    "aladin.api.quota-per-key=100"
+    "aladin.api.quota-per-key=100",
+    "aladin.api.category-id=351",
+    "aladin.api.kdc-code=005"
 })
 @EnableAutoConfiguration
 @ActiveProfiles("test")
@@ -84,6 +88,9 @@ class AladinNewBookImportJobConfigTest {
 
     @Autowired
     private Job aladinNewBookImportJob;
+
+    @Value("${aladin.api.kdc-code}")
+    private String kdcCode;
 
     @TestConfiguration
     @EnableJpaRepositories(basePackages = "com.nhnacademy.book_data_batch.domain.repository")
@@ -121,16 +128,37 @@ class AladinNewBookImportJobConfigTest {
         publisherRepository.deleteAll();
     }
 
+    private String buildKdcPath(String kdcCode) {
+        KdcCategoryDepth depth = KdcCategoryDepth.fromCode(kdcCode);
+        int level = (depth == KdcCategoryDepth.MAIN) ? 1 : (depth == KdcCategoryDepth.DIVISION) ? 2 : 3;
+
+        if (level == 1) {
+            return "/" + kdcCode.charAt(0);
+        } else if (level == 2) {
+            return "/" + kdcCode.charAt(0) + "/" + kdcCode.substring(0, 2);
+        } else {
+            String first = kdcCode.substring(0, 1);
+            String second = kdcCode.substring(0, 2);
+            return "/" + first + "/" + second + "/" + kdcCode;
+        }
+    }
+
+    private int calculateKdcDepth(String kdcCode) {
+        KdcCategoryDepth depth = KdcCategoryDepth.fromCode(kdcCode);
+        return (depth == KdcCategoryDepth.MAIN) ? 1 : (depth == KdcCategoryDepth.DIVISION) ? 2 : 3;
+    }
+
     @Test
     @DisplayName("알라딘 신간 임포트 배치 테스트: API 호출 및 Fetch Step 완료 확인")
     void aladinNewBookImportJob_completesSuccessfully() throws Exception {
         // Given
-        categoryRepository.save(Category.builder()
-                .kdcCode("005")
+        Category category = Category.builder()
+                .kdcCode(kdcCode)
                 .categoryName("Computer")
-                .path("/0/005")
-                .depth(2)
-                .build());
+                .path(buildKdcPath(kdcCode))
+                .depth(calculateKdcDepth(kdcCode))
+                .build();
+        categoryRepository.save(category);
 
         AladinItemDto item = new AladinItemDto(
                 "Test Title", "Author", "2023-01-01",

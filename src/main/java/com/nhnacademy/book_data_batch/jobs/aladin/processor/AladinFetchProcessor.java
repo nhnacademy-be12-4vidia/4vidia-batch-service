@@ -9,6 +9,7 @@ import com.nhnacademy.book_data_batch.domain.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -22,6 +23,9 @@ public class AladinFetchProcessor implements ItemProcessor<AladinItemDto, Aladin
     private final CategoryRepository categoryRepository;
     private final IsbnResolver isbnResolver;
 
+    @Value("${aladin.api.kdc-code}")
+    private String kdcCode;
+
     @Override
     public AladinFetchWrapper process(AladinItemDto item) {
         // 1. ISBN 유효성 검사 및 정규화
@@ -31,9 +35,8 @@ public class AladinFetchProcessor implements ItemProcessor<AladinItemDto, Aladin
             return null; // Skip
         }
 
-        // 2. 카테고리 매핑 (KDC Code '005'인 카테고리 조회)
-        // TODO: 카테고리 설정 필요 (테스트도 같이 수정해야 함)
-        Category category = categoryRepository.findByKdcCode("005")
+        // 2. 카테고리 매핑
+        Category category = categoryRepository.findByKdcCode(kdcCode)
                 .orElseThrow(() -> new IllegalStateException("카테고리가 존재하지 않습니다."));
 
         // 4. 출판일 파싱

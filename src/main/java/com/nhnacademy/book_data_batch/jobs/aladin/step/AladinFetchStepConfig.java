@@ -5,6 +5,7 @@ import com.nhnacademy.book_data_batch.jobs.aladin.dto.api.AladinItemDto;
 import com.nhnacademy.book_data_batch.jobs.aladin.processor.AladinFetchProcessor;
 import com.nhnacademy.book_data_batch.jobs.aladin.reader.AladinFetchReader;
 import com.nhnacademy.book_data_batch.jobs.aladin.writer.AladinFetchWriter;
+import com.nhnacademy.book_data_batch.global.listener.SkipLoggingListener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.repository.JobRepository;
@@ -12,6 +13,9 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
+
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 
 @Configuration
 @RequiredArgsConstructor
@@ -36,6 +40,13 @@ public class AladinFetchStepConfig {
                 .reader(aladinFetchReader)
                 .processor(aladinFetchProcessor)
                 .writer(aladinFetchWriter)
+                .faultTolerant()
+                .retryLimit(2)
+                .retry(SocketTimeoutException.class)
+                .retry(ConnectException.class)
+                .skipLimit(5)
+                .skip(IllegalArgumentException.class)
+                .listener(new SkipLoggingListener())
                 .build();
     }
 }

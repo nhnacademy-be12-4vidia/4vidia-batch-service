@@ -11,8 +11,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.item.ExecutionContext;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,9 +62,18 @@ class DiscountRepriceItemProcessorTest {
 
         StepExecution stepExecution = mock(StepExecution.class);
         when(stepExecution.getJobParameters()).thenReturn(new JobParameters());
+        
+        ExecutionContext executionContext = new ExecutionContext();
+        when(stepExecution.getExecutionContext()).thenReturn(executionContext);
 
         // When
-        processor.beforeStep(stepExecution); // 여기서 맵 빌드
+        processor.beforeStep(stepExecution); // 여기서 맵 빌드 및 ExecutionContext에 저장
+        
+        // ExecutionContext에 잘 들어갔는지 확인 (간접 검증)
+        Map<Long, Integer> storedMap = (Map<Long, Integer>) executionContext.get("discountRateMap");
+        assertThat(storedMap).isNotNull();
+        assertThat(storedMap).containsEntry(categoryId, 20);
+
         DiscountRepriceTarget item = new DiscountRepriceTarget(1L, 10000, 10000, categoryId);
         DiscountRepriceTarget result = processor.process(item);
 

@@ -4,6 +4,7 @@ import com.nhnacademy.book_data_batch.jobs.embedding.dto.EmbeddingEnrichmentResu
 import com.nhnacademy.book_data_batch.jobs.embedding.processor.EmbeddingItemProcessor;
 import com.nhnacademy.book_data_batch.jobs.embedding.writer.EmbeddingItemWriter;
 import com.nhnacademy.book_data_batch.domain.entity.Batch;
+import com.nhnacademy.book_data_batch.global.listener.SkipLoggingListener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.repository.JobRepository;
@@ -14,6 +15,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
+
+import java.net.SocketTimeoutException;
 
 @Configuration
 @RequiredArgsConstructor
@@ -40,6 +43,12 @@ public class EmbeddingStepConfig {
                 .processor(embeddingItemProcessor)
                 .writer(embeddingItemWriter)
                 .listener(embeddingItemProcessor) // Register listener
+                .faultTolerant()
+                .retryLimit(3)
+                .retry(SocketTimeoutException.class)
+                .skipLimit(100)
+                .skip(IllegalArgumentException.class)
+                .listener(new SkipLoggingListener())
                 .build();
     }
 }

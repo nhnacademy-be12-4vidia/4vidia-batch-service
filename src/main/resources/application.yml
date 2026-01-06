@@ -109,6 +109,8 @@ aladin:
   api:
     keys: ${ALADIN_API_KEY1},${ALADIN_API_KEY2},${ALADIN_API_KEY3},${ALADIN_API_KEY4},${ALADIN_API_KEY5},${ALADIN_API_KEY6},${ALADIN_API_KEY7},${ALADIN_API_KEY8}
     quota-per-key: 20
+    category-id: "351" # 컴퓨터/모바일
+    kdc-code: "005" # 프로그래밍, 프로그램, 데이터
 
 
 # 배치 청크 사이즈 설정
