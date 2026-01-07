@@ -54,4 +54,7 @@ public class BookDocument {
 
     @Field(type = FieldType.Double)
     private Double rating;
+
+    @Field(type = FieldType.Text, analyzer = "nori")
+    private String reviewSummary;
 }
