@@ -25,6 +25,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.time.LocalDate;
@@ -34,6 +35,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.query.Query;
+import java.util.stream.Stream;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SpringBatchTest
 @SpringBootTest(classes = {
@@ -42,7 +50,6 @@ import org.junit.jupiter.api.BeforeEach;
     JdbcExecutor.class
 })
 @EnableAutoConfiguration
-@ActiveProfiles("test")
 class DiscountRepriceJobConfigTest {
 
     @Autowired
@@ -63,6 +70,9 @@ class DiscountRepriceJobConfigTest {
     @Autowired
     private PlatformTransactionManager transactionManager;
 
+    @MockitoBean
+    private ElasticsearchOperations elasticsearchOperations;
+
     private TransactionTemplate transactionTemplate;
 
     @BeforeEach
@@ -73,7 +83,7 @@ class DiscountRepriceJobConfigTest {
     @TestConfiguration
     @EnableJpaRepositories(basePackages = "com.nhnacademy.book_data_batch.domain.repository")
     @EntityScan(basePackages = "com.nhnacademy.book_data_batch.domain")
-    @ComponentScan(basePackages = "com.nhnacademy.book_data_batch.domain.repository.impl")
+    @ComponentScan(basePackages = "com.nhnacademy.book_data_batch.domain")
     @EnableTransactionManagement
     @EnableJpaAuditing
     static class TestConfig {
@@ -90,6 +100,12 @@ class DiscountRepriceJobConfigTest {
     @DisplayName("도서 가격 재계산 배치: 카테고리 할인 정책 적용 확인")
     void discountRepriceJob_updatesPricesBasedOnPolicy() throws Exception {
         // Given
+        // ES Mock Stubbing: 검색 결과가 없다고 가정 (업데이트 건너뜀)
+        SearchHits<Object> emptyHits = mock(SearchHits.class);
+        when(emptyHits.stream()).thenReturn(Stream.empty());
+        
+        when(elasticsearchOperations.search(any(Query.class), any(), any())).thenReturn(emptyHits);
+
         Long bookId = transactionTemplate.execute(status -> {
             // 1. 카테고리 계층 생성
             Category parent = Category.builder()
@@ -103,16 +119,16 @@ class DiscountRepriceJobConfigTest {
             Category child = Category.builder()
                     .kdcCode("101")
                     .categoryName("Child")
-                    .path("/1/2")
-                    .depth(2)
+                    .path("/1/101")
+                    .depth(3)
                     .parentCategory(parent)
                     .build();
             categoryRepository.save(child);
 
-            // 2. 할인 정책 설정 (부모 카테고리에 20% 할인)
+            // 2. 할인 정책 설정
             DiscountPolicy policy = DiscountPolicy.builder()
                     .category(parent)
-                    .discountPolicyName("Parent 20% Off")
+                    .discountPolicyName("20퍼 할인 정책")
                     .discountRate(20)
                     .startDate(LocalDate.now().minusDays(1))
                     .endDate(LocalDate.now().plusDays(1))

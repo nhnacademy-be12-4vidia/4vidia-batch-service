@@ -43,6 +43,8 @@ spring:
     password: ${NHN_PASSWORD}
     socket-timeout: 30s
     connection-timeout: 5s
+    index:
+      book: 4vidia-books
 
   data:
     redis:

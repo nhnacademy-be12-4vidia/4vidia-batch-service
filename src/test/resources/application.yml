@@ -28,6 +28,9 @@ spring:
         order_updates: true
     open-in-view: false
 
+  elasticsearch:
+    index:
+      book: 4vidia-books-test
 
 # Actuator 설정
 management:

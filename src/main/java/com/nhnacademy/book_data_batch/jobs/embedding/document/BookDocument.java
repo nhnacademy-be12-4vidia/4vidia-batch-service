@@ -9,8 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.elasticsearch.annotations.*;
 
-@Document(indexName = "4vidia-books")
-//@Document(indexName = "4vidia-books-test")
+@Document(indexName = "${spring.elasticsearch.index.book}")
 @Getter
 @Builder(toBuilder = true)
 public class BookDocument {
