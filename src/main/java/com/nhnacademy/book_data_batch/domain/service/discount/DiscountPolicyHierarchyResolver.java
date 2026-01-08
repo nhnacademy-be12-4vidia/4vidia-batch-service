@@ -4,11 +4,13 @@ import com.nhnacademy.book_data_batch.domain.entity.Category;
 import com.nhnacademy.book_data_batch.domain.entity.DiscountPolicy;
 import java.util.Map;
 import java.util.Optional;
+import org.springframework.stereotype.Service;
 
+@Service
 public class DiscountPolicyHierarchyResolver {
 
     /**
-     * 카테고리 트리(부모 체인)에서 가장 가까운 활성 정책을 탐색한다.
+     * 카테고리 트리(부모 체인)에서 가장 가까운 활성 정책 탐색
      * (ID 기반 맵 조회로 JPA 지연 로딩 문제 방지)
      * @param category 도서 카테고리
      * @param policyByCategoryId 활성 정책 맵 (categoryId -> policy)

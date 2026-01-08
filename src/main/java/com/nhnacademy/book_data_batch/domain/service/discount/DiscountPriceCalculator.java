@@ -1,7 +1,9 @@
 package com.nhnacademy.book_data_batch.domain.service.discount;
 
 import com.nhnacademy.book_data_batch.domain.entity.DiscountPolicy;
+import org.springframework.stereotype.Service;
 
+@Service
 public class DiscountPriceCalculator {
 
     /**

@@ -3,19 +3,18 @@ package com.nhnacademy.book_data_batch.jobs.discount_reprice.writer;
 import com.nhnacademy.book_data_batch.jobs.discount_reprice.dto.DiscountRepriceTarget;
 import com.nhnacademy.book_data_batch.infrastructure.jdbc.JdbcExecutor;
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 
 @Slf4j
+@RequiredArgsConstructor
 public class DiscountRepriceItemWriter implements ItemWriter<DiscountRepriceTarget> {
     private static final String UPDATE_SQL = "UPDATE book SET price_sales = ? WHERE book_id = ?";
 
     private final JdbcExecutor jdbcExecutor;
-
-    public DiscountRepriceItemWriter(JdbcExecutor jdbcExecutor) {
-        this.jdbcExecutor = jdbcExecutor;
-    }
 
     @Override
     public void write(Chunk<? extends DiscountRepriceTarget> chunk) throws Exception {
