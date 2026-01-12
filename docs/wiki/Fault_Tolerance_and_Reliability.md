@@ -39,9 +39,24 @@ Spring Batch는 Chunk 단위로 트랜잭션을 커밋합니다.
     *   중간에 실패하더라도 이전 Chunk까지는 커밋되어 저장됩니다(Checkpointing).
     *   트랜잭션 로그(Undo/Redo Log) 크기를 적절히 유지하여 DB 부하를 줄입니다.
 
-### 2.2. Resuming (재시작 가능성)
-배치 작업 실패 시, `JobExecution` 상태가 `FAILED`로 남습니다. 원인을 수정(예: 네트워크 복구)한 후 동일한 파라미터로 Job을 재실행하면, **성공한 지점 이후부터 작업을 재개**합니다.
-*   이를 위해 `ItemReader`가 상태(현재 읽은 위치 등)를 `ExecutionContext`에 잘 저장하도록 구현되어야 합니다.
+### 2.2. Resuming (재시작 가능성) & Idempotency (멱등성)
+배치 작업 실패 후 재시작 시, 데이터 중복 적재를 방지하고 안전하게 이어하기 위한 전략입니다.
 
-## 3. Graceful Shutdown
+*   **멱등성 보장 설계**:
+    *   Spring Batch의 상태 저장(`saveState`) 기능과 별개로, 모든 DB 쓰기 작업은 **여러 번 실행되어도 결과가 동일하도록(`INSERT IGNORE`, `ON DUPLICATE KEY UPDATE`)** 구현했습니다.
+    *   이로 인해 Job이 중간에 실패하여 재시작되더라도, 이미 처리된 데이터는 무시되거나 최신 상태로 갱신될 뿐 중복 데이터가 생성되지 않습니다.
+*   **Checkpointing**:
+    *   Chunk 단위로 트랜잭션이 커밋되므로, 재시작 시 실패한 Chunk의 시작 지점부터 다시 읽어들입니다.
+
+## 3. Component Level Retry (컴포넌트 레벨 재시도)
+
+Step 레벨(`faultTolerant`)의 재시도와는 별개로, 인프라스트럭처 계층에서 미세한 재시도 로직을 적용했습니다.
+
+*   **JdbcExecutor**:
+    *   DB 데드락이나 락 획득 실패(`CannotAcquireLockException`) 발생 시, **Step 전체를 실패 처리하지 않고** 해당 쿼리만 즉시 재시도합니다.
+    *   `@Retryable(maxAttempts = 2, backoff = @Backoff(delay = 100))`
+*   **API Clients**:
+    *   Aladin API 등 외부 통신 시 일시적 네트워크 오류에 대해 서비스 내부적으로 재시도를 수행합니다.
+
+## 4. Graceful Shutdown
 배포 등의 이유로 애플리케이션이 종료될 때, 현재 진행 중인 Chunk 처리를 안전하게 마치고 종료되도록 설정합니다. (Spring Boot의 `lifecycle` 설정 활용)
