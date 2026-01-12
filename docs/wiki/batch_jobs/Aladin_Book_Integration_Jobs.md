@@ -10,18 +10,18 @@
 ---
 
 ## 🔄 프로세스 비교 (Workflow Comparison)
-두 Job은 **Step을 공유**하지만 시작점이 다릅니다. `EnrichmentJob`은 `FetchStep`을 건너뛰고 바로 보강 단계로 진입합니다.
+두 Job은 **Step을 공유**하며, `Batch` 테이블을 영속성 큐(Persistent Queue)로 활용하여 데이터를 주고받습니다.
 
 ```mermaid
 graph TD
     %% 진입점 구분
-    Start1([Start: NewBookImportJob]) --> Step1[Step 1: Aladin Fetch<br/>API 신간 목록 수집]
+    Start1([Start: NewBookImportJob]) --> Step1[Step 1: Aladin Fetch<br/>API 신간 목록 DB 적재]
     Start2([Start: EnrichmentJob]) --> Step2
 
     %% 공통 파이프라인
-    Step1 --> Step2[Step 2: Aladin Enrichment<br/>API 상세 정보 보강]
+    Step1 -- Batch 테이블 PENDING 상태로 전달 --> Step2[Step 2: Aladin Enrichment<br/>상세 정보 API 보강]
     Step2 --> Step3[Step 3: Embedding Gen<br/>Ollama 벡터 생성]
-    Step3 --> Step4[Step 4: Cleanup<br/>임시 파일 정리]
+    Step3 --> Step4[Step 4: Cleanup<br/>완료된 Batch 데이터 삭제]
     Step4 --> End([End])
 
     %% 스타일링
@@ -38,28 +38,21 @@ graph TD
 > *Only used in `AladinNewBookImportJob`*
 *   **역할**: 알라딘 `ItemList` API를 호출하여 최신 신간 도서 목록을 수집합니다.
 *   **핵심 로직**:
-    *   **중복 방지**: ISBN을 기준으로 이미 DB에 존재하는 도서는 필터링합니다.
+    *   **중복 방지**: DB 수준에서 ISBN 중복을 방지하기 위해 `INSERT IGNORE` 방식을 사용합니다. 이미 존재하는 도서는 무시되고, 신규 도서만 `Batch` 테이블에 `PENDING` 상태로 등록됩니다.
     *   **쿼터 제어**: `AladinQuotaTracker`를 통해 API 호출량을 모니터링합니다.
 
 ### 2. 상세 보강 단계 (Aladin Enrichment Step)
 > *Shared by both Jobs*
-*   **역할**: 기본 정보만 있는 도서에 대해 `ItemLookUp` API를 호출하여 상세 정보(목차, 저자 소개, 고화질 표지 등)를 채워 넣습니다.
+*   **역할**: `Batch` 테이블에서 `PENDING` 상태인 데이터를 읽어 `ItemLookUp` API를 통해 상세 정보(목차, 저자 소개 등)를 채워 넣습니다.
 *   **작동 방식**:
-    *   **NewBookImportJob**: 방금 수집된(메모리 상의) 신규 도서 객체를 대상으로 수행.
-    *   **EnrichmentJob**: DB에서 '상세 정보가 없는(description is null)' 도서를 읽어와서 수행.
+    *   **NewBookImportJob**: 1단계에서 적재된 신규 데이터를 대상으로 수행.
+    *   **EnrichmentJob**: DB에 이미 존재하지만 보강이 필요한(Batch 레코드가 생성된) 데이터를 대상으로 수행.
 
 ### 3. 임베딩 생성 단계 (Embedding Enrichment Step)
 > *Shared by both Jobs*
-*   **역할**: 도서의 `description`이나 `title`을 분석하여 **벡터 검색(Vector Search)**을 위한 임베딩을 생성합니다.
-*   **기술 스택**:
-    *   **Model**: `bge-m3` (via Ollama)
-    *   **Vector DB**: Elasticsearch (Dense Vector Field)
-*   **장애 격리**: 임베딩 생성에 실패하더라도 도서 정보 저장은 성공하도록 `FaultTolerant` 처리가 되어 있습니다.
+*   **역할**: 도서의 상세 정보를 분석하여 벡터 검색을 위한 임베딩을 생성하고 Elasticsearch에 저장합니다.
+*   **장애 허용**: 임베딩 생성(AI 호출)은 외부 의존성이 크므로, 특정 아이템 실패 시 해당 건만 스킵하고 로그를 남기는 `FaultTolerant` 설정이 적용되어 있습니다.
 
----
-
-## 💡 왜 이렇게 설계했나요? (Architectural Decision)
-1.  **재사용성 (Reusability)**:
-    *   핵심 로직인 "보강(Enrichment)"과 "임베딩(Embedding)"을 별도 Step으로 모듈화하여, 신규 수집뿐만 아니라 기존 데이터의 품질 개선 작업에도 똑같이 사용할 수 있게 만들었습니다.
-2.  **유연성 (Flexibility)**:
-    *   API 장애로 인해 상세 정보를 못 가져온 경우, 전체를 다시 받을 필요 없이 `AladinEnrichmentJob`만 돌려서 **실패한 부분만 복구**할 수 있습니다.
+### 4. 정리 단계 (Batch Cleanup Step)
+*   **역할**: 모든 프로세스(보강, 임베딩)가 성공적으로 완료된 `Batch` 테이블의 레코드를 삭제합니다.
+*   **이유**: `Batch` 테이블은 처리 대상을 관리하는 임시 큐 역할을 하므로, 작업 완료 후 데이터를 삭제하여 DB 크기를 일정하게 유지합니다. (도서 원본 데이터는 `Book` 테이블에 보존됩니다.)
