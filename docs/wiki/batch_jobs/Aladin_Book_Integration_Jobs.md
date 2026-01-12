@@ -9,25 +9,46 @@
 
 ---
 
-## 🔄 프로세스 비교 (Workflow Comparison)
-두 Job은 **Step을 공유**하며, `Batch` 테이블을 영속성 큐(Persistent Queue)로 활용하여 데이터를 주고받습니다.
+## 🔄 프로세스 흐름 (Sequence)
+
+두 Job은 **초기 데이터 적재 방식**만 다르고, 이후의 **데이터 보강 및 임베딩 파이프라인**은 공유합니다.
 
 ```mermaid
-graph TD
-    %% 진입점 구분
-    Start1([Start: NewBookImportJob]) --> Step1[Step 1: Aladin Fetch<br/>API 신간 목록 DB 적재]
-    Start2([Start: EnrichmentJob]) --> Step2
+sequenceDiagram
+    autonumber
+    participant Job as ⚙️ Batch Job
+    participant Aladin as 🌐 Aladin API
+    participant Queue as 📋 Batch Table (Queue)
+    participant Ollama as 🤖 Ollama (AI)
+    participant ES as 🔎 Elasticsearch
 
-    %% 공통 파이프라인
-    Step1 -- Batch 테이블 PENDING 상태로 전달 --> Step2[Step 2: Aladin Enrichment<br/>상세 정보 API 보강]
-    Step2 --> Step3[Step 3: Embedding Gen<br/>Ollama 벡터 생성]
-    Step3 --> Step4[Step 4: Cleanup<br/>완료된 Batch 데이터 삭제]
-    Step4 --> End([End])
+    alt NewBookImportJob (신규 수집)
+        Job->>Aladin: 1. 신간 리스트 조회 (ItemList)
+        Aladin-->>Job: 도서 목록 (ISBN 등)
+        Job->>Queue: INSERT IGNORE (상태: PENDING)
+        note right of Queue: 중복 제외하고 신규만 적재
+    else EnrichmentJob (기존 보강)
+        Job->>Queue: 보강 대상 도서 조회
+        note right of Queue: 이미 큐에 등록된 데이터 시작
+    end
 
-    %% 스타일링
-    style Step1 fill:#e1f5fe,stroke:#01579b
-    style Step2 fill:#fff9c4,stroke:#fbc02d
-    style Step3 fill:#e8f5e9,stroke:#2e7d32
+    rect rgb(240, 248, 255)
+        note over Job, Aladin: 2. 상세 정보 보강 (Enrichment Step)
+        Job->>Queue: Read Chunk (PENDING)
+        Job->>Aladin: 도서 상세 조회 (ItemLookUp)
+        Aladin-->>Job: 목차, 저자소개 등 반환
+        Job->>Queue: Update Info (상태: ENRICHED)
+    end
+
+    rect rgb(255, 245, 238)
+        note over Job, ES: 3. 임베딩 생성 (Embedding Step)
+        Job->>Queue: Read Chunk (ENRICHED)
+        Job->>Ollama: 텍스트 임베딩 요청
+        Ollama-->>Job: 벡터 데이터 ([0.1, ...])
+        Job->>ES: 벡터 인덱싱 (Upsert)
+    end
+
+    Job->>Queue: 4. 작업 완료 데이터 삭제 (DELETE)
 ```
 
 ---

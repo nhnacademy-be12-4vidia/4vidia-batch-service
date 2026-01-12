@@ -3,14 +3,48 @@
 ## 🎯 목적 (Goal)
 도서 등록/수정 시 WYSIWYG 에디터를 통해 업로드되었으나, 최종적으로 도서 설명(Content)에 포함되지 않은 '임시 이미지(Temporary Image)'를 정리합니다. 이를 통해 Object Storage(MinIO) 비용을 절감하고 불필요한 데이터를 제거합니다.
 
-## 🔄 프로세스 흐름 (Flow)
+## 🔄 프로세스 흐름 (Sequence)
 
 ```mermaid
-graph TD
-    A["Read 'book_description_image'<br/>(Created > 24h)"] --> B{Is Used in<br/>Book Description?}
-    B -- Yes (Used) --> C[Skip]
-    B -- No (Unused) --> D[Delete from MinIO]
-    D --> E[Delete DB Record]
+sequenceDiagram
+    autonumber
+    participant Job as ⚙️ Batch Step
+    participant R as 📖 Reader
+    participant P as 🧮 Processor
+    participant W as 🗑️ Writer
+    participant DB as 💾 Database
+    participant MinIO as 📦 Object Storage
+
+    rect rgb(240, 248, 255)
+        note over Job, DB: 1. 초기화 (Before Step)
+        Job->>P: 최근 도서 본문 로드 요청
+        P->>DB: Select Descriptions (최근 48h)
+        DB-->>P: 본문 데이터 반환
+        P-->>P: 메모리 캐싱 (URL 매칭용)
+    end
+
+    loop Chunk Processing
+        Job->>R: Read Old Images (>24h)
+        R->>DB: Select
+        DB-->>R: List<ImageLog>
+        
+        loop Item Processing
+            Job->>P: 사용 여부 검증
+            P-->>P: 캐시된 본문 검색 (Contains?)
+            alt 사용 중 (Used)
+                P-->>Job: null (Filter)
+            else 미사용 (Unused)
+                P-->>Job: 삭제 대상 객체 전달
+            end
+        end
+
+        rect rgb(255, 235, 238)
+            note over Job, MinIO: 2. 리소스 정리
+            Job->>W: write(List)
+            W->>MinIO: Delete Files
+            W->>DB: Delete Logs
+        end
+    end
 ```
 
 ## 🛠 구성 요소 (Components)

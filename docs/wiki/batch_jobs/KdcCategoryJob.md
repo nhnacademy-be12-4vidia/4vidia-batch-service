@@ -26,16 +26,39 @@
 
 ---
 
-## 🔄 프로세스 흐름 (Flow)
+## 🔄 프로세스 흐름 (Sequence)
 
-상위 카테고리(Parent)가 먼저 존재해야 하위 카테고리를 연결할 수 있으므로, **Top-Down 방식**으로 3단계에 걸쳐 적재합니다.
+상위 카테고리(Parent)가 먼저 존재해야 하위 카테고리를 연결할 수 있으므로, **3단계의 순차적 Step**으로 구성됩니다.
 
 ```mermaid
-graph TD
-    A[KDC CSV 데이터 로드] --> B[Step 1: 주류 적재<br/>Depth 1 / kdc_code: x00]
-    B --> C[Step 2: 강목 적재<br/>Depth 2 / kdc_code: xx0]
-    C --> D[Step 3: 요목 적재<br/>Depth 3 / kdc_code: xxx]
-    D --> E[UNC 카테고리 생성]
+sequenceDiagram
+    autonumber
+    participant CSV as 📄 KDC.csv
+    participant Step1 as ⚙️ Step 1 (주류)
+    participant Step2 as ⚙️ Step 2 (강목)
+    participant Step3 as ⚙️ Step 3 (요목)
+    participant DB as 💾 Database
+
+    note over Step1, DB: 1. 최상위 카테고리 (Depth 1) 적재
+    Step1->>CSV: Read File
+    Step1->>Step1: Filter (x00)
+    Step1->>DB: Insert Roots (Parent=Null)
+
+    note over Step2, DB: 2. 중간 카테고리 (Depth 2) 적재
+    Step2->>CSV: Read File
+    Step2->>Step2: Filter (xx0)
+    Step2->>DB: 부모(Depth 1) ID 조회
+    DB-->>Step2: Parent IDs
+    Step2->>Step2: FK Mapping
+    Step2->>DB: Insert Children
+
+    note over Step3, DB: 3. 상세 카테고리 (Depth 3) 적재
+    Step3->>CSV: Read File
+    Step3->>Step3: Filter (xxx)
+    Step3->>DB: 부모(Depth 2) ID 조회
+    DB-->>Step3: Parent IDs
+    Step3->>Step3: FK Mapping
+    Step3->>DB: Insert Leaf Nodes
 ```
 
 ## 🛠 주요 구현 포인트 (Technical Highlights)

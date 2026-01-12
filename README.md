@@ -1,81 +1,87 @@
 # 4vidia Batch Service
 
-온라인 서점 팀 프로젝트에서 데이터 처리 및 스케줄링 작업을 담당하는 배치 서비스입니다.
+> **대규모 도서 데이터의 안정적 처리와 이기종 저장소 간 정합성을 확보하는 데이터 파이프라인**
 
-## 🛠 기술 스택 (Tech Stack)
+4vidia Batch Service는 온라인 서점 서비스의 핵심 백엔드 구성 요소로, 15만 건 이상의 도서 데이터 적재, 검색 엔진(Elasticsearch)과의 실시간 동기화, 그리고 외부 API 연동(알라딘, Ollama)을 담당합니다.
 
-### Language & Framework
-![Java](https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5.7-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
-![Spring Batch](https://img.shields.io/badge/Spring_Batch-6DB33F?style=for-the-badge&logo=spring&logoColor=white)
+## 🏗 System Architecture
 
-### Database & Storage
-![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
-![Elasticsearch](https://img.shields.io/badge/Elasticsearch-005571?style=for-the-badge&logo=elasticsearch&logoColor=white)
-![MinIO](https://img.shields.io/badge/MinIO-C72E49?style=for-the-badge&logo=minio&logoColor=white)
+Spring Batch의 견고한 생명주기 관리와 RabbitMQ의 비동기 이벤트를 결합하여, 성능(Performance)과 데이터 정합성(Consistency)을 확보했습니다.
 
-### Messaging
-![RabbitMQ](https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white)
+> **Architecture Note:** 주기적인 DB 폴링(Polling)으로 인한 불필요한 리소스 낭비를 막고, 정책 변경 시 즉각적인 반응성(Responsiveness)을 확보하기 위해 **RabbitMQ 기반의 Event-Driven 방식**을 채택했습니다.
 
-### Monitoring & QA
-![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white)
-![Spring Actuator](https://img.shields.io/badge/Spring_Actuator-6DB33F?style=for-the-badge&logo=spring&logoColor=white)
-![SonarQube](https://img.shields.io/badge/SonarQube-4E9BCD?style=for-the-badge&logo=sonarqube&logoColor=white)
-![JaCoCo](https://img.shields.io/badge/JaCoCo-Coverage-green?style=for-the-badge)
+```mermaid
+graph LR
+    %% 노드 정의
+    API[🏢 Bookstore Service]
+    MQ(🐰 RabbitMQ)
+    Batch[⚙️ Batch Service]
+    DB[(MySQL)]
+    ES[(Elasticsearch)]
 
-**Key Libraries & Utilities**
-*   **Resilience:** `Spring Retry` (외부 API 호출 및 DB 작업 실패 시 자동 재시도)
-*   **Data Processing:** `OpenCSV` (대용량 도서 데이터 CSV 파싱)
-*   **Optimization:** `Spring JDBC` (Batch Insert 성능 최적화를 위한 직접 사용)
-
-## 📚 상세 문서
-
-*   **[01. 시스템 아키텍처](docs/wiki/System_Architecture.md)**: 전체 시스템 구성도 및 기술적 의사결정 (Why Spring Batch & RabbitMQ?)
-*   **[02. 외부 시스템 연동 전략](docs/wiki/External_Integrations.md)**: Aladin API 쿼터 제한 극복, AI 임베딩 파이프라인, MinIO 연동 전략
-*   **[03. 장애 허용 및 안정성 확보](docs/wiki/Fault_Tolerance_and_Reliability.md)**: 장애 허용을 위한 Retry/Skip 정책 및 트랜잭션 관리
-*   **[04. 성능 최적화](docs/wiki/Performance_Optimization.md)**: 대량 Insert 최적화 및 Chunk Size 튜닝 경험
-
-## 📅 주요 배치 작업 명세 (Batch Jobs Specification)
-
-### 운영 배치 (Operational Jobs)
-*   **[도서 가격 재계산 (DiscountRepriceJob)](docs/wiki/batch_jobs/DiscountRepriceJob.md)**: (매일 00:00) 할인 정책 변경에 따른 도서 가격 일괄 재계산.
-*   **[이미지 리소스 정리 (ContentImageCleanupJob)](docs/wiki/batch_jobs/ContentImageCleanupJob.md)**: (매일 03:00) 미사용 이미지 리소스 정리.
-
-### 초기화 및 유틸리티 (Initialization & Utility)
-*   **[대용량 도서 초기 적재 (BookDataImportJob)](docs/wiki/batch_jobs/BookDataImportJob.md)**: 대용량 CSV 파일 기반 도서 데이터 초기 적재.
-*   **[KDC 카테고리 적재 (KdcCategoryJob)](docs/wiki/batch_jobs/KdcCategoryJob.md)**: 카테고리 계층 구조 초기 적재.
-*   **[데이터 보강 재처리 (AladinEnrichmentJob)](docs/wiki/batch_jobs/Aladin_Book_Integration_Jobs.md)**: 기존 데이터의 보강 및 임베딩 재생성.
-*   **[알라딘 신간 수집 및 임베딩 (AladinNewBookImportJob)](docs/wiki/batch_jobs/Aladin_Book_Integration_Jobs.md)**: 신규 도서 데이터 수집 및 AI 임베딩 생성.
-
-
-## ⚙️ 설정 및 구성 (Configuration)
-
-주요 설정은 `src/main/resources/application.yml`에서 관리됩니다.
-
-### 배치 설정
-```yaml
-spring:
-  batch:
-    job:
-      enabled: false  # 애플리케이션 시작 시 자동 실행 방지
-    jdbc:
-      initialize-schema: always # 배치 메타 데이터 테이블 자동 생성
+    %% 데이터 흐름 (직선 위주)
+    API -->|정책 변경 이벤트| MQ
+    MQ -->|트리거| Batch
+    
+    Batch -->|Bulk Insert / Update| DB
+    Batch -->|Indexing| ES
 ```
 
-## 🚀 실행 방법 (How to Run)
+---
 
-### 빌드 (Build)
+## 🛠 Key Engineering Challenges & Solutions
+
+## 📅 Batch Jobs Specification
+
+각 배치 Job은 특정 비즈니스 문제를 해결하기 위해 최적화된 전략을 사용합니다.
+
+### 🔄 운영 배치 (Operational Jobs)
+*   **[도서 가격 재계산 (DiscountRepriceJob)](docs/wiki/batch_jobs/DiscountRepriceJob.md)**
+    *   **Trigger:** 매일 00:00 or RabbitMQ 이벤트(정책 변경 시)
+    *   **Strategy:** 할인 정책 변경 시, `DiscountPolicyHierarchyResolver`를 통해 전역/카테고리/도서 정책을 계층적으로 적용하고 변경된 가격만 효율적으로 갱신.
+*   **[이미지 리소스 정리 (ContentImageCleanupJob)](docs/wiki/batch_jobs/ContentImageCleanupJob.md)**
+    *   **Trigger:** 매일 03:00
+    *   **Strategy:** **24h/48h Safety Window** 전략을 적용하여, 에디터 작성 중인 이미지가 오삭제되는 것을 방지하면서 고아(Orphan) 이미지만 제거.
+
+### ⚡ 초기화 및 데이터 파이프라인 (Initialization & Pipeline)
+*   **[KDC 카테고리 적재 (KdcCategoryJob)](docs/wiki/batch_jobs/KdcCategoryJob.md)**
+    *   **Tech:** `Self-Referencing Entity` + `JPA`
+    *   **Desc:** 한국십진분류법(KDC) 표준 데이터를 바탕으로, 무제한 깊이의 계층형 카테고리 트리 구조를 구축.
+*   **[대용량 도서 초기 적재 (BookDataImportJob)](docs/wiki/batch_jobs/BookDataImportJob.md)**
+    *   **Tech:** `OpenCSV` + `JdbcBatchItemWriter`
+    *   **Desc:** 15만 건의 CSV 원시 데이터를 파싱하여 정규화된 DB 스키마에 고속 적재.
+*   **[데이터 보강 및 임베딩 (AladinBookIntegrationJob)](docs/wiki/batch_jobs/Aladin_Book_Integration_Jobs.md)**
+    *   **Tech:** `Ollama` + `ItemProcessor`
+    *   **Desc:** 부족한 도서 정보를 알라딘 API로 보강하고, Ollama를 통해 검색 품질 향상을 위한 벡터 임베딩 생성.
+
+---
+
+## 🛠 Tech Stack
+
+| Category | Technology |
+| --- | --- |
+| **Framework** | ![Spring Batch](https://img.shields.io/badge/Spring_Batch-6DB33F?style=flat-square&logo=spring&logoColor=white) ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-6DB33F?style=flat-square&logo=spring-boot&logoColor=white) |
+| **Language** | ![Java](https://img.shields.io/badge/Java-21-ED8B00?style=flat-square&logo=openjdk&logoColor=white) |
+| **Storage** | ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white) ![Elasticsearch](https://img.shields.io/badge/Elasticsearch-005571?style=flat-square&logo=elasticsearch&logoColor=white) ![MinIO](https://img.shields.io/badge/MinIO-C72E49?style=flat-square&logo=minio&logoColor=white) |
+| **Messaging** | ![RabbitMQ](https://img.shields.io/badge/RabbitMQ-FF6600?style=flat-square&logo=rabbitmq&logoColor=white) |
+| **Tool** | ![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=flat-square&logo=prometheus&logoColor=white) ![SonarQube](https://img.shields.io/badge/SonarQube-4E9BCD?style=flat-square&logo=sonarqube&logoColor=white) |
+
+---
+
+## 🚀 How to Run
+
+### Build
 ```bash
 ./mvnw clean package
 ```
 
-### 실행 (Run)
+### Run
 ```bash
+# 기본 실행 (스케줄러 모드)
 java -jar target/4vidia-batch-service-0.0.1-SNAPSHOT.jar
-```
-또는 Maven Wrapper를 사용하여 직접 실행:
-```bash
-./mvnw spring-boot:run
+
+# 특정 Job 실행 (예: 초기 데이터 적재)
+java -jar target/4vidia-batch-service-0.0.1-SNAPSHOT.jar --job.name=bookDataImportJob date=2026-01-12
 ```
 
 ---

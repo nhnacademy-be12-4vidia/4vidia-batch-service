@@ -3,14 +3,40 @@
 ## 🎯 목적 (Goal)
 서비스 오픈 초기 또는 테스트 환경 구축 시, 수십만 건의 도서 데이터를 CSV 파일로부터 신속하게 적재합니다.
 
-## 🔄 프로세스 흐름 (Flow)
+## 🔄 프로세스 흐름 (Sequence)
+
+데이터 간의 참조 무결성(FK)을 지키고 속도를 극대화하기 위해, **참조 데이터 캐싱 후 본 데이터 적재** 순서로 진행됩니다.
 
 ```mermaid
-graph TD
-    A[Load CSV] --> B[Step 1: Publisher/Category]
-    B --> C[Step 2: Book Data]
-    C --> D[Step 3: Book Image]
-    D --> E[End]
+sequenceDiagram
+    autonumber
+    participant CSV as 📄 Book.csv
+    participant Step1 as ⚙️ Step 1 (참조)
+    participant Cache as 🧠 Memory Cache
+    participant Step2 as ⚙️ Step 2 (도서)
+    participant Step3 as ⚙️ Step 3 (이미지)
+    participant DB as 💾 Database
+
+    note over Step1, DB: 1. 참조 데이터 적재 및 캐싱
+    Step1->>CSV: Load All Data
+    Step1->>Step1: Extract Publisher/Category
+    Step1->>DB: Insert (Ignore Duplicates)
+    DB-->>Step1: Generated IDs
+    Step1->>Cache: Put Map (Name -> ID)
+    note right of Cache: DB 조회 없이 ID 참조를 위해 캐싱
+
+    note over Step2, DB: 2. 도서 데이터 고속 적재
+    Step2->>CSV: Load All Data
+    loop For Each Book
+        Step2->>Cache: Get Publisher ID (O(1))
+        Cache-->>Step2: ID
+        Step2->>Step2: Build Entity
+    end
+    Step2->>DB: JDBC Bulk Insert (Books)
+
+    note over Step3, DB: 3. 이미지 데이터 적재
+    Step3->>CSV: Load Image Info
+    Step3->>DB: JDBC Bulk Insert (Images)
 ```
 
 ## 🛠 구성 요소 (Components)
