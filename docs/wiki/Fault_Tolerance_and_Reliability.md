@@ -57,6 +57,3 @@ Step 레벨(`faultTolerant`)의 재시도와는 별개로, 인프라스트럭처
     *   `@Retryable(maxAttempts = 2, backoff = @Backoff(delay = 100))`
 *   **API Clients**:
     *   Aladin API 등 외부 통신 시 일시적 네트워크 오류에 대해 서비스 내부적으로 재시도를 수행합니다.
-
-## 4. Graceful Shutdown
-배포 등의 이유로 애플리케이션이 종료될 때, 현재 진행 중인 Chunk 처리를 안전하게 마치고 종료되도록 설정합니다. (Spring Boot의 `lifecycle` 설정 활용)
