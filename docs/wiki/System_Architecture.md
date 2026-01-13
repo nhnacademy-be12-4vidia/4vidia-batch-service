@@ -2,7 +2,7 @@
 
 ## 1. System Overview
 
-**4vidia Batch Service**는 대용량 도서 데이터를 안정적으로 적재하고, 시스템 간 데이터 정합성을 유지하기 위한 **Spring Batch 기반의 백엔드 애플리케이션**입니다.
+**4vidia Batch Service**는 주어진 15만건의 도서 데이터를 안정적으로 적재하고, 시스템 간 데이터 정합성을 유지하기 위한 **Spring Batch 기반의 백엔드 애플리케이션**입니다.
 
 단순한 작업 스케줄러(Cron)를 넘어, 외부 API로부터 대규모 데이터를 수집(Import), 가공(Enrich)하고, 비즈니스 로직(할인 정책 등)을 적용하여 **MySQL과 Elasticsearch 간의 데이터 일관성을 보장**하는 역할을 수행합니다.
 
