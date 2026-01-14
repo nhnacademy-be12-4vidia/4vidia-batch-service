@@ -29,7 +29,7 @@ public class StorageEventListener {
         
         if (event.imageUrl() == null || event.imageUrl().isBlank()) {
             log.warn("유효하지 않은 이미지 URL: {}", event.imageUrl());
-            return; // 조용히 무시 (또는 예외 발생시켜 DLQ 보냄)
+            throw new AmqpRejectAndDontRequeueException("유효하지 않은 이미지 URL: " + event.imageUrl());
         }
 
         try {
